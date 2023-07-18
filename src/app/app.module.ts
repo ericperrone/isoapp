@@ -1,16 +1,42 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+
 import { AppComponent } from './app.component';
+import { MainComponent } from './main/main.component';
+import { ListFileComponent } from './data-processing/list-file/list-file.component';
+import { HeaderComponent } from './main/header/header.component';
+import { FileProcessComponent } from './data-processing/file-process/file-process.component';
+import { ContentManagerComponent } from './data-processing/content-manager/content-manager.component';
+import { SpinnerComponent } from './shared/components/spinner/spinner.component';
+import { MainDataProcessingComponent } from './data-processing/main-data-processing/main-data-processing.component';
+import { SampleDefinitionComponent } from './data-processing/sample-definition/sample-definition.component';
+import { ContentManagerStep2Component } from './data-processing/content-manager-step2/content-manager-step2.component';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MainComponent,
+    ListFileComponent,
+    HeaderComponent,
+    FileProcessComponent,
+    ContentManagerComponent,
+    SpinnerComponent,
+    MainDataProcessingComponent,
+    SampleDefinitionComponent,
+    ContentManagerStep2Component
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgbModule,
+    HttpClientModule,
+    NgbNavModule
   ],
   providers: [],
   bootstrap: [AppComponent]

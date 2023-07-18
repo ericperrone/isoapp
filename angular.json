@@ -72,7 +72,8 @@
               "browserTarget": "isoapp:build:production"
             },
             "development": {
-              "browserTarget": "isoapp:build:development"
+              "browserTarget": "isoapp:build:development",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

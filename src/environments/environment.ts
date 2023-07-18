@@ -3,8 +3,14 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  be: {
+    protocol: 'http',
+    server: 'localhost:8080',
+    basedir: 'isotopews/rest/'
+  }
 };
+
 
 /*
  * For easier debugging in development mode, you can import the following file
