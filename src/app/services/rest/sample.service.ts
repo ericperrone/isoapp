@@ -13,12 +13,9 @@ export class SampleService extends Rest {
   constructor(private http: HttpClient) { super(); }
 
   public insertSample(sampleList: Array<Sample>): Observable<any> {
-    // let payload = JSON.stringify(samples);
     let payload = {
       samples: sampleList
     }
-    
-    // return this.http.post(this.serviceUrl + 'insert-sample', payload,  { headers: corsOptions } );
     return this.http.post(this.serviceUrl + 'insert-sample', payload);
   }
 }

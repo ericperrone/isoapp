@@ -1,0 +1,37 @@
+.sample-field {
+    display: inline-block;
+    border: solid 1px lightgray;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: lightseagreen;
+    width: 12em;
+    text-align: center;
+}
+
+.chem {
+    display: inline-block;
+    border: solid 1px lightgray;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: lightsalmon;
+    width: 12em;
+    text-align: center;
+}
+
+.isotope {
+    display: inline-block;
+    border: solid 1px lightgray;
+    border-radius: 5px;
+    padding: 3px;
+    background-color: lightgreen;
+    width: 12em;
+    text-align: center;
+}
+
+.scrollable {
+    overflow-y: auto;
+}
+
+.h50 {
+    height: 50%;
+}

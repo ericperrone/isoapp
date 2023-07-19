@@ -5,6 +5,7 @@ import { DATA_GATHERING, DataGatheringSession } from 'src/app/data-processing/ma
 import { DataGathering } from '../data-gathering';
 import { SampleElement, ChemComponent } from 'src/app/models/sample';
 import { SampleService } from 'src/app/services/rest/sample.service';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 export interface Col {
   name: string;
@@ -15,12 +16,21 @@ export interface Col {
 @Component({
   selector: 'app-sample-definition',
   templateUrl: './sample-definition.component.html',
-  styleUrls: ['./sample-definition.component.scss']
+  styleUrls: ['./sample-definition.component.scss'],
+  animations: [
+    trigger('fade', [
+      transition('void => *', [
+        style({ opacity: 0 }),
+        animate(1000, style({ opacity: 1 }))
+      ])
+    ])
+  ]
 })
 export class SampleDefinitionComponent extends DataGathering implements OnInit {
   public row: Array<string> = new Array<string>();
   public selectedStyle = 'transparent';
   public styles: storeType = [];
+  public dataComposed = false;
   @ViewChildren('fields') fields: any;
   @ViewChildren('samplefield') sampleFields: any;
   @ViewChildren('chemelement') chemFields: any;
@@ -28,7 +38,6 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
   @ViewChildren('none') nones: any;
 
   constructor(private router: Router,
-    private sampleService: SampleService,
     private storeService: StoreService) { super(); }
 
   ngOnInit(): void {
@@ -43,7 +52,9 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
   }
 
   public goNext(): void {
-
+    if (this.dataComposed === false)
+      return;
+    this.router.navigate(['save-data']);
   }
 
   public goPrevious(): void {
@@ -74,20 +85,44 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
     }
   }
 
+  public enableButton(): boolean {
+    if (!this.sampleFields || !this.chemFields)
+      return false;
+
+    for (let j = 0; j < this.sampleFields._results.length; j++) {
+      if (!!this.sampleFields._results[j].nativeElement.checked || !!this.chemFields._results[j].nativeElement.checked)
+        return true;
+    }
+    return false;
+  }
+
   private collectSampleFields(): void {
     let fields = new Array<string>();
     let chems = new Array<string>();
     let fieldCols = new Array<Col>();
     let chemCols = new Array<Col>();
+
+    this.session.fields = new Array<string>();
+    this.session.chems = new Array<string>();
+    this.session.isotopes = new Array<string>();
+
     for (let j = 0; j < this.sampleFields._results.length; j++) {
       if (!!this.sampleFields._results[j].nativeElement.checked) {
         fields.push(this.sampleFields._results[j].nativeElement.name);
+        if (!this.session.fields.find(element => element === this.sampleFields._results[j].nativeElement.name))
+          this.session.fields.push(this.sampleFields._results[j].nativeElement.name);
       } else if (!!this.chemFields._results[j].nativeElement.checked) {
         chems.push(this.chemFields._results[j].nativeElement.name);
+        if (!this.session.chems.find(element => element === this.chemFields._results[j].nativeElement.name))
+          this.session.chems.push(this.chemFields._results[j].nativeElement.name);
       } else if (!!this.isotopes._results[j].nativeElement.checked) {
         chems.push('isotope::' + this.chemFields._results[j].nativeElement.name);
+        if (!this.session.isotopes.find(element => element === this.chemFields._results[j].nativeElement.name))
+          this.session.isotopes.push(this.chemFields._results[j].nativeElement.name);
       }
+      console.log(this.session.chems);
     }
+
     if (!!this.session.header) {
       for (let i = 0; i < this.session.header?.length; i++) {
         for (let f of fields) {
@@ -111,7 +146,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
       }
     }
 
-    if (!!this.session.headerPosition) {
+    if (this.session.headerPosition !== undefined && this.session.headerPosition >= 0) {
       if (!this.session.content)
         return;
       let lastRow = !!this.session.endTable ? this.session.endTable : this.session.content?.length;
@@ -162,6 +197,8 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
       }
 
       console.log(this.session.samples);
+      this.dataComposed = true;
+      // this.storeService.push({ key: DATA_GATHERING, data: this.session.samples });
     }
 
   }
@@ -216,14 +253,6 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
     for (let r of this.row) {
       this.styles[r] = 'transparent';
     }
-  }
-
-  public saveSamples(): void {
-    this.sampleService.insertSample(this.session.samples).subscribe(
-      (res) => {
-        console.log(res);
-      }
-    );
   }
 
 }

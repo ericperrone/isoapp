@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +17,8 @@ import { SpinnerComponent } from './shared/components/spinner/spinner.component'
 import { MainDataProcessingComponent } from './data-processing/main-data-processing/main-data-processing.component';
 import { SampleDefinitionComponent } from './data-processing/sample-definition/sample-definition.component';
 import { ContentManagerStep2Component } from './data-processing/content-manager-step2/content-manager-step2.component';
+import { SaveDataComponent } from './data-processing/save-data/save-data.component';
+import { AlertComponent } from './shared/modals/alert/alert.component';
 
 
 @NgModule({
@@ -29,10 +32,13 @@ import { ContentManagerStep2Component } from './data-processing/content-manager-
     SpinnerComponent,
     MainDataProcessingComponent,
     SampleDefinitionComponent,
-    ContentManagerStep2Component
+    ContentManagerStep2Component,
+    SaveDataComponent,
+    AlertComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     NgbModule,
     HttpClientModule,

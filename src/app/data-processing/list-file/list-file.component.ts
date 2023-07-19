@@ -5,11 +5,21 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { Sample } from 'src/app/models/sample';
+import { trigger, style, animate, transition } from '@angular/animations';
+
 
 @Component({
   selector: 'app-list-file',
   templateUrl: './list-file.component.html',
-  styleUrls: ['./list-file.component.scss']
+  styleUrls: ['./list-file.component.scss'],
+  animations: [
+    trigger('fade', [ 
+      transition('void => *', [
+        style({ opacity: 0 }), 
+        animate(1000, style({opacity: 1}))
+      ]) 
+    ])
+  ]
 })
 export class ListFileComponent implements OnInit {
   public files = null;

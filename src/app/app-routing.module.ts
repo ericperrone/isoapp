@@ -7,6 +7,7 @@ import { ContentManagerComponent } from './data-processing/content-manager/conte
 import { ContentManagerStep2Component } from './data-processing/content-manager-step2/content-manager-step2.component';
 import { MainDataProcessingComponent } from './data-processing/main-data-processing/main-data-processing.component';
 import { SampleDefinitionComponent } from './data-processing/sample-definition/sample-definition.component';
+import { SaveDataComponent } from './data-processing/save-data/save-data.component';
 
 
 const routes: Routes = [
@@ -17,7 +18,8 @@ const routes: Routes = [
   { path: 'file-process', component: FileProcessComponent },
   { path: 'content-manager', component: ContentManagerComponent },
   { path: 'content-manager2', component: ContentManagerStep2Component },
-  { path: 'sample-definition', component: SampleDefinitionComponent }
+  { path: 'sample-definition', component: SampleDefinitionComponent },
+  { path: 'save-data', component: SaveDataComponent }
 ];
 
 @NgModule({

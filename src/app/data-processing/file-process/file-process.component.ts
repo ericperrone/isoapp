@@ -4,11 +4,20 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { Router } from '@angular/router';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { DataGathering } from '../data-gathering';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-file-process',
   templateUrl: './file-process.component.html',
-  styleUrls: ['./file-process.component.scss']
+  styleUrls: ['./file-process.component.scss'],
+  animations: [
+    trigger('fade', [ 
+      transition('void => *', [
+        style({ opacity: 0 }), 
+        animate(1000, style({opacity: 1}))
+      ]) 
+    ])
+  ]
 })
 export class FileProcessComponent extends DataGathering implements OnInit {
   public selected = '';

@@ -12,6 +12,9 @@ export interface DataGatheringSession {
   headerPosition?: number;
   endTable?: number;
   content?: Array<Array<string>>;
+  fields?: Array<string>;
+  chems?: Array<string>;
+  isotopes?: Array<string>;
 }
 
 @Component({

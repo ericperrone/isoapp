@@ -4,11 +4,20 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { DataGathering } from '../data-gathering';
+import { trigger, style, animate, transition } from '@angular/animations';
 
 @Component({
   selector: 'app-content-manager-step2',
   templateUrl: './content-manager-step2.component.html',
-  styleUrls: ['./content-manager-step2.component.scss']
+  styleUrls: ['./content-manager-step2.component.scss'],
+  animations: [
+    trigger('fade', [ 
+      transition('void => *', [
+        style({ opacity: 0 }), 
+        animate(1000, style({opacity: 1}))
+      ]) 
+    ])
+  ]
 })
 export class ContentManagerStep2Component extends DataGathering implements OnInit {
   public selectedRow = ['\/'];

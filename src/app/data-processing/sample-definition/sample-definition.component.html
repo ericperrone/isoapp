@@ -1,18 +1,14 @@
 <app-header>[initialStatus]="'transitionLeft'"></app-header>
-<div class="application-page">
+<div class="application-page" @fade>
     <div class="w95 centered data-gathering-header">
         <div class="step">Sample definition</div>
         <div class="data-gathering-nav">
             <span class="far fa-arrow-alt-circle-left" (click)="goPrevious()"></span>&nbsp;
-            <span class="far fa-arrow-alt-circle-right" (click)="goNext()"></span>
+            <span class="far fa-arrow-alt-circle-right" (click)="goNext()"  [style.color]="dataComposed === false ? 'lightgray' : 'black'"></span>
         </div>
     </div>
     <div class="centered w95">
         <p>Select the fields defining the sample. Select also the chemical elements/isotopes if available.</p>
-    </div>
-    <div class="w95 text-right">
-        <button type="button" class="btn btn-primary" (click)="updateSamples()">Set/update fields</button>
-        <button type="button" class="btn btn-success" (click)="saveSamples()">Upload</button>
     </div>
     <div class="centered w95 h50 scrollable" *ngIf="row.length > 0">
         <div>Mark all as:</div>
@@ -41,4 +37,9 @@
             </tr>
         </table>
     </div>
+    <div class="w95 text-right">
+        <button type="button" class="btn btn-primary" (click)="updateSamples()" [disabled]="!enableButton()">Set/update fields</button>
+        <!-- <button type="button" class="btn btn-success" (click)="saveSamples()">Upload</button> -->
+    </div>
+
 </div>
