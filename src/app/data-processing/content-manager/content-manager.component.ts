@@ -50,7 +50,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit {
   private loadContent(): void {
     if (!this.session.content) {
       this.spinnerOn = true;
-      let s = this.dataProcessingService.getContentXlsx(this.sheet).subscribe(
+      let s = this.dataProcessingService.getContentXlsx(this.sheet, this.session.key).subscribe(
         (data) => {
           if (typeof data === 'string') {
             s.unsubscribe();

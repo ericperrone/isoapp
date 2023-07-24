@@ -6,6 +6,7 @@ import { Sample } from 'src/app/models/sample';
 export const DATA_GATHERING = '_data_gathering_';
 export interface DataGatheringSession {
   samples: Array<Sample>;
+  key: string;
   selectedFile?: string;
   selectedSheet?: string;
   header?: Array<string>;
@@ -28,7 +29,7 @@ export class MainDataProcessingComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.clean(DATA_GATHERING);
-    let session: DataGatheringSession = { samples: new Array<Sample>() };
+    let session: DataGatheringSession = { samples: new Array<Sample>(), key: '' };
     this.storeService.push({ key: DATA_GATHERING, data: session });
   }
 

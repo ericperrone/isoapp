@@ -22,6 +22,7 @@ import { trigger, style, animate, transition } from '@angular/animations';
 export class FileProcessComponent extends DataGathering implements OnInit {
   public selected = '';
   public sheets = null;
+  public key = '';
   public content = null;
   public spinnerOn = false;
   public fileName = '';
@@ -54,7 +55,8 @@ export class FileProcessComponent extends DataGathering implements OnInit {
           alert(data);
           return;
         }
-        this.sheets = data;
+        this.sheets = data._sheets;
+        this.key = data._key;
         s.unsubscribe();
         this.spinnerOn = false;
       }
@@ -64,6 +66,7 @@ export class FileProcessComponent extends DataGathering implements OnInit {
   public processSheet(sheet: string): void {
     this.selected = sheet;
     this.session.selectedSheet = this.selected;
+    this.session.key = this.key;
     this.storeService.push({ key: DATA_GATHERING, data: this.session });
   }
 

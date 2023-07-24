@@ -8,6 +8,7 @@ import { trigger, style, animate, transition } from '@angular/animations';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
+import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 
 @Component({
   selector: 'app-save-data',
@@ -24,7 +25,8 @@ import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 })
 export class SaveDataComponent extends DataGathering implements OnInit {
   public spinnerOn = false;
-  constructor(private sampleService: SampleService,
+  constructor(private dataProcessingService: DataProcessingService,
+    private sampleService: SampleService,
     private router: Router,
     private modalService: NgbModal,
     private storeService: StoreService) { super(); }
@@ -50,6 +52,14 @@ export class SaveDataComponent extends DataGathering implements OnInit {
         console.log(res);
         this.spinnerOn = false;
         s.unsubscribe();
+        
+        const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
+          (r) => { 
+            console.log(r);
+            su.unsubscribe();
+          }            
+        );
+
         let params: ModalParams = {};
         if (!!res.status && res.status === 'success') {
           params = {
@@ -68,9 +78,10 @@ export class SaveDataComponent extends DataGathering implements OnInit {
           }
         }
         let ref = this.modalService.open(AlertComponent, { centered: true });
-        setTimeout(() => {
-          ref.componentInstance.params = params;
-        }, 100);
+        ref.componentInstance.params = params;
+        // setTimeout(() => {
+        //   ref.componentInstance.params = params;
+        // }, 100);
         
         ref.componentInstance.emitter.subscribe(
           () => { 

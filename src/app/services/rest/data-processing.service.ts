@@ -31,21 +31,23 @@ export class DataProcessingService extends Rest {
   public getSheets(file: string): Observable<any> {
     return this.http.get(this.serviceUrl + 'process-file?fileName=' + file).pipe(map(
       (res: any) => {
+        let key = ''
         let sheets = new Array<string>();
         if (!!res) {
-          for (let r of res) {
+          key = res.key;
+          for (let r of res.sheets) {
             sheets.push(r);
           }
         }
-        return sheets;
+        return { _key: key, _sheets: sheets };
       }
     ),
     catchError(this.handleError)
     );
   }
 
-  public getContentXlsx(sheet: string): Observable<any> {
-    return this.http.get(this.serviceUrl + 'get-content-xls?sheet=' + sheet).pipe(map(
+  public getContentXlsx(sheet: string, key: string): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-content-xls?sheet=' + sheet + '&key=' + key).pipe(map(
       (res: any) => {
         console.log(res);
         let sheets = new Array<Array<string>>();
@@ -61,5 +63,12 @@ export class DataProcessingService extends Rest {
     );
   }
 
+  public releaseContent(key: string): Observable<any> {
+    return this.http.delete(this.serviceUrl + 'close-contentdir?key=' + key).pipe(map(
+      (res: any) => {
+        console.log(res);
+      }
+    ));
+  }
 
 }
