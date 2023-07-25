@@ -19,6 +19,7 @@ import { SampleDefinitionComponent } from './data-processing/sample-definition/s
 import { ContentManagerStep2Component } from './data-processing/content-manager-step2/content-manager-step2.component';
 import { SaveDataComponent } from './data-processing/save-data/save-data.component';
 import { AlertComponent } from './shared/modals/alert/alert.component';
+import { FileCsvProcessComponent } from './data-processing/file-csv-process/file-csv-process.component';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { AlertComponent } from './shared/modals/alert/alert.component';
     SampleDefinitionComponent,
     ContentManagerStep2Component,
     SaveDataComponent,
-    AlertComponent
+    AlertComponent,
+    FileCsvProcessComponent
   ],
   imports: [
     BrowserModule,

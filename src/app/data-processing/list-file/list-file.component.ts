@@ -13,11 +13,11 @@ import { trigger, style, animate, transition } from '@angular/animations';
   templateUrl: './list-file.component.html',
   styleUrls: ['./list-file.component.scss'],
   animations: [
-    trigger('fade', [ 
+    trigger('fade', [
       transition('void => *', [
-        style({ opacity: 0 }), 
-        animate(1000, style({opacity: 1}))
-      ]) 
+        style({ opacity: 0 }),
+        animate(1000, style({ opacity: 1 }))
+      ])
     ])
   ]
 })
@@ -67,8 +67,13 @@ export class ListFileComponent implements OnInit {
   }
 
   public goNext(): void {
-    if (this.selected.length > 0)
-      this.router.navigate(['file-process']);
+    if (this.selected.length > 0) {
+      if (this.selected.toLowerCase().endsWith('.xlsx') || this.selected.toLowerCase().endsWith('.xls'))
+        this.router.navigate(['file-process']);
+      else
+        this.router.navigate(['file-csv-process']);
+    }
+
   }
 
 }
