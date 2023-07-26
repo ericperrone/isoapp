@@ -1,21 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 import { StoreService } from 'src/app/services/common/store.service';
-import { Router } from '@angular/router';
+import { NavigationStart, Router } from '@angular/router';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { DataGathering } from '../data-gathering';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { Subscription } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-file-process',
   templateUrl: './file-process.component.html',
   styleUrls: ['./file-process.component.scss'],
   animations: [
-    trigger('fade', [ 
+    trigger('fade', [
       transition('void => *', [
-        style({ opacity: 0 }), 
-        animate(1000, style({opacity: 1}))
-      ]) 
+        style({ opacity: 0 }),
+        animate(1000, style({ opacity: 1 }))
+      ])
     ])
   ]
 })
@@ -26,22 +28,44 @@ export class FileProcessComponent extends DataGathering implements OnInit {
   public content = null;
   public spinnerOn = false;
   public fileName = '';
+  private subscription: Subscription | undefined;
 
   constructor(private dataProcessingService: DataProcessingService,
     private router: Router,
+    private cookieService: CookieService,
     private storeService: StoreService) { super(); }
 
   ngOnInit(): void {
+
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
+
+    this.subscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart && !!session && !!session.key && session.key.length <= 0) {
+        let key = this.cookieService.get('xkey');
+        const su = this.dataProcessingService.releaseContent(key).subscribe(
+          (r) => {
+            this.cookieService.delete('xkey');
+            su.unsubscribe();
+          }
+        );
+      }
+    });
+
     if (!session || !session.selectedFile) {
       this.router.navigate(['main-data-processing']);
     } else {
       this.fileName = session.selectedFile;
       if (!!session.selectedSheet)
         this.selected = session.selectedSheet;
-      session.content = undefined;  
+      session.content = undefined;
       this.loadSheets();
       this.session = session;
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 
@@ -57,6 +81,8 @@ export class FileProcessComponent extends DataGathering implements OnInit {
         }
         this.sheets = data._sheets;
         this.key = data._key;
+        this.session.key = this.key;
+        this.cookieService.set('xkey', this.key);
         s.unsubscribe();
         this.spinnerOn = false;
       }

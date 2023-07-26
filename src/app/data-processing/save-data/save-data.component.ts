@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { StoreService } from 'src/app/services/common/store.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
@@ -9,6 +9,7 @@ import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/ma
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-save-data',
@@ -23,8 +24,9 @@ import { DataProcessingService } from 'src/app/services/rest/data-processing.ser
     ])
   ]
 })
-export class SaveDataComponent extends DataGathering implements OnInit {
+export class SaveDataComponent extends DataGathering implements OnInit, OnDestroy {
   public spinnerOn = false;
+  private subscription: Subscription | undefined;
   constructor(private dataProcessingService: DataProcessingService,
     private sampleService: SampleService,
     private router: Router,
@@ -39,6 +41,24 @@ export class SaveDataComponent extends DataGathering implements OnInit {
       this.session = session;
     }
     console.log(this.session);
+    this.subscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        if (!this.router.navigated) {
+          const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
+            (r) => {
+              console.log(r);
+              su.unsubscribe();
+            }
+          );
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 
   public goPrevious(): void {

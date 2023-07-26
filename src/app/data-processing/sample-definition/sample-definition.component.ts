@@ -1,11 +1,14 @@
-import { Component, OnInit, ViewChildren } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, ViewChildren } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
 import { StoreService, storeParam, storeType } from 'src/app/services/common/store.service';
 import { DATA_GATHERING, DataGatheringSession } from 'src/app/data-processing/main-data-processing/main-data-processing.component';
 import { DataGathering } from '../data-gathering';
 import { SampleElement, ChemComponent } from 'src/app/models/sample';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { checkChemElement, checkField  } from 'src/app/shared/const';
+import { Subscription } from 'rxjs';
+import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 
 export interface Col {
   name: string;
@@ -26,11 +29,15 @@ export interface Col {
     ])
   ]
 })
-export class SampleDefinitionComponent extends DataGathering implements OnInit {
+export class SampleDefinitionComponent extends DataGathering implements OnInit, OnDestroy {
+  public CHECK_E = checkChemElement;
+  public CHECK_F = checkField;
   public row: Array<string> = new Array<string>();
   public selectedStyle = 'transparent';
   public styles: storeType = [];
   public dataComposed = false;
+  private subscription: Subscription | undefined;
+  public buttonEnabled = false;
   @ViewChildren('fields') fields: any;
   @ViewChildren('samplefield') sampleFields: any;
   @ViewChildren('chemelement') chemFields: any;
@@ -38,7 +45,11 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
   @ViewChildren('none') nones: any;
 
   constructor(private router: Router,
-    private storeService: StoreService) { super(); }
+    private dataProcessingService: DataProcessingService,
+    private storeService: StoreService) { 
+      super(); 
+      this,this.buttonEnabled = false;
+    }
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
@@ -48,6 +59,25 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
       this.session = session;
       this.row = this.cleanRow(this.session);
       this.initStyles();
+    }
+
+    // this.subscription = this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationStart) {
+    //     if (!this.router.navigated) {
+    //       const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
+    //         (r) => {
+    //           console.log(r);
+    //           su.unsubscribe();
+    //         }
+    //       );
+    //     }
+    //   }
+    // });
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 
@@ -61,11 +91,11 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
     this.router.navigate(['content-manager2']);
   }
 
-  public setStyle(index: string, val: number) {
+  public setStyle(index: string, val: number): boolean {
     switch (val) {
       case 1:
         this.styles[index] = 'lightseagreen';
-        break;
+         break;
       case 2:
         this.styles[index] = 'lightsalmon';
         break;
@@ -76,7 +106,40 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
         this.styles[index] = 'transparent';
         break;
     }
+    setTimeout(() => {
+      this.buttonEnabled = true;
+    }, 100);
+    
+    return true;
   }
+
+  public setDelayedStyle(index: string, val: number): boolean {
+    setTimeout(() => {
+      switch (val) {
+        case 1:
+          this.styles[index] = 'lightseagreen';
+           break;
+        case 2:
+          this.styles[index] = 'lightsalmon';
+          break;
+        case 4:
+          this.styles[index] = 'lightgreen';
+          break;
+        default:
+          this.styles[index] = 'transparent';
+          break;
+      }
+      return true;
+        
+    }, 1000);
+    // this.enableButton();
+    setTimeout(() => {
+      this.buttonEnabled = true;
+    }, 100);
+ 
+    return true;
+  }
+
 
   public updateSamples() {
     if (!!this.session) {
@@ -85,16 +148,16 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
     }
   }
 
-  public enableButton(): boolean {
-    if (!this.sampleFields || !this.chemFields)
-      return false;
+  // public enableButton(): void {
+  //   if (!this.sampleFields || !this.chemFields)
+  //     this.buttonEnabled = false;
 
-    for (let j = 0; j < this.sampleFields._results.length; j++) {
-      if (!!this.sampleFields._results[j].nativeElement.checked || !!this.chemFields._results[j].nativeElement.checked)
-        return true;
-    }
-    return false;
-  }
+  //   for (let j = 0; j < this.sampleFields._results.length; j++) {
+  //     if (!!this.sampleFields._results[j].nativeElement.checked || !!this.chemFields._results[j].nativeElement.checked)
+  //       this.buttonEnabled = true;
+  //   }
+  //   this.buttonEnabled = false;
+  // }
 
   private collectSampleFields(): void {
     let fields = new Array<string>();
@@ -198,7 +261,6 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
 
       console.log(this.session.samples);
       this.dataComposed = true;
-      // this.storeService.push({ key: DATA_GATHERING, data: this.session.samples });
     }
 
   }
@@ -232,6 +294,8 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit {
           break;
       }
     }
+    this.buttonEnabled = true;
+    // this.enableButton();
   }
 
   public getSamples(): void {

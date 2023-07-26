@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
 import { StoreService } from 'src/app/services/common/store.service';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { DataGathering } from '../data-gathering';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-content-manager-step2',
@@ -19,7 +20,7 @@ import { trigger, style, animate, transition } from '@angular/animations';
     ])
   ]
 })
-export class ContentManagerStep2Component extends DataGathering implements OnInit {
+export class ContentManagerStep2Component extends DataGathering implements OnInit, OnDestroy {
   public selectedRow = ['\/'];
   public spinnerOn = false;
   public showContent = false;
@@ -28,6 +29,7 @@ export class ContentManagerStep2Component extends DataGathering implements OnIni
   public pages: Array<Array<Array<string>>> = new Array<Array<Array<string>>>();
   private rowPerPage = 40;
   public pageIndex = 0;
+  private subscription: Subscription | undefined;
 
   constructor(private router: Router,
     private storeService: StoreService,
@@ -42,6 +44,26 @@ export class ContentManagerStep2Component extends DataGathering implements OnIni
       this.session = session;
       if (this.sheet.length > 0)
         this.loadContent();
+    }
+    
+    this.subscription = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        if (!this.router.navigated) {
+          const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
+            (r) => {
+              console.log(r);
+              su.unsubscribe();
+            }
+          );
+        }
+      }
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 
