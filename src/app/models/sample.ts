@@ -15,3 +15,7 @@ export interface Sample {
     components?: Array<ChemComponent>;
 }
 
+export interface Helper {
+    attributes: Array<SampleElement>;
+}
+
