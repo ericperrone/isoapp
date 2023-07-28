@@ -28,6 +28,22 @@ export class DataProcessingService extends Rest {
     );
   }
 
+  public getContentCsv(file: string): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-content-csv?fileName=' + file).pipe(map(
+      (res: any) => {
+        let content = new Array<string>();
+        if (!!res) {
+          for (let r of res) {
+            content.push(r);
+          }
+        }
+        return content;
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
   public getSheets(file: string): Observable<any> {
     return this.http.get(this.serviceUrl + 'process-file?fileName=' + file).pipe(map(
       (res: any) => {
@@ -42,7 +58,7 @@ export class DataProcessingService extends Rest {
         return { _key: key, _sheets: sheets };
       }
     ),
-    catchError(this.handleError)
+      catchError(this.handleError)
     );
   }
 
@@ -59,7 +75,7 @@ export class DataProcessingService extends Rest {
         return sheets;
       }
     ),
-    catchError(this.handleError)
+      catchError(this.handleError)
     );
   }
 

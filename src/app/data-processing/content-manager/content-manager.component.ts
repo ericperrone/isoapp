@@ -52,6 +52,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
+    this.session = session;
 
     this.subscription = this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
@@ -74,14 +75,22 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       }
     );
 
-    if (!session || !session.selectedSheet) {
+    if (!session || (!session.selectedSheet && !session.content)) {
       this.router.navigate(['main-data-processing']);
-    } else {
+    } 
+    
+    if (!!session.selectedSheet) {
       this.sheet = session.selectedSheet;
       this.session = session;
-      if (this.sheet.length > 0) {
+      if (!!this.sheet && this.sheet.length > 0) {
         this.loadContent();
       }
+    } else {
+      this.content = this.session.content;
+      this.formatContent();
+      this.session.content = this.content;
+      this.storeService.push({ key: DATA_GATHERING, data: this.session });
+      this.paginateContent();
     }
 
   }
