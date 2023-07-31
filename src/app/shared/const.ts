@@ -145,3 +145,7 @@ export function checkField(field: string) {
     }
     return false;
 }
+
+export function checkIsotope(element: string): boolean {
+    return false;
+}

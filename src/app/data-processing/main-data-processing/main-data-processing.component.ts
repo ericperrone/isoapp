@@ -10,8 +10,8 @@ export interface DataGatheringSession {
   selectedFile?: string;
   selectedSheet?: string;
   header?: Array<string>;
-  headerPosition?: number;
-  endTable?: number;
+  headerPosition: number;
+  endTable: number;
   content?: Array<Array<string>>;
   fields?: Array<string>;
   chems?: Array<string>;
@@ -29,7 +29,7 @@ export class MainDataProcessingComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.clean(DATA_GATHERING);
-    let session: DataGatheringSession = { samples: new Array<Sample>(), key: '' };
+    let session: DataGatheringSession = { samples: new Array<Sample>(), key: '', headerPosition: 0, endTable: 1 };
     this.storeService.push({ key: DATA_GATHERING, data: session });
   }
 

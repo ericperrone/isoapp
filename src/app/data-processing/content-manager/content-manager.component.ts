@@ -538,7 +538,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
 
   private findRowPosition(row: Array<string>): number {
     if (row.length > 1 && !!this.session.content) {
-      for (let i = this.session.content?.length - 1; i > 0; i--) {
+      for (let i = this.session.content?.length - 1; i >= 0; i--) {
         let found = true;
         for (let j = 0; j < row.length; j++) {
           if (this.session.content[i][j] !== row[j]) {

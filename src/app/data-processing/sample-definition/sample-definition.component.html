@@ -8,10 +8,13 @@
         </div>
     </div>
     <div class="centered w95">
-        <p>Select the fields defining the sample. Select also the chemical elements/isotopes if available.</p>
+        <p>
+            Select the fields defining the sample. Select also the chemical elements/isotopes if available. Select 'None' if you don't want to import some field in the database.<br>
+            When done, proceed to upload data.
+        </p>
     </div>
-    <div class="centered w95 h50 scrollable" *ngIf="row.length > 0">
-        <div>Mark all as:</div>
+    <div class="centered w95 h50 scrollable" *ngIf="sampleDef.length > 0">
+        <!-- <div>Mark all as:</div>
         <div>
             <input name="selector" class="form-check-input" type="radio" value="1" (click)="markAll(1)"><span
                 class="field"> Sample field</span>&nbsp;
@@ -20,8 +23,21 @@
             <input name="selector" class="form-check-input" type="radio" value="4" (click)="markAll(4)"><span
                 class="isotope"> Isotope</span>&nbsp;
             <input name="selector" class="form-check-input" type="radio" value="3" (click)="markAll(3)" checked> None
-        </div>
+        </div> -->
         <table cellspacing="1" class="centered">
+            <tr *ngFor="let s of sampleDef">
+                <td width="50%"><span #fields class="rounded" [style.background-color]="styles[s.item]">{{ s.item }}</span></td>
+                <td width="50%">
+                    <input #samplefield name="{{ s.item }}" class="form-check-input" type="radio" value="1"
+                        (click)="setStyle(s, ST.FIELD)" [checked]="s.type === ST.FIELD"><span class="field"> Sample field</span>&nbsp;
+                    <input #chemelement name="{{ s.item }}" class="form-check-input" type="radio" value="2"
+                        (click)="setStyle(s, ST.CHEM)" [checked]="s.type === ST.CHEM"><span class="chem"> Chem. element</span>&nbsp;
+                    <input #isotope name="{{ s.item }}" class="form-check-input" type="radio" value="3"
+                        (click)="setStyle(s, ST.ISOTOPE)" [checked]="s.type === ST.ISOTOPE"><span class="isotope"> Isotope</span>&nbsp;
+                    <input #none name="{{ s.item }}" class="form-check-input" type="radio" value="4" (click)="setStyle(s, ST.NONE)" [checked]="s.type === ST.NONE"> None
+                </td>
+            </tr>
+<!-- 
             <tr *ngFor="let s of row">
                 <td width="50%"><span #fields class="rounded" [style.background-color]="styles[s]">{{ s }}</span></td>
                 <td width="50%">
@@ -33,12 +49,11 @@
                         (click)="setStyle(s, 4)"><span class="isotope"> Isotope</span>&nbsp;
                     <input #none name="{{ s }}" class="form-check-input" type="radio" value="3" (click)="setStyle(s, 3)"> None
                 </td>
-            </tr>
+            </tr> -->
         </table>
     </div>
-    <div class="w95 text-right">
+    <!-- <div class="w95 text-right">
         <button type="button" class="btn btn-primary" (click)="updateSamples()" [disabled]="buttonEnabled === false">Set/update fields</button>
-        <!-- <button type="button" class="btn btn-success" (click)="saveSamples()">Upload</button> -->
-    </div>
+    </div> -->
 
 </div>

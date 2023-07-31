@@ -12,7 +12,7 @@ export interface SampleElement {
 
 export interface Sample {
     fields: Array<SampleElement>;
-    components?: Array<ChemComponent>;
+    components: Array<ChemComponent>;
 }
 
 export interface Helper {
