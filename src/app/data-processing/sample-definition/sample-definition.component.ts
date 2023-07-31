@@ -53,6 +53,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
+    console.log(session);
     if (!session || !session.header) {
       this.router.navigate(['main-data-processing']);
     } else {
@@ -60,19 +61,6 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
       this.row = this.cleanRow(this.session);
       this.initStyles();
     }
-
-    // this.subscription = this.router.events.subscribe((event) => {
-    //   if (event instanceof NavigationStart) {
-    //     if (!this.router.navigated) {
-    //       const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
-    //         (r) => {
-    //           console.log(r);
-    //           su.unsubscribe();
-    //         }
-    //       );
-    //     }
-    //   }
-    // });
   }
 
   ngOnDestroy(): void {
@@ -88,7 +76,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
   }
 
   public goPrevious(): void {
-    this.router.navigate(['content-manager2']);
+    this.router.navigate(['content-manager']);
   }
 
   public setStyle(index: string, val: number): boolean {

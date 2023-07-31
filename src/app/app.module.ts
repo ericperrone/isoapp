@@ -22,6 +22,7 @@ import { SaveDataComponent } from './data-processing/save-data/save-data.compone
 import { AlertComponent } from './shared/modals/alert/alert.component';
 import { FileCsvProcessComponent } from './data-processing/file-csv-process/file-csv-process.component';
 import { ConfirmComponent } from './shared/modals/confirm/confirm.component';
+import { SelectBoxComponent } from './shared/modals/select-box/select-box.component';
 
 
 @NgModule({
@@ -39,7 +40,8 @@ import { ConfirmComponent } from './shared/modals/confirm/confirm.component';
     SaveDataComponent,
     AlertComponent,
     FileCsvProcessComponent,
-    ConfirmComponent
+    ConfirmComponent,
+    SelectBoxComponent
   ],
   imports: [
     BrowserModule,

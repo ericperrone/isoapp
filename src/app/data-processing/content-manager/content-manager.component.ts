@@ -12,6 +12,7 @@ import { CONFIRM, CANCEL, ModalParams } from 'src/app/shared/modals/modal-params
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { Helper, SampleElement } from 'src/app/models/sample';
+import { SelectBoxComponent } from 'src/app/shared/modals/select-box/select-box.component';
 
 export const SAMPLE_KEYS = ['sample name', 'sample id', 'sample_name', 'sample_id', 'sample-name', 'sample-id'];
 
@@ -30,6 +31,8 @@ export const SAMPLE_KEYS = ['sample name', 'sample id', 'sample_name', 'sample_i
 })
 export class ContentManagerComponent extends DataGathering implements OnInit, OnDestroy {
   public selectedRow = ['\/'];
+  public endTableRow = ['\/'];
+  public headerRow = ['\/'];
   public spinnerOn = false;
   public showContent = false;
   public sheet: string = '';
@@ -77,8 +80,8 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
 
     if (!session || (!session.selectedSheet && !session.content)) {
       this.router.navigate(['main-data-processing']);
-    } 
-    
+    }
+
     if (!!session.selectedSheet) {
       this.sheet = session.selectedSheet;
       this.session = session;
@@ -90,6 +93,8 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       this.formatContent();
       this.session.content = this.content;
       this.storeService.push({ key: DATA_GATHERING, data: this.session });
+      this.findTableStart();
+      this.findTableEnd();
       this.paginateContent();
     }
 
@@ -136,6 +141,8 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
           this.formatContent();
           this.session.content = this.content;
           this.storeService.push({ key: DATA_GATHERING, data: this.session });
+          this.findTableStart();
+          this.findTableEnd();
           this.paginateContent();
           this.spinnerOn = false;
           if (!!this.session.header) {
@@ -154,6 +161,8 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     } else {
       this.session = this.storeService.get(DATA_GATHERING);
       this.content = this.session.content;
+      this.findTableStart();
+      this.findTableEnd();
       this.paginateContent();
       if (!!this.session.header) {
         this.selectedRow = this.session.header;
@@ -177,7 +186,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       }
     }
 
-    this.deleteEmptyCols();
+    // this.deleteEmptyCols();
     this.analyzeContent();
   }
 
@@ -195,13 +204,43 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
         }
       }
     }
-    console.log(headerPoitions);
     this.headerPoitions = new Array<any>();
     for (let item of headerPoitions) {
       this.headerPoitions.push(item);
     }
     if (this.headerPoitions.length > 1) {
       this.confirm();
+    }
+  }
+
+  private findTableStart() {
+    if (!this.content) {
+      return;
+    }
+    for (let key of SAMPLE_KEYS) {
+      for (let i = 0; i < this.content.length; i++) {
+        for (let j = 0; j < this.content[i].length; j++) {
+          if (key === this.content[i][j].toLowerCase()) {
+            this.headerRow = this.content[i];
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  private findTableEnd() {
+    if (!this.content) {
+      return;
+    }
+    for (let i = this.content.length - 1; i >= 0; i--) {
+      for (let j = 0; j < this.content[i].length; j++) {
+        if (this.content[i][j].length > 0) {
+          this.endTableRow = this.content[i];
+          return;
+        }
+      }
     }
   }
 
@@ -375,6 +414,8 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     console.log(newContent);
     this.content = newContent;
     this.session.content = this.content;
+    this.findTableStart();
+    this.findTableEnd();
     this.paginateContent();
   }
 
@@ -473,7 +514,43 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   }
 
   public selectRow(row: Array<string>) {
-    this.selectedRow = row;
+    // this.selectedRow = row;
+    let ref = this.modalService.open(SelectBoxComponent, { centered: true });
+    ref.componentInstance.params = { bodyText: 'mark as:', choices: [{ text: 'table start (header)', value: 1, color: 'orange' }, { text: 'table end', value: 2, color: 'violet' }, { text: 'none', value: 0, color: 'gray' }] };
+    ref.componentInstance.emitter.subscribe(
+      (response: number) => {
+        ref.close();
+        console.log('response: ' + response);
+        switch (response) {
+          case 1:
+            this.headerRow = row;
+            break;
+          case 2:
+            this.endTableRow = row;
+            break;
+          default:
+            break;
+        }
+        // this.eventGenerator.emit({ key: 'confirm', content: response });
+      }
+    );
+  }
+
+  private findRowPosition(row: Array<string>): number {
+    if (row.length > 1 && !!this.session.content) {
+      for (let i = this.session.content?.length - 1; i > 0; i--) {
+        let found = true;
+        for (let j = 0; j < row.length; j++) {
+          if (this.session.content[i][j] !== row[j]) {
+            found = false;
+            break;
+          }
+        }
+        if (found === true)
+          return i;
+      }
+    }
+    return -1;
   }
 
   public checkSelected(row: Array<string>): boolean {
@@ -484,34 +561,34 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     return true;
   }
 
+  public checkHeaderSelected(row: Array<string>): boolean {
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] !== this.headerRow[i])
+        return false;
+    }
+    return true;
+  }
+
+  public checkEndTableSelected(row: Array<string>): boolean {
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] !== this.endTableRow[i])
+        return false;
+    }
+    return true;
+  }
+
   public goPrevious(): void {
     this.router.navigate(['file-process']);
   }
 
   public goNext(): void {
-    if (this.selectedRow.length < 2)
+    if (this.endTableRow.length < 2 && this.headerRow.length < 2)
       return;
-    this.session.header = this.selectedRow;
-    this.session.headerPosition = this.saveTableHeader();
+    this.session.header = this.headerRow;
+    this.session.headerPosition = this.findRowPosition(this.headerRow);
+    this.session.endTable = this.findRowPosition(this.endTableRow);
     this.storeService.push({ key: DATA_GATHERING, data: this.session });
-    this.router.navigate(['content-manager2']);
-  }
-
-  private saveTableHeader(): number {
-    if (this.selectedRow.length > 1 && !!this.session.content) {
-      for (let i = 0; i < this.session.content?.length - 1; i++) {
-        let found = true;
-        for (let j = 0; j < this.selectedRow.length; j++) {
-          if (this.session.content[i][j] !== this.selectedRow[j]) {
-            found = false;
-            break;
-          }
-        }
-        if (found === true)
-          return i;
-      }
-    }
-    return -1;
+    this.router.navigate(['sample-definition']);
   }
 
 }

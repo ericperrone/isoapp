@@ -5,7 +5,7 @@
         <div class="data-gathering-nav">
             <span class="far fa-arrow-alt-circle-left" (click)="goPrevious()"></span>&nbsp;
             <span class="far fa-arrow-alt-circle-right" (click)="goNext()"
-                [style.color]="selectedRow.length < 2 ? 'lightgray' : 'black'"></span>
+                [style.color]="headerRow.length < 2 && endTableRow.length < 2 ? 'lightgray' : 'black'"></span>
         </div>
     </div>
 
@@ -16,8 +16,8 @@
         </div>
     </div>
     <div class="centered w95">
-        <p>Select the row containing the description fields of the sample. Use the buttons to explore the dataset
-            content.</p>
+        <p>Please verify that the <span class="header-selected">start</span> (the header) and <span class="end-selected">end</span> (the last row) of the data table have been set properly.<br>
+            If not, click on the right header row, then on the end of the data table. Use the buttons to explore the dataset content.</p>
     </div>
     <div class="centered p-1 w95 text-right">
         <button type="button" class="btn btn-secondary navigation-button" (click)="first()"><span
@@ -32,7 +32,8 @@
     <div class="centered w95 h70 overflow-auto">
         <table *ngIf="showContent === true" style="font-size: 0.5em;">
             <tr *ngFor="let row of pages[pageIndex]" (click)="selectRow(row)"
-                [class.data-selected]="checkSelected(row)">
+            [class.header-selected] = "checkHeaderSelected(row)"
+            [class.end-selected] = "checkEndTableSelected(row)">
                 <td *ngFor="let cell of row" class="clickable">
                     {{ cell }}
                 </td>

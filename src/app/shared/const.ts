@@ -133,7 +133,7 @@ export function checkChemElement(element: string): boolean {
 
 export const FIELDS = [
     'rock', 'sampl', 'age', 'loca', 'latitude', 'longitude', 'material', 'mineral', 'ref', 'tect', 'type', 'name', 'serie',
-    'alter', 'drill', 'geol', 'erupt', 'year'
+    'alter', 'drill', 'geol', 'erupt', 'year', 'elevation'
 ];
 
 export function checkField(field: string) {
