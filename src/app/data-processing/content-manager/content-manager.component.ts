@@ -43,6 +43,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   private subscription: Subscription | undefined;
   private eventListener: Subscription | undefined;
   private headerPoitions = new Array<any>();
+  public mergeFlag = false;
 
   constructor(private router: Router,
     private eventGenerator: EventGeneratorService,
@@ -193,7 +194,6 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   private analyzeContent() {
     if (!this.content)
       return;
-    console.log(this.content);
     let headerPoitions = [];
     for (let key of SAMPLE_KEYS) {
       for (let i = 0; i < this.content.length; i++) {
@@ -209,6 +209,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       this.headerPoitions.push(item);
     }
     if (this.headerPoitions.length > 1) {
+      this.mergeFlag = true;
       this.confirm();
     }
   }
@@ -256,7 +257,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     return true;
   }
 
-  private mergeTables() {
+  public mergeTables() {
     if (!this.checkMergeble())
       return;
     let mergeKey = this.headerPoitions[0]['key'];
@@ -281,6 +282,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       }
 
       this.transformToHelper(tables, mergeKey);
+      this.mergeFlag = false;
     }
   }
 
@@ -531,7 +533,6 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
           default:
             break;
         }
-        // this.eventGenerator.emit({ key: 'confirm', content: response });
       }
     );
   }

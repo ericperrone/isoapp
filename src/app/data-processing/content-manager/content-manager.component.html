@@ -20,6 +20,7 @@
             If not, click on the right header row, then on the end of the data table. Use the buttons to explore the dataset content.</p>
     </div>
     <div class="centered p-1 w95 text-right">
+        <button type="button" class="btn btn-primary merge-button" style="float: left !important" *ngIf="mergeFlag === true" (click)="mergeTables()">Merge tables</button>
         <button type="button" class="btn btn-secondary navigation-button" (click)="first()"><span
                 class="fas fa-backward"></span> First</button> &nbsp;
         <button type="button" class="btn btn-secondary navigation-button" (click)="previous()"><span
