@@ -6,6 +6,8 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { Sample } from 'src/app/models/sample';
 import { trigger, style, animate, transition } from '@angular/animations';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-uploader.component';
 
 
 @Component({
@@ -27,7 +29,7 @@ export class ListFileComponent implements OnInit {
   public selected = '';
 
   constructor(private dataProcessingService: DataProcessingService, private router: Router,
-    private eventGenerator: EventGeneratorService,
+    private modalService: NgbModal,
     private storeService: StoreService) { }
 
   ngOnInit(): void {
@@ -55,6 +57,15 @@ export class ListFileComponent implements OnInit {
         this.files = data;
         s.unsubscribe();
         this.spinnerOn = false;
+      }
+    );
+  }
+
+  public uploadFile(): void {
+    let ref = this.modalService.open(FileUploaderComponent, { centered: true });
+    ref.componentInstance.emitter.subscribe(
+      (response: string) => {
+        ref.close();
       }
     );
   }

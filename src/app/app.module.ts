@@ -23,6 +23,7 @@ import { AlertComponent } from './shared/modals/alert/alert.component';
 import { FileCsvProcessComponent } from './data-processing/file-csv-process/file-csv-process.component';
 import { ConfirmComponent } from './shared/modals/confirm/confirm.component';
 import { SelectBoxComponent } from './shared/modals/select-box/select-box.component';
+import { FileUploaderComponent } from './shared/modals/file-uploader/file-uploader.component';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { SelectBoxComponent } from './shared/modals/select-box/select-box.compon
     AlertComponent,
     FileCsvProcessComponent,
     ConfirmComponent,
-    SelectBoxComponent
+    SelectBoxComponent,
+    FileUploaderComponent
   ],
   imports: [
     BrowserModule,
