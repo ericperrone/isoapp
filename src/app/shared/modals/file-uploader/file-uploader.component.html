@@ -2,31 +2,36 @@
     <h5 class="modal-title" id="modal-basic-title">Dataset upload</h5>
 </div>
 <div class="modal-body">
-    <form #info>
-        <div class="form-group">
-            <label for="ref">Dataset reference</label>
-            <input type="text" class="form-control" id="ref" placeholder="Enter reference" aria-describedby="refhelp">
-            <small id="refhelp" class="form-text text-muted">Enter any information about document referred by dataset
-                file.</small>
-        </div>
-        <div class="form-group">
-            <label for="auth">Author(s)</label>
-            <input type="text" class="form-control" id="auth" placeholder="Enter Author(s)" aria-describedby="authhelp">
-            <small id="authhelp" class="form-text text-muted">Enter the authors list</small>
+    <div class="form-group">
+        <label for="ref">Dataset reference</label>
+        <input type="text" class="form-control" id="ref" placeholder="Enter reference" aria-describedby="refhelp"
+            [(ngModel)]="dataSetRef">
+        <small id="refhelp" class="form-text text-muted">Enter any information about document referred by dataset
+            file.</small>
+    </div>
+    <div class="form-group">
+        <label for="auth">Author(s)</label>
+        <input type="text" class="form-control" id="auth" placeholder="Enter Author(s)" aria-describedby="authhelp"
+            [(ngModel)]="authors">
+        <small id="authhelp" class="form-text text-muted">Enter the authors list</small>
+    </div>
+    <form #uploader action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
+        target="hidden-frame">
+        <div class="mt-2 w95 centered">
+            <div class="inline-block">Press the button to get the dataset file: </div>
+            <div class="float-right">
+                <button type="button" class="btn btn-outline-dark" (click)="fireClick()">Choice a file</button>
+                <input #hiddeninput type="file" name="file" class="form-control file-upload hidden" (change)="setFile($event)">
+            </div>
+            <div class="w95 centered text-center mt-3 filename">
+                {{ uploadedFile }}
+            </div>
         </div>
     </form>
-    <form #uploader action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data" target="hidden-frame">
-        <div class="m-10 w95 centered">
-            <div class="inline-block">Press the button to get the dataset file or drop the file in the above area.</div>
-            <div class="w95 centered text-center"><input type="file" name="file" class="form-control file-upload"
-                    onchange="console.log(event.target.files)"></div>
-            <div class="mt-2 w80 bordered-rounded h-5em centered text-center"><i
-                    style="color: lightgray; margin-top: 1em;" class="fa-solid fa-paperclip fa-2xl"></i></div>
-        </div>
-    </form>
-    <iframe name="hidden-frame"></iframe>
+    <iframe name="hidden-frame" style="display: none;"></iframe>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="cancel()">Cancel</button>
-    <button type="button" class="btn btn-outline-dark" (click)="confirm()">Submit</button>
+    <button type="button" class="btn btn-outline-dark" (click)="confirm()"
+        [disabled]="!(uploadedFile.length > 0 && dataSetRef.length > 0 && authors.length > 0)">Submit</button>
 </div>

@@ -10,7 +10,11 @@ import { environment } from 'src/environments/environment';
 export class FileUploaderComponent implements OnInit {
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   @ViewChild('uploader') uploader: any;
+  @ViewChild('hiddeninput') hiddenInput: any;
   public actionUrl = '';
+  public dataSetRef = '';
+  public authors = '';
+  public uploadedFile = '';
 
   constructor() { 
     this.actionUrl = environment.be.protocol + '://' + environment.be.server + '/' + environment.be.basedir;
@@ -19,14 +23,26 @@ export class FileUploaderComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  public cancel() {
+  public cancel(): void {
+    console.log(this.authors);
+    console.log(this.uploadedFile);
     this.emitter.emit(CANCEL);
   }
 
-  public confirm() {
-    console.log(this.uploader);
-    this.uploader.nativeElement.submit();
-    this.emitter.emit(CONFIRM);
+  public setFile(event: any): void {        
+    // console.log(event);
+    this.uploadedFile = event.target.files[0].name;
+  }
+
+  public confirm(): void {
+    if (this.uploadedFile.length > 0) {
+      this.uploader.nativeElement.submit();
+      this.emitter.emit(CONFIRM);
+    }
+  }
+
+  public fireClick(): void {
+    this.hiddenInput.nativeElement.click();
   }
   
 }

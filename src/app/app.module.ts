@@ -6,6 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 import { AppComponent } from './app.component';
@@ -43,7 +44,7 @@ import { FileUploaderComponent } from './shared/modals/file-uploader/file-upload
     FileCsvProcessComponent,
     ConfirmComponent,
     SelectBoxComponent,
-    FileUploaderComponent
+    FileUploaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -51,7 +52,9 @@ import { FileUploaderComponent } from './shared/modals/file-uploader/file-upload
     AppRoutingModule,
     NgbModule,
     HttpClientModule,
-    NgbNavModule
+    NgbNavModule,
+    FormsModule, 
+    ReactiveFormsModule
   ],
   providers: [CookieService],
   bootstrap: [AppComponent]
