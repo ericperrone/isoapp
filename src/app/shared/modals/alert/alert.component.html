@@ -2,7 +2,16 @@
     <h4 class="modal-title" id="modal-basic-title">{{ (!!params && !!params.headerText) ? params.headerText : '' }}</h4>
 </div>
 <div class="modal-body">
-    {{ (!!params && !!params.bodyText) ? params.bodyText : '' }}
+    <div>
+        {{ (!!params && !!params.bodyText) ? params.bodyText : '' }}
+    </div>
+    <div *ngIf="!!params && !!params.list">
+        <ul class="list-group">
+            <li class="list-group-item" *ngFor="let item of params.list">
+                {{ item.key }}: {{ item.value }}
+            </li>
+        </ul>
+    </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="close()">Close</button>

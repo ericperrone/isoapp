@@ -15,7 +15,7 @@
             [(ngModel)]="authors">
         <small id="authhelp" class="form-text text-muted">Enter the authors list</small>
     </div>
-    <form #uploader action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
+    <form #uploader id="uploader" action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
         target="hidden-frame">
         <div class="mt-2 w95 centered">
             <div class="inline-block">Press the button to get the dataset file: </div>

@@ -1,7 +1,13 @@
 export interface ModalParams {
     headerText?: string;
     bodyText?: string;
+    list?: Array<DataListItem>;
     choices?: Array<ExclusiveChoice>;
+}
+
+export interface DataListItem {
+    key: string;
+    value: string;
 }
 
 export interface ExclusiveChoice {

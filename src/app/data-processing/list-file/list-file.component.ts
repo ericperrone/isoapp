@@ -1,13 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
+import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
-import { Sample } from 'src/app/models/sample';
+import { Dataset } from 'src/app/models/dataset';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-uploader.component';
+import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
+import { ModalParams, DataListItem } from 'src/app/shared/modals/modal-params';
 
 
 @Component({
@@ -24,11 +27,12 @@ import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-
   ]
 })
 export class ListFileComponent implements OnInit {
-  public files = null;
+  public datasets = null;
   public spinnerOn = false;
   public selected = '';
 
   constructor(private dataProcessingService: DataProcessingService, private router: Router,
+    private datasetService: DatasetService,
     private modalService: NgbModal,
     private storeService: StoreService) { }
 
@@ -46,7 +50,7 @@ export class ListFileComponent implements OnInit {
 
   private loadFileList(): void {
     this.spinnerOn = true;
-    let s = this.dataProcessingService.getFileList().subscribe(
+    let s = this.datasetService.getDatasetList().subscribe(
       (data) => {
         if (typeof data === 'string') {
           s.unsubscribe();
@@ -54,9 +58,30 @@ export class ListFileComponent implements OnInit {
           alert(data);
           return;
         }
-        this.files = data;
+        this.datasets = data;
         s.unsubscribe();
         this.spinnerOn = false;
+      }
+    );
+  }
+
+  public showInfo(dataset: Dataset): void {
+    let listInfo = new Array<DataListItem>();
+    let info = JSON.parse(dataset.metadata);
+    let keys = Object.keys(info);
+    for (let k of keys) {
+      listInfo.push({ key: k, value: info[k] });
+    }
+    let params: ModalParams = {
+      headerText: 'Dataset info',
+      list: listInfo
+    };
+    let ref = this.modalService.open(AlertComponent, { centered: true });
+    ref.componentInstance.params = params;
+    ref.componentInstance.emitter.subscribe(
+      () => {
+        ref.close();
+        this.loadFileList();
       }
     );
   }
