@@ -29,6 +29,18 @@
         </div>
     </form>
     <iframe name="hidden-frame" style="display: none;"></iframe>
+    <div *ngIf="inProgress" class="progress">
+        <div
+          class="progress-bar progress-bar-info progress-bar-striped"
+          role="progressbar"
+          attr.aria-valuenow="{{ progress }}"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [ngStyle]="{ width: progress + '%' }"
+        >
+          {{ progress }}%
+        </div>
+      </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="cancel()">Cancel</button>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Rest } from './rest';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
 import { catchError, map, Observable } from 'rxjs';
 import { Dataset } from 'src/app/models/dataset';
 
@@ -43,5 +43,18 @@ export class DatasetService extends Rest {
     ),
       catchError(this.handleError)
     );
+  }
+
+  public upload(file: File): Observable<HttpEvent<any>> {
+    const formData: FormData = new FormData();
+
+    formData.append('file', file);
+
+    const req = new HttpRequest('POST', this.serviceUrl + 'upload', formData, {
+      reportProgress: true,
+      responseType: 'json'
+    });
+
+    return this.http.request(req);
   }
 }

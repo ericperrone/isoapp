@@ -10,7 +10,7 @@ import { trigger, style, animate, transition } from '@angular/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-uploader.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
-import { ModalParams, DataListItem } from 'src/app/shared/modals/modal-params';
+import { ModalParams, DataListItem, CONFIRM } from 'src/app/shared/modals/modal-params';
 
 
 @Component({
@@ -78,12 +78,7 @@ export class ListFileComponent implements OnInit {
     };
     let ref = this.modalService.open(AlertComponent, { centered: true });
     ref.componentInstance.params = params;
-    ref.componentInstance.emitter.subscribe(
-      () => {
-        ref.close();
-        this.loadFileList();
-      }
-    );
+    ref.componentInstance.emitter.subscribe(() => ref.close());
   }
 
   public uploadFile(): void {
@@ -91,6 +86,9 @@ export class ListFileComponent implements OnInit {
     ref.componentInstance.emitter.subscribe(
       (response: string) => {
         ref.close();
+        if (response === CONFIRM) {
+          this.loadFileList();
+        }
       }
     );
   }

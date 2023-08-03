@@ -3,6 +3,7 @@ import { EventManager } from '@angular/platform-browser';
 import { CONFIRM, CANCEL } from '../modal-params';
 import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { environment } from 'src/environments/environment';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-file-uploader',
@@ -17,6 +18,9 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   public dataSetRef = '';
   public authors = '';
   public uploadedFile = '';
+  public selectedFile: any;
+  public inProgress = false;
+  public progress = 0;
 
   constructor(private datasetService: DatasetService, private eventManager: EventManager) {
     this.actionUrl = environment.be.protocol + '://' + environment.be.server + '/' + environment.be.basedir;
@@ -40,20 +44,54 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   }
 
   public setFile(event: any): void {
-    // console.log(event);
+    console.log(event);
     this.uploadedFile = event.target.files[0].name;
+    this.selectedFile = event.target.files[0];
   }
 
   public confirm(): void {
     if (this.uploadedFile.length > 0) {
-      // this.uploader.nativeElement.addEventListener('submit', (event: any) => this.onFormSubmit(event));
-      this.datasetService.insertDataset({ ref: this.dataSetRef, authors: this.authors, file: this.uploadedFile }).subscribe(
-        (res) => {
-          console.log(res);
-          this.uploader.nativeElement.submit();
-          this.emitter.emit(CONFIRM);
+      this.progress = 0;
+      const s = this.datasetService.upload(this.selectedFile).subscribe(
+        event => {
+          this.inProgress = true;
+          if (event.type === HttpEventType.UploadProgress) {
+            let total = !!event.total ? event.total : 100
+            this.progress = Math.round(100 * event.loaded / total);
+          } else if (event instanceof HttpResponse) {
+            s.unsubscribe();
+            // this.emitter.emit(CONFIRM);
+            const r = this.datasetService.insertDataset({ ref: this.dataSetRef, authors: this.authors, file: this.uploadedFile }).subscribe(
+              (res) => {
+                console.log(res);
+                r.unsubscribe();
+                this.emitter.emit(CONFIRM);
+              }
+            );
+          }
         }
       );
+
+      //   const r = this.datasetService.insertDataset({ ref: this.dataSetRef, authors: this.authors, file: this.uploadedFile }).subscribe(
+      //     (res) => {
+      //       console.log(res);
+      //       // this.uploader.nativeElement.submit();
+      //       const s = this.datasetService.upload(this.selectedFile).subscribe(
+      //         event => {
+      //           this.inProgress = true;
+      //           if (event.type === HttpEventType.UploadProgress) {
+      //             let total = !!event.total ? event.total : 100
+      //             this.progress = Math.round(100 * event.loaded / total);
+      //           } else if (event instanceof HttpResponse) {
+      //             s.unsubscribe();
+      //             this.emitter.emit(CONFIRM);
+      //           }
+      //         }
+      //       );
+      //       r.unsubscribe();
+      //     }
+      //   );
+      // }
     }
   }
 
