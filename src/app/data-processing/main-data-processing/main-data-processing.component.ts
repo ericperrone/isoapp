@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Sample } from 'src/app/models/sample';
+import { Dataset } from 'src/app/models/dataset';
 
 export const DATA_GATHERING = '_data_gathering_';
 export interface DataGatheringSession {
   samples: Array<Sample>;
   key: string;
+  selectedDataset?: Dataset,
   selectedFile?: string;
   selectedSheet?: string;
   header?: Array<string>;

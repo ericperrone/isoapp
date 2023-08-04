@@ -9,6 +9,7 @@ import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/ma
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
+import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -29,6 +30,7 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
   private subscription: Subscription | undefined;
   constructor(private dataProcessingService: DataProcessingService,
     private sampleService: SampleService,
+    private datasetService: DatasetService,
     private router: Router,
     private modalService: NgbModal,
     private storeService: StoreService) { super(); }
@@ -77,6 +79,13 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
           (r) => { 
             console.log(r);
             su.unsubscribe();
+
+            const ds = this.datasetService.closeDataset({dataset: this.session.selectedDataset}).subscribe(
+              (res) => {
+                console.log(res);
+                ds.unsubscribe();
+              }
+            );
           }            
         );
 

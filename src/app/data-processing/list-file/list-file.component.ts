@@ -93,10 +93,11 @@ export class ListFileComponent implements OnInit {
     );
   }
 
-  public processFile(file: string): void {
-    this.selected = file;
+  public processFile(dataset: Dataset): void {
+    this.selected = dataset.fileName;
     let session = this.storeService.get(DATA_GATHERING);
     session.selectedFile = this.selected;
+    session.selectedDataset = dataset;
     this.storeService.push({ key: DATA_GATHERING, data: session });
   }
 

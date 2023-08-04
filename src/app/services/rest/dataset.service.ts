@@ -45,6 +45,22 @@ export class DatasetService extends Rest {
     );
   }
 
+  public closeDataset(data: any): Observable<any> {
+    data.processed = false;
+    // let payload = {
+    //   dataset: data
+    // };
+    return this.http.post(this.serviceUrl + 'close-dataset', data).pipe(map(
+      (res: any) => {
+        if (res.status && res.status === 'success') {
+          return data;
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
   public upload(file: File): Observable<HttpEvent<any>> {
     const formData: FormData = new FormData();
 
