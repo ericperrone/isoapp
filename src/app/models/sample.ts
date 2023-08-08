@@ -11,6 +11,7 @@ export interface SampleElement {
 }
 
 export interface Sample {
+    datasetId?: number;
     fields: Array<SampleElement>;
     components: Array<ChemComponent>;
 }

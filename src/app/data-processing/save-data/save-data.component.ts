@@ -69,6 +69,11 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
 
   public saveSamples(): void {
     this.spinnerOn = true;
+    if (this.session.selectedDataset) {
+      for (let s of this.session.samples) {
+        s.datasetId = this.session.selectedDataset.id; 
+      }
+    }
     const s = this.sampleService.insertSample(this.session.samples).subscribe(
       (res: any) => {
         console.log(res);
