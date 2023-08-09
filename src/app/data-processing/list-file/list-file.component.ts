@@ -82,7 +82,7 @@ export class ListFileComponent implements OnInit {
   }
 
   public uploadFile(): void {
-    let ref = this.modalService.open(FileUploaderComponent, { centered: true });
+    let ref = this.modalService.open(FileUploaderComponent, { centered: true, size:  'lg'});
     ref.componentInstance.emitter.subscribe(
       (response: string) => {
         ref.close();
@@ -94,11 +94,16 @@ export class ListFileComponent implements OnInit {
   }
 
   public processFile(dataset: Dataset): void {
-    this.selected = dataset.fileName;
+    if (!!this.selected && this.selected === dataset.fileName) {
+      this.selected = '';
+    } else {
+      this.selected = dataset.fileName;
+    }
     let session = this.storeService.get(DATA_GATHERING);
     session.selectedFile = this.selected;
     session.selectedDataset = dataset;
     this.storeService.push({ key: DATA_GATHERING, data: session });
+    console.log(session);
   }
 
   public goNext(): void {
