@@ -14,7 +14,7 @@ import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.componen
 import { Helper, SampleElement } from 'src/app/models/sample';
 import { SelectBoxComponent } from 'src/app/shared/modals/select-box/select-box.component';
 
-export const SAMPLE_KEYS = ['sample name', 'sample id', 'sample_name', 'sample_id', 'sample-name', 'sample-id'];
+export const SAMPLE_KEYS = ['sample name', 'sample id', 'sample_name', 'sample_id', 'sample-name', 'sample-id', 'sample'];
 
 @Component({
   selector: 'app-content-manager',
@@ -579,7 +579,14 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   }
 
   public goPrevious(): void {
-    this.router.navigate(['file-process']);
+    if (!!this.session && !!this.session.selectedFile) {
+      let filename = this.session.selectedFile.toLowerCase();
+      if (filename.endsWith('.xls') || filename.endsWith('.xlsx')) {
+        this.router.navigate(['file-process']);
+        return;
+      }
+    }
+    this.router.navigate(['file-list']);
   }
 
   public goNext(): void {
