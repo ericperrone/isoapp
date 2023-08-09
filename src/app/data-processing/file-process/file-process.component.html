@@ -3,8 +3,8 @@
     <div class="w95 centered data-gathering-header">
         <div class="step">Sheet list</div>
         <div class="data-gathering-nav">
-            <span class="far fa-arrow-alt-circle-left" (click)="goPrevious()"></span>&nbsp;
-            <span class="far fa-arrow-alt-circle-right" (click)="goNext()" [style.color]="selected.length < 1 ? 'lightgray' : 'black'"></span>
+            <span class="far fa-arrow-alt-circle-left data-gathering-arrows" (click)="goPrevious()"></span>&nbsp;
+            <span class="far fa-arrow-alt-circle-right data-gathering-arrows" (click)="goNext()" [style.color]="selected.length < 1 ? 'lightgray' : 'black'"></span>
         </div>
     </div>
 

@@ -108,7 +108,10 @@ export class ListFileComponent implements OnInit {
       else
         this.router.navigate(['file-csv-process']);
     }
+  }
 
+  public goPrevious(): void {
+    this.router.navigate(['main-data-processing']);
   }
 
 }

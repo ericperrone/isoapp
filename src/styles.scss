@@ -37,11 +37,11 @@ body {
 .step {
     width: 16em;
     display: block;
-    background-color: orange;
+    background-color: #5f5f5f;
     color: white;
-    border-top: solid 1px orange;
-    border-left: solid 1px orange;
-    border-right: solid 1px orange;
+    border-top: solid 1px #5f5f5f;;
+    border-left: solid 1px #5f5f5f;;
+    border-right: solid 1px #5f5f5f;;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     text-align: center;
@@ -49,13 +49,17 @@ body {
     display: inline-block;
 }
 
+.data-gathering-arrows {
+    font-size: 28px !important;
+}
+
 .data-gathering-header {    
-    border-bottom: solid 1px orange;
+    border-bottom: solid 1px #5f5f5f
 }
 
 .data-gathering-nav {    
     float: right;
-    padding: 5px;
+    // padding: 5px;
     cursor: pointer;
 }
 
