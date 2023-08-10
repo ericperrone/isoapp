@@ -124,6 +124,9 @@ export function checkChemElement(element: string): boolean {
     if (ele.indexOf('(') > 0) {
         ele = ele.split('(')[0].trim();
     }
+    if (ele.indexOf(' ') > 0) {
+        ele = ele.split(' ')[0].trim();
+    }
     for (let e of ChemElements) {
         if (e.toLowerCase() === ele.toLowerCase()) 
             return true;
