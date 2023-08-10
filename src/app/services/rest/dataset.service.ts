@@ -45,6 +45,18 @@ export class DatasetService extends Rest {
     );
   }
 
+  public deleteDataset(id: string): Observable<any> {
+    return this.http.delete(this.serviceUrl + 'delete-dataset/' + id).pipe(map(
+      (res: any) => {
+        if (res.status && res.status === 'success') {
+          return res;
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
   public closeDataset(data: any): Observable<any> {
     data.processed = false;
     // let payload = {

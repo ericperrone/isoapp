@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { StoreService } from 'src/app/services/common/store.service';
-import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { DATA_GATHERING, DataGatheringSession } from '../main-data-processing/main-data-processing.component';
 import { Dataset } from 'src/app/models/dataset';
 import { trigger, style, animate, transition } from '@angular/animations';
@@ -11,7 +9,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-uploader.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams, DataListItem, CONFIRM } from 'src/app/shared/modals/modal-params';
-
+import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 
 @Component({
   selector: 'app-list-file',
@@ -31,7 +29,7 @@ export class ListFileComponent implements OnInit {
   public spinnerOn = false;
   public selected = '';
 
-  constructor(private dataProcessingService: DataProcessingService, private router: Router,
+  constructor(private router: Router,
     private datasetService: DatasetService,
     private modalService: NgbModal,
     private storeService: StoreService) { }
@@ -79,6 +77,35 @@ export class ListFileComponent implements OnInit {
     let ref = this.modalService.open(AlertComponent, { centered: true });
     ref.componentInstance.params = params;
     ref.componentInstance.emitter.subscribe(() => ref.close());
+  }
+
+  public deleteDataset(dataset: Dataset): void {
+    let params: ModalParams = {
+      headerText: 'Confirm request',
+      bodyText: 'Want you permanently delete this dataset?'
+    }
+
+    let ref = this.modalService.open(ConfirmComponent, { centered: true });
+    ref.componentInstance.params = params;
+    ref.componentInstance.emitter.subscribe(
+      (response: string) => {
+        ref.close();
+        if (response === CONFIRM) {
+          this.delete(dataset);
+        }
+      }
+    );
+
+  }
+
+  public delete(dataset: Dataset): void {
+    const r = this.datasetService.deleteDataset("" + dataset.id).subscribe(
+      (res) => {
+        console.log(res);
+        r.unsubscribe();
+        this.loadFileList();
+      }
+    );
   }
 
   public uploadFile(): void {

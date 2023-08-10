@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalParams, CONFIRM, CANCEL } from '../modal-params';
 
 @Component({
@@ -11,7 +10,7 @@ export class ConfirmComponent implements OnInit {
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
-  constructor(private modalService: NgbModal) { }
+  constructor() { }
 
   ngOnInit(): void {
   }

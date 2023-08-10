@@ -26,12 +26,12 @@
             <div class="centered vscrollable" style="max-height: 35em !important;">
                 <ul class="list-group list-group-light">
                     <li *ngFor="let f of datasets"
-                        class="clickable list-group-item px-3 border-0 rounded-3 list-group-item-secondary mb-2"
-                        (click)="processFile(f)">
-                        <div class="float-left" [style.color]="selected === f.fileName ? 'red' : 'black'">
-                            {{ f.fileName }}
+                        class="list-group-item px-3 border-0 rounded-3 list-group-item-secondary mb-2">
+                        <div class="float-left">
+                            <button class="btn button-outline" (click)="processFile(f)"><span [style.color]="selected === f.fileName ? 'red' : 'black'">{{ f.fileName }}</span></button>
                         </div>
-                        <div class="float-right"><i class="fa-solid fa-circle-info" (click)="showInfo(f)"></i></div>
+                        <div class="float-right"><button class="btn" (click)="deleteDataset(f)"><i class="fa-solid fa-trash"></i></button></div>
+                        <div class="float-right"><button class="btn" (click)="showInfo(f)"><i class="fa-solid fa-circle-info"></i></button></div>
                     </li>
                 </ul>
             </div>
