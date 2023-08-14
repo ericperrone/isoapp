@@ -35,7 +35,7 @@
         <button type="button" class="btn btn-secondary navigation-button" (click)="last()"><span
                 class="fas fa-forward"></span> Last</button>
     </div>
-    <div class="centered w95 h70 overflow-auto">
+    <div class="centered w95 h60 overflow-auto">
         <table *ngIf="showContent === true" style="font-size: 0.5em;">
             <tr *ngFor="let row of pages[pageIndex]" (click)="selectRow(row)"
             [class.header-selected] = "checkHeaderSelected(row)"

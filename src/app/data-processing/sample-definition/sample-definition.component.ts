@@ -195,8 +195,8 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
               }
             }
           }
-          this.session.samples.push(sample)
         }
+        this.session.samples.push(sample);
       }
 
       this.storeService.push({ key: DATA_GATHERING, data: this.session });
