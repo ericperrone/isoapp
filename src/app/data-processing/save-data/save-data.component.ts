@@ -11,6 +11,7 @@ import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { DataProcessingService } from 'src/app/services/rest/data-processing.service';
 import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { Subscription } from 'rxjs';
+import { Sample } from 'src/app/models/sample';
 
 @Component({
   selector: 'app-save-data',
@@ -28,6 +29,8 @@ import { Subscription } from 'rxjs';
 export class SaveDataComponent extends DataGathering implements OnInit, OnDestroy {
   public spinnerOn = false;
   private subscription: Subscription | undefined;
+  private payloads = new Array<Array<Sample>>();
+
   constructor(private dataProcessingService: DataProcessingService,
     private sampleService: SampleService,
     private datasetService: DatasetService,
@@ -71,60 +74,105 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
     this.spinnerOn = true;
     if (this.session.selectedDataset) {
       for (let s of this.session.samples) {
-        s.datasetId = this.session.selectedDataset.id; 
+        s.datasetId = this.session.selectedDataset.id;
       }
     }
-    const s = this.sampleService.insertSample(this.session.samples).subscribe(
-      (res: any) => {
-        console.log(res);
-        this.spinnerOn = false;
+
+    const maxSize = 1000;
+
+    let index = 0;
+
+    for (let i = 0; i < this.session.samples.length; i += maxSize) {
+      this.payloads[index] = new Array<Sample>();
+      let limit = (this.session.samples.length - i) > maxSize ? maxSize : (this.session.samples.length - i);
+      for (let j = 0; j < limit; j++) {
+        this.payloads[index].push(this.session.samples[i + j]);
+      }
+      index++;
+    }
+
+    let n = 0;
+    this.recursiveInsert(n, index);
+
+    // const s = this.sampleService.insertSample(this.session.samples).subscribe(
+    //   (res: any) => {
+    //     console.log(res);
+    //     this.spinnerOn = false;
+    //     s.unsubscribe();
+
+    //     const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
+    //       (r) => {
+    //         console.log(r);
+    //         su.unsubscribe();
+
+    //         const ds = this.datasetService.closeDataset({ dataset: this.session.selectedDataset }).subscribe(
+    //           (res) => {
+    //             console.log(res);
+    //             ds.unsubscribe();
+    //           }
+    //         );
+    //       }
+    //     );
+
+    //     this.displayMessage(res);
+    //   }
+    // );
+  }
+
+  private recursiveInsert(counter: number, limit: number): void {
+    let s = this.sampleService.insertSample(this.payloads[counter]).subscribe(
+      (res) => {
         s.unsubscribe();
-        
-        const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
-          (r) => { 
-            console.log(r);
-            su.unsubscribe();
-
-            const ds = this.datasetService.closeDataset({dataset: this.session.selectedDataset}).subscribe(
-              (res) => {
-                console.log(res);
-                ds.unsubscribe();
-              }
-            );
-          }            
-        );
-
-        let params: ModalParams = {};
-        if (!!res.status && res.status === 'success') {
-          params = {
-            headerText: 'Success',
-            bodyText: 'Selected records has been successfully added to the database. Press the CLOSE button to exit this dialog and go back to the start of the procedure'
-          }
-        } else if (!!res.status && res.status === 'error') {
-          params = {
-            headerText: 'Error',
-            bodyText: res.message
-          }
+        if (counter < limit - 1) {
+          this.recursiveInsert(counter + 1, limit);
         } else {
-          params = {
-            headerText: 'Error',
-            bodyText: 'Unexpected error'
-          }
+          this.spinnerOn = false;
+          const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
+            (r) => {
+              console.log(r);
+              su.unsubscribe();
+
+              const ds = this.datasetService.closeDataset({ dataset: this.session.selectedDataset }).subscribe(
+                (res) => {
+                  console.log(res);
+                  ds.unsubscribe();
+                }
+              );
+            }
+          );
+
+          this.displayMessage(res);
         }
-        let ref = this.modalService.open(AlertComponent, { centered: true });
-        ref.componentInstance.params = params;
-        // setTimeout(() => {
-        //   ref.componentInstance.params = params;
-        // }, 100);
-        
-        ref.componentInstance.emitter.subscribe(
-          () => { 
-            ref.close();
-            this.router.navigate(['main-data-processing']);
-          }
-        );
+      }
+    );
+
+  }
+
+  private displayMessage(res: any): void {
+    let params: ModalParams = {};
+    if (!!res.status && res.status === 'success') {
+      params = {
+        headerText: 'Success',
+        bodyText: 'Selected records has been successfully added to the database. Press the CLOSE button to exit this dialog and go back to the start of the procedure'
+      }
+    } else if (!!res.status && res.status === 'error') {
+      params = {
+        headerText: 'Error',
+        bodyText: res.message
+      }
+    } else {
+      params = {
+        headerText: 'Error',
+        bodyText: 'Unexpected error'
+      }
+    }
+    let ref = this.modalService.open(AlertComponent, { centered: true });
+    ref.componentInstance.params = params;
+    ref.componentInstance.emitter.subscribe(
+      () => {
+        ref.close();
+        this.router.navigate(['main-data-processing']);
       }
     );
   }
-
 }
