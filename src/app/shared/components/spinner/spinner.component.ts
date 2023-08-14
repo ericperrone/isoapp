@@ -17,7 +17,6 @@ export class SpinnerComponent implements OnInit {
   ngOnInit(): void {
     this.eventGeneratorService.on('spinner').subscribe( 
       (e) => {
-        console.log(e);
         if (e.content === ON) {
           this.spinnerOn = true;
         } else {

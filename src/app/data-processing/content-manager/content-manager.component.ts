@@ -13,6 +13,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { Helper, SampleElement } from 'src/app/models/sample';
 import { SelectBoxComponent } from 'src/app/shared/modals/select-box/select-box.component';
+import { SelectCsvSeparatorComponent } from 'src/app/shared/modals/select-csv-separator/select-csv-separator.component';
 
 export const SAMPLE_KEYS = ['sample name', 'sample id', 'sample_name', 'sample_id', 'sample-name', 'sample-id', 'sample'];
 
@@ -44,6 +45,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   private eventListener: Subscription | undefined;
   private headerPoitions = new Array<any>();
   public mergeFlag = false;
+  public separatorFlag = false;
 
   constructor(private router: Router,
     private eventGenerator: EventGeneratorService,
@@ -57,6 +59,12 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
     this.session = session;
+    if (this.session && this.session.selectedFile) {
+      let file = this.session.selectedFile.toLowerCase();
+      if (!file.endsWith('.xls') && !file.endsWith('.xlsx')) {
+        this.separatorFlag = true;
+      }
+    }
 
     this.subscription = this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
@@ -109,6 +117,26 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     if (!!this.eventGenerator) {
       this.eventListener?.unsubscribe();
     }
+  }
+
+  public changeSeparator(): void {
+    let ref = this.modalService.open(SelectCsvSeparatorComponent, { centered: true });
+    ref.componentInstance.emitter.subscribe(
+      (response: string) => {
+        console.log(response);
+        ref.close();
+        if (this.session.selectedFile && response !== 'close') {
+          this.spinnerOn = true;
+          let s = this.dataProcessingService.setSeparator(this.session.selectedFile, response).subscribe(
+            (res) => {
+              this.session.content = res;
+              this.loadContent();
+              this.spinnerOn = false;
+            }
+          );
+        }
+      }
+    );
   }
 
   private confirm(): void {
@@ -421,27 +449,27 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     this.paginateContent();
   }
 
-  private sortTableByKey(table: Array<Array<string>>, key: string): Array<Array<string>> {
-    let sortedTable = new Array<Array<string>>();
-    let header = table[0];
+  // private sortTableByKey(table: Array<Array<string>>, key: string): Array<Array<string>> {
+  //   let sortedTable = new Array<Array<string>>();
+  //   let header = table[0];
 
-    let keyPosition = 0
-    for (let i = 0; i < header.length; i++) {
-      if (header[i] === key) {
-        keyPosition = i;
-        break;
-      }
-    }
+  //   let keyPosition = 0
+  //   for (let i = 0; i < header.length; i++) {
+  //     if (header[i] === key) {
+  //       keyPosition = i;
+  //       break;
+  //     }
+  //   }
 
-    let subTable = new Array<Array<string>>();
-    for (let i = 1; i < table.length; i++) {
-      subTable.push(table[i]);
-    }
+  //   let subTable = new Array<Array<string>>();
+  //   for (let i = 1; i < table.length; i++) {
+  //     subTable.push(table[i]);
+  //   }
 
-    console.log(subTable);
+  //   console.log(subTable);
 
-    return sortedTable;
-  }
+  //   return sortedTable;
+  // }
 
 
   private deleteEmptyCols() {

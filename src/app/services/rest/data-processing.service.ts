@@ -44,6 +44,22 @@ export class DataProcessingService extends Rest {
     );
   }
 
+  public setSeparator(file: string, separator: string): Observable<any> {
+    return this.http.get(this.serviceUrl + 'set-separator?fileName=' + file + '&separator=' + separator).pipe(map(
+      (res: any) => {
+        let content = new Array<string>();
+        if (!!res) {
+          for (let r of res) {
+            content.push(r);
+          }
+        }
+        return content;
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
   public getSheets(file: string): Observable<any> {
     return this.http.get(this.serviceUrl + 'process-file?fileName=' + file).pipe(map(
       (res: any) => {

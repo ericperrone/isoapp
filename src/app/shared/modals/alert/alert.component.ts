@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalParams } from '../modal-params';
 
 @Component({
@@ -10,7 +9,7 @@ import { ModalParams } from '../modal-params';
 export class AlertComponent implements OnInit {
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
-  constructor(private modalService: NgbModal) { }
+  constructor() { }
 
   ngOnInit(): void {
   }

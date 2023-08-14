@@ -17,10 +17,15 @@
     </div>
     <div class="centered w95">
         <p>Please verify that the <span class="header-selected">start</span> (the header) and <span class="end-selected">end</span> (the last row) of the data table have been set properly.<br>
-            If not, left-click on header row and select it, then repeat the selection on the end of the data table. Use the buttons to explore the dataset content.</p>
+            If not, left-click on header row and select it, then repeat the selection on the end of the data table. Use the buttons to explore the dataset content.
+            <span *ngIf="separatorFlag === true">
+                If the data are not properly visualized try to change the record separator character using the button.
+            </span>
+        </p>
     </div>
     <div class="centered p-1 w95 text-right">
         <button type="button" class="btn btn-primary merge-button" style="float: left !important" *ngIf="mergeFlag === true" (click)="mergeTables()">Merge tables</button>
+        <button type="button" class="btn btn-primary separator-button" style="float: left !important" *ngIf="separatorFlag === true" (click)="changeSeparator()">Change record separator</button>
         <button type="button" class="btn btn-secondary navigation-button" (click)="first()"><span
                 class="fas fa-backward"></span> First</button> &nbsp;
         <button type="button" class="btn btn-secondary navigation-button" (click)="previous()"><span
