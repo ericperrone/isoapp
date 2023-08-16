@@ -23,9 +23,11 @@ export class HeaderComponent implements OnInit {
   }
 
   public gotoDataProcessing() {
-    // this.router.navigate(['file-list']);
-    // location.href = 'file-list';
     this.router.navigate(['main-data-processing']);
+  }
+
+  public gotoDbQueries() {
+    this.router.navigate(['main-db-querying']);
   }
 
   public toggleSidebar(): void {

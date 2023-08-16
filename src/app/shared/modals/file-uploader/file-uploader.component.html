@@ -3,17 +3,19 @@
 </div>
 <div class="modal-body">
     <div class="form-group">
-        <label for="ref">Dataset reference</label>
-        <input type="text" class="form-control" id="ref" placeholder="Enter reference" aria-describedby="refhelp"
+        <label for="ref">Dataset reference (DOI o other link)</label>
+        <input type="text" class="form-control" id="ref" aria-describedby="refhelp"
             [(ngModel)]="dataSetRef">
-        <small id="refhelp" class="form-text text-muted">Enter any information about document referred by dataset
-            file.</small>
+    </div>
+    <div class="form-group">
+        <label for="year">Year of paper publication</label>
+        <input type="text" class="form-control" id="year" [(ngModel)]="year">
     </div>
     <div class="form-group">
         <label for="auth">Author(s)</label>
-        <input type="text" class="form-control" id="auth" placeholder="Enter Author(s)" aria-describedby="authhelp"
+        <input type="text" class="form-control" id="auth" aria-describedby="authhelp"
             [(ngModel)]="authors">
-        <small id="authhelp" class="form-text text-muted">Enter the authors list</small>
+        <small id="authhelp" class="form-text text-muted">Enter the authors list comma separated</small>
     </div>
     <form #uploader id="uploader" action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
         target="hidden-frame">

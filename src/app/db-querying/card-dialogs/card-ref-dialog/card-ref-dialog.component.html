@@ -1,0 +1,15 @@
+<div class="modal-header">
+    <h5 class="modal-title" id="modal-basic-title">Filter reference</h5>
+</div>
+<div class="modal-body">
+    <div class="form-group">
+        <label for="ref">Dataset reference</label>
+        <input type="text" class="form-control" id="ref" placeholder="Enter reference" aria-describedby="refhelp"
+            [(ngModel)]="dataSetRef">
+        <small id="refhelp" class="form-text text-muted">Enter any information about document (i.e. the title or a part of the title)</small>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="cancel()">Cancel</button>
+    <button type="button" class="btn btn-outline-dark" (click)="confirm()">Confirm</button>   
+</div>

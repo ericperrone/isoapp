@@ -9,6 +9,7 @@ import { ContentManagerStep2Component } from './data-processing/content-manager-
 import { MainDataProcessingComponent } from './data-processing/main-data-processing/main-data-processing.component';
 import { SampleDefinitionComponent } from './data-processing/sample-definition/sample-definition.component';
 import { SaveDataComponent } from './data-processing/save-data/save-data.component';
+import { MainDbQueryingComponent } from './db-querying/main-db-querying/main-db-querying.component';
 
 
 const routes: Routes = [
@@ -21,7 +22,8 @@ const routes: Routes = [
   { path: 'content-manager', component: ContentManagerComponent },
   { path: 'content-manager2', component: ContentManagerStep2Component },
   { path: 'sample-definition', component: SampleDefinitionComponent },
-  { path: 'save-data', component: SaveDataComponent }
+  { path: 'save-data', component: SaveDataComponent },
+  { path: 'main-db-querying', component: MainDbQueryingComponent }
 ];
 
 @NgModule({

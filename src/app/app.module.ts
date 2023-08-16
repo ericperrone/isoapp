@@ -26,6 +26,11 @@ import { ConfirmComponent } from './shared/modals/confirm/confirm.component';
 import { SelectBoxComponent } from './shared/modals/select-box/select-box.component';
 import { FileUploaderComponent } from './shared/modals/file-uploader/file-uploader.component';
 import { SelectCsvSeparatorComponent } from './shared/modals/select-csv-separator/select-csv-separator.component';
+import { MainDbQueryingComponent } from './db-querying/main-db-querying/main-db-querying.component';
+import { CardRefComponent } from './db-querying/cards/card-ref/card-ref.component';
+import { CardAuthorsComponent } from './db-querying/cards/card-authors/card-authors.component';
+import { CardGeoComponent } from './db-querying/cards/card-geo/card-geo.component';
+import { CardRefDialogComponent } from './db-querying/card-dialogs/card-ref-dialog/card-ref-dialog.component';
 
 
 @NgModule({
@@ -47,6 +52,11 @@ import { SelectCsvSeparatorComponent } from './shared/modals/select-csv-separato
     SelectBoxComponent,
     FileUploaderComponent,
     SelectCsvSeparatorComponent,
+    MainDbQueryingComponent,
+    CardRefComponent,
+    CardAuthorsComponent,
+    CardGeoComponent,
+    CardRefDialogComponent,
   ],
   imports: [
     BrowserModule,

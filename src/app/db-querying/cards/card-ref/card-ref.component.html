@@ -1,0 +1,13 @@
+<div class="card">
+    <div class="card-header filter-header">
+      <div class="float-left">Reference filter</div>
+      <div class="float-right clickable" (click)="editCard()"><i class="fa-regular fa-pen-to-square"></i></div>
+    </div>
+    <div class="card-body">
+        <div class="form-group">
+            <label for="ref">Dataset reference</label>
+            <input [disabled]="disabled" type="text" class="form-control" id="ref" aria-describedby="refhelp"
+                [(ngModel)]="queryFilter.ref">
+        </div>
+    </div>
+  </div>

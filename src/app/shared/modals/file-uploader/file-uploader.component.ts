@@ -20,6 +20,7 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   public uploadedFile = '';
   public selectedFile: any;
   public inProgress = false;
+  public year = '';
   public progress = 0;
 
   constructor(private datasetService: DatasetService, private eventManager: EventManager) {
@@ -60,8 +61,13 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
             this.progress = Math.round(100 * event.loaded / total);
           } else if (event instanceof HttpResponse) {
             s.unsubscribe();
-            // this.emitter.emit(CONFIRM);
-            const r = this.datasetService.insertDataset({ ref: this.dataSetRef, authors: this.authors, file: this.uploadedFile }).subscribe(
+            let payload = {
+              ref: this.dataSetRef,
+              authors: this.authors,
+              file: this.uploadedFile,
+              year: this.year
+            }
+            const r = this.datasetService.insertDataset(payload).subscribe(
               (res) => {
                 console.log(res);
                 r.unsubscribe();
