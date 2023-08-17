@@ -65,11 +65,11 @@ export class ListFileComponent implements OnInit {
 
   public showInfo(dataset: Dataset): void {
     let listInfo = new Array<DataListItem>();
-    let info = JSON.parse(dataset.metadata);
-    let keys = Object.keys(info);
-    for (let k of keys) {
-      listInfo.push({ key: k, value: info[k] });
-    }
+    listInfo.push({ key: 'fileName', value: dataset.fileName });
+    listInfo.push({ key: 'keywords', value: dataset.metadata });
+    listInfo.push({ key: 'link', value: dataset.ref });
+    listInfo.push({ key: 'authors', value: dataset.authors });
+    listInfo.push({ key: 'year', value: '' + dataset.year });
     let params: ModalParams = {
       headerText: 'Dataset info',
       list: listInfo

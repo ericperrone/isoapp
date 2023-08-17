@@ -31,6 +31,9 @@ import { CardRefComponent } from './db-querying/cards/card-ref/card-ref.componen
 import { CardAuthorsComponent } from './db-querying/cards/card-authors/card-authors.component';
 import { CardGeoComponent } from './db-querying/cards/card-geo/card-geo.component';
 import { CardRefDialogComponent } from './db-querying/card-dialogs/card-ref-dialog/card-ref-dialog.component';
+import { CardKeywordsComponent } from './db-querying/cards/card-keywords/card-keywords.component';
+import { CardKeywordsDialogComponent } from './db-querying/card-dialogs/card-keywords-dialog/card-keywords-dialog.component';
+import { CardAuthorsDialogComponent } from './db-querying/card-dialogs/card-authors-dialog/card-authors-dialog.component';
 
 
 @NgModule({
@@ -57,6 +60,9 @@ import { CardRefDialogComponent } from './db-querying/card-dialogs/card-ref-dial
     CardAuthorsComponent,
     CardGeoComponent,
     CardRefDialogComponent,
+    CardKeywordsComponent,
+    CardKeywordsDialogComponent,
+    CardAuthorsDialogComponent,
   ],
   imports: [
     BrowserModule,

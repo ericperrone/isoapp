@@ -3,6 +3,12 @@
     <!-- <div class="w95 centered data-gathering-header">
         <div class="step">Query filter</div>
     </div> -->
+    <div class="w95 centered data-gathering-header row mb-1">
+      <div class="col-8">Enter search criteria, then press 'Submit' button</div>
+      <div class="col-4">
+        <button class="btn btn-primary m-1 float-right">Submit</button> 
+        <button class="btn btn-secondary m-1 float-right" (click)="resetFilters()">Reset filters</button></div>
+    </div>
     <div class="w95 centered">
         <div class="container">
             <div class="row">
@@ -13,7 +19,7 @@
                 <app-card-authors></app-card-authors>
               </div>
               <div class="col-sm">
-                <app-card-geo></app-card-geo>
+                <app-card-keywords></app-card-keywords>
               </div>
             </div>
           </div>

@@ -1,12 +1,12 @@
 <div class="modal-header">
-    <h5 class="modal-title" id="modal-basic-title">Filter reference</h5>
+    <h5 class="modal-title" id="modal-basic-title">Filter keywords</h5>
 </div>
 <div class="modal-body">
     <div class="form-group">
-        <label for="ref">Dataset reference</label>
+        <label for="ref">Keywords</label>
         <input type="text" class="form-control" id="ref" placeholder="Enter reference" aria-describedby="refhelp"
-            [(ngModel)]="dataSetRef">
-        <small id="refhelp" class="form-text text-muted">Enter the document DOI (or an equivalent http reference)</small>
+            [(ngModel)]="keywords">
+        <small id="refhelp" class="form-text text-muted">Enter any keyword useful to identify the document (i.e. the title or a part of the title)</small>
     </div>
 </div>
 <div class="modal-footer">

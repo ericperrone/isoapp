@@ -17,6 +17,7 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   public actionUrl = '';
   public dataSetRef = '';
   public authors = '';
+  public keywords = '';
   public uploadedFile = '';
   public selectedFile: any;
   public inProgress = false;
@@ -65,11 +66,11 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
               ref: this.dataSetRef,
               authors: this.authors,
               file: this.uploadedFile,
-              year: this.year
+              year: this.year,
+              keywords: this.keywords
             }
             const r = this.datasetService.insertDataset(payload).subscribe(
               (res) => {
-                console.log(res);
                 r.unsubscribe();
                 this.emitter.emit(CONFIRM);
               }

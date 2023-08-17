@@ -2,20 +2,25 @@
     <h5 class="modal-title" id="modal-basic-title">Dataset upload</h5>
 </div>
 <div class="modal-body">
-    <div class="form-group">
-        <label for="ref">Dataset reference (DOI o other link)</label>
-        <input type="text" class="form-control" id="ref" aria-describedby="refhelp"
-            [(ngModel)]="dataSetRef">
-    </div>
-    <div class="form-group">
-        <label for="year">Year of paper publication</label>
-        <input type="text" class="form-control" id="year" [(ngModel)]="year">
+    <div class="row">
+        <div class="form-group col-sm">
+            <label for="ref">Dataset reference (DOI or other link)</label>
+            <input type="text" class="form-control" id="ref" aria-describedby="refhelp" [(ngModel)]="dataSetRef">
+        </div>
+        <div class="form-group col-sm">
+            <label for="year">Year of paper publication</label>
+            <input type="text" class="form-control" id="year" [(ngModel)]="year">
+        </div>
     </div>
     <div class="form-group">
         <label for="auth">Author(s)</label>
-        <input type="text" class="form-control" id="auth" aria-describedby="authhelp"
-            [(ngModel)]="authors">
+        <input type="text" class="form-control" id="auth" aria-describedby="authhelp" [(ngModel)]="authors">
         <small id="authhelp" class="form-text text-muted">Enter the authors list comma separated</small>
+    </div>
+    <div class="form-group">
+        <label for="keywords">Keywords</label>
+        <input type="text" class="form-control" id="keywords" aria-describedby="keywordshelp" [(ngModel)]="keywords">
+        <small id="keywordshelp" class="form-text text-muted">Enter some keyword in order to filter the selection</small>
     </div>
     <form #uploader id="uploader" action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
         target="hidden-frame">
@@ -23,7 +28,8 @@
             <div class="inline-block">Press the button to get the dataset file: </div>
             <div class="float-right">
                 <button type="button" class="btn btn-outline-dark" (click)="fireClick()">Choice a file</button>
-                <input #hiddeninput type="file" name="file" class="form-control file-upload hidden" (change)="setFile($event)">
+                <input #hiddeninput type="file" name="file" class="form-control file-upload hidden"
+                    (change)="setFile($event)">
             </div>
             <div class="w95 centered text-center mt-3 filename">
                 {{ uploadedFile }}
@@ -32,17 +38,12 @@
     </form>
     <iframe name="hidden-frame" style="display: none;"></iframe>
     <div *ngIf="inProgress" class="progress">
-        <div
-          class="progress-bar progress-bar-info progress-bar-striped"
-          role="progressbar"
-          attr.aria-valuenow="{{ progress }}"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          [ngStyle]="{ width: progress + '%' }"
-        >
-          {{ progress }}%
+        <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar"
+            attr.aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"
+            [ngStyle]="{ width: progress + '%' }">
+            {{ progress }}%
         </div>
-      </div>
+    </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="cancel()">Cancel</button>
