@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -17,6 +17,7 @@ export class CardKeywordsComponent implements OnInit, OnDestroy {
   public disabled = true;
   public keywords = '';
   private sub: Subscription | undefined;
+  @Output() emitter: EventEmitter<any> = new EventEmitter();
 
   constructor(private storeService: StoreService,
     private eventGeneratorService: EventGeneratorService,
@@ -52,7 +53,15 @@ export class CardKeywordsComponent implements OnInit, OnDestroy {
       }
       console.log(this.queryFilter);  
       ref.close()
+      this.emitter.emit(true);
     });
   }
 
+  public resetFilter(): void {
+    this.queryFilter = this.storeService.get(FILTER_KEY);
+    this.queryFilter.keywords = [];
+    this.storeService.push({key: FILTER_KEY, data: this.queryFilter});
+    this.keywords = '';
+    this.emitter.emit(true);
+  }
 }

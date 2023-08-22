@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +16,7 @@ export class CardRefComponent implements OnInit, OnDestroy {
   public queryFilter: QueryFilter = { ref: '', authors: [], keywords: [] };
   public disabled = true;
   private sub: Subscription | undefined;
+  @Output() emitter: EventEmitter<any> = new EventEmitter();
 
   constructor(private storeService: StoreService,
     private eventGeneratorService: EventGeneratorService,
@@ -39,10 +40,18 @@ export class CardRefComponent implements OnInit, OnDestroy {
   public editCard(): void {
     let ref = this.modalService.open(CardRefDialogComponent, { centered: true });
     ref.componentInstance.emitter.subscribe((result: string) => {
-      if (result === CONFIRM)
+      if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
+        this.emitter.emit(true);
+      }
       ref.close()
     });
   }
 
+  public resetFilter(): void {
+    this.queryFilter = this.storeService.get(FILTER_KEY);
+    this.queryFilter.ref = '';
+    this.storeService.push({key: FILTER_KEY, data: this.queryFilter});    
+    this.emitter.emit(true);
+  }
 }

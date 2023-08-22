@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
+import { SampleService } from 'src/app/services/rest/sample.service';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -18,8 +19,11 @@ export interface QueryFilter {
   styleUrls: ['./main-db-querying.component.scss']
 })
 export class MainDbQueryingComponent implements OnInit {
+  public queryDisabled = true;
+  public spinnerOn = false;
 
   constructor(private storeService: StoreService,
+    private sampleService: SampleService,
     private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
@@ -28,5 +32,27 @@ export class MainDbQueryingComponent implements OnInit {
 
   public resetFilters(): void {
     this.eventGeneratorService.emit({ key: RESET_FILTER });
+    this.queryDisabled = true;
+  }
+
+  public submitQuery(): void {
+    let filter: QueryFilter = this.storeService.get(FILTER_KEY);
+    this.spinnerOn = true;
+    this.sampleService.mainQueryTable(filter).subscribe(
+      (res) => {
+        console.log(res);
+        this.spinnerOn = false;
+      }
+    );
+  }
+
+  public checkFilter(): void {
+    let filter: QueryFilter = this.storeService.get(FILTER_KEY);
+    console.log(filter);
+    if (filter.authors.length > 0 || filter.keywords.length > 0 || filter.ref.length > 0) {
+      this.queryDisabled = false;
+    } else {
+      this.queryDisabled = true;
+    }
   }
 }
