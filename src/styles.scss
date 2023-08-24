@@ -157,6 +157,11 @@ body {
     overflow-y: auto;
 }
 
+.scrollable {
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
 .text-right {
     text-align: right;
 }

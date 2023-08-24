@@ -1,8 +1,5 @@
 <app-header>[initialStatus]="'transitionLeft'"></app-header>
-<div class="application-page">
-  <!-- <div class="w95 centered data-gathering-header">
-        <div class="step">Query filter</div>
-    </div> -->
+<div class="application-page" [hidden]="filterOn === false">
   <div class="w95 centered data-gathering-header row mb-1">
     <div class="col-8">Enter search criteria, then press 'Submit' button</div>
     <div class="col-4">
@@ -31,6 +28,24 @@
         </div>
       </div>
     </div>
-
+  </div>
+</div>
+<div class="application-page" [hidden]="filterOn === true">
+  <div class="w95 centered data-gathering-header row mb-1">
+    <div class="col-8"></div>
+    <div class="col-4">
+      <button class="btn btn-primary m-1 float-right">Export</button>
+      <button class="btn btn-secondary m-1 float-right" (click)="filterOn = true">Back</button>
+    </div>
+  </div>
+  <div class="w95 centered mt-1 scrollable" style="max-height: 48em;">
+    <table class="table table-bordered table-hover">
+      <thead class="thead-light">
+        <th *ngFor="let h of jsonHeader" scope="col">{{ h }}</th>
+      </thead>
+      <tr *ngFor="let r of jsonTable">
+        <td *ngFor="let e of r">{{ e }}</td>
+      </tr>
+    </table>
   </div>
 </div>

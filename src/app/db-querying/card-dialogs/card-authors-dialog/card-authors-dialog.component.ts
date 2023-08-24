@@ -1,9 +1,10 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { QueryFilter, FILTER_KEY } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { CONFIRM, CANCEL } from 'src/app/shared/modals/modal-params';
 import { distinct, deleteByValue } from 'src/app/shared/tools';
-
+import { AuthorService } from 'src/app/services/rest/author.service';
+import { Author } from 'src/app/models/author';
 
 @Component({
   selector: 'app-card-authors-dialog',
@@ -12,11 +13,17 @@ import { distinct, deleteByValue } from 'src/app/shared/tools';
 })
 export class CardAuthorsDialogComponent implements OnInit {
   public author = '';
+  public surname = '';
+  public name = '';
   public authors = new Array<string>();
   public queryFilter: QueryFilter | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
+  @ViewChild('authlist') authlist: ElementRef | undefined;
+  private insertFlag = true;
 
-  constructor(private storeService: StoreService) { }
+  constructor(private renderer: Renderer2,
+    private storeService: StoreService,
+    private authorService: AuthorService) { }
 
   ngOnInit(): void {
     this.authors = new Array<string>();
@@ -33,17 +40,23 @@ export class CardAuthorsDialogComponent implements OnInit {
   }
 
   public addAuthor(): void {
+    if (this.surname.length === 0 || this.name.length === 0)
+      return;
+    this.author = this.surname + ' ' + this.name;
     if (this.author.length > 0) {
       this.authors.push(this.author);
       this.authors = distinct(this.authors);
-      this.author = '';
+      if (this.insertFlag === true)
+        this.authorService.insertAuthor({ id: -1, surname: this.surname, name: this.name }).subscribe();
+      this.surname = '';
+      this.name = '';
     }
   }
 
   public confirm() {
     let filter = this.storeService.get(FILTER_KEY);
     filter.authors = this.authors;
-    this.storeService.push({key: FILTER_KEY, data: filter});
+    this.storeService.push({ key: FILTER_KEY, data: filter });
     this.emitter.emit(CONFIRM);
   }
 
@@ -51,4 +64,32 @@ export class CardAuthorsDialogComponent implements OnInit {
     this.authors = deleteByValue(this.authors, author);
   }
 
+  public getAuthors() {
+    if (this.surname.indexOf(',') > 0) {
+      this.insertFlag = false;
+      let x = this.surname.split(',');
+      if (x.length === 2) {
+        this.surname = x[0];
+        this.name = x[1].trim();
+        return;
+      }
+    }
+    if (this.surname.length > 2) {
+      this.authorService.getAuthors(this.surname).subscribe(
+        (res: any) => {
+          Array.from(this.authlist?.nativeElement.children).forEach(child => {
+            this.renderer.removeChild(this.authlist?.nativeElement, child);
+          });
+          if (res.length <= 0) {
+            this.insertFlag = true;
+          }
+          for (let r of res) {
+            const option = this.renderer.createElement('option');
+            option.setAttribute('value', r.surname + ', ' + r.name);
+            this.renderer.appendChild(this.authlist?.nativeElement, option);
+          }
+        }
+      );
+    }
+  }
 }

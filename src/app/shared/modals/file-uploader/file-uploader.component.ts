@@ -1,9 +1,12 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { EventManager } from '@angular/platform-browser';
 import { CONFIRM, CANCEL } from '../modal-params';
 import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { environment } from 'src/environments/environment';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CardAuthorsDialogComponent } from 'src/app/db-querying/card-dialogs/card-authors-dialog/card-authors-dialog.component';
+import { StoreService } from 'src/app/services/common/store.service';
+import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 
 @Component({
   selector: 'app-file-uploader',
@@ -24,9 +27,9 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   public year = '';
   public progress = 0;
 
-  constructor(private datasetService: DatasetService, private eventManager: EventManager) {
+  constructor(private datasetService: DatasetService, private modalService: NgbModal,
+    private storeService: StoreService) {
     this.actionUrl = environment.be.protocol + '://' + environment.be.server + '/' + environment.be.basedir;
-    // this.eventManager.addEventListener(document.body, 'click', () => console.log('click')); // funziona !!!
   }
 
   ngOnInit(): void {
@@ -34,10 +37,27 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.eventManager.addEventListener(this.uploader.nativeElement, 'submit', this.onFormSubmit);
-    // this.eventManager.addEventListener(this.uploader.nativeElement, 'submit', () => console.log('submit'));
-
   }
+
+  public authorDialog(): void {
+    this.storeService.push({ key: FILTER_KEY, data: { ref: '', authors: [], keywords: [] } });
+    let ref = this.modalService.open(CardAuthorsDialogComponent, { centered: true });
+    ref.componentInstance.emitter.subscribe((result: string) => {
+      if (result === CONFIRM) {
+        let queryFilter = this.storeService.get(FILTER_KEY);
+        this.authors = '';
+        for (let key of queryFilter.authors) {
+          this.authors += key + ', ';
+        }
+        this.authors = this.authors.trim();
+        this.authors = this.authors.substring(0, this.authors.length - 1);
+        // this.emitter.emit(true);
+        this.storeService.clean(FILTER_KEY);
+      }
+      ref.close()
+    });
+  }
+  
 
   public cancel(): void {
     console.log(this.authors);
@@ -78,27 +98,6 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
           }
         }
       );
-
-      //   const r = this.datasetService.insertDataset({ ref: this.dataSetRef, authors: this.authors, file: this.uploadedFile }).subscribe(
-      //     (res) => {
-      //       console.log(res);
-      //       // this.uploader.nativeElement.submit();
-      //       const s = this.datasetService.upload(this.selectedFile).subscribe(
-      //         event => {
-      //           this.inProgress = true;
-      //           if (event.type === HttpEventType.UploadProgress) {
-      //             let total = !!event.total ? event.total : 100
-      //             this.progress = Math.round(100 * event.loaded / total);
-      //           } else if (event instanceof HttpResponse) {
-      //             s.unsubscribe();
-      //             this.emitter.emit(CONFIRM);
-      //           }
-      //         }
-      //       );
-      //       r.unsubscribe();
-      //     }
-      //   );
-      // }
     }
   }
 

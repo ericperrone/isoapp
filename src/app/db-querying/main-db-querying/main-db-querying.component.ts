@@ -21,6 +21,9 @@ export interface QueryFilter {
 export class MainDbQueryingComponent implements OnInit {
   public queryDisabled = true;
   public spinnerOn = false;
+  public filterOn = true;
+  public jsonTable = [];
+  public jsonHeader = [];
 
   constructor(private storeService: StoreService,
     private sampleService: SampleService,
@@ -41,7 +44,10 @@ export class MainDbQueryingComponent implements OnInit {
     this.sampleService.mainQueryTable(filter).subscribe(
       (res) => {
         console.log(res);
+        this.jsonHeader = res[0];
+        this.jsonTable = res.slice(1);
         this.spinnerOn = false;
+        this.filterOn = false;
       }
     );
   }
