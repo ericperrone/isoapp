@@ -33,7 +33,7 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-
+    this.authors = '';
   }
 
   ngAfterViewInit(): void {
@@ -45,7 +45,8 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
     ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         let queryFilter = this.storeService.get(FILTER_KEY);
-        this.authors = '';
+        if (this.authors.length > 0)
+          this.authors += ', ';
         for (let key of queryFilter.authors) {
           this.authors += key + ', ';
         }
