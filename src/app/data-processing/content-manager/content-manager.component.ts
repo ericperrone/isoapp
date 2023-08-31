@@ -314,27 +314,46 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     }
   }
 
+  private purgeUndefined(tables: Array<Array<Array<string>>>): Array<Array<Array<string>>> {
+    let t =  new Array<Array<Array<string>>>();
+    for (let i = 0; i < tables.length; i++) {
+      let table = tables[i];
+      t[i] = new Array<Array<string>>();
+      if (!!table) {
+        for (let element of table) {
+          if (!!element) {
+            t[i].push(element);
+          }
+        }
+      }
+    }
+    return t;
+  } 
+
   private transformToHelper(tables: Array<Array<Array<string>>>, key: string) {
     let samples = new Array<Array<Array<Helper>>>();
     let sample: any;
+    tables = this.purgeUndefined(tables);
 
     for (let n = 0; n < tables.length; n++) {
-      let header = tables[n][0];
-      sample = new Array<Array<Helper>>();
+      if (!!tables[n]) {
+        let header = tables[n][0];
+        sample = new Array<Array<Helper>>();
 
-      for (let i = 1; i < tables[n].length; i++) {
-        let row = tables[n][i];
-        let hRow = new Array<Helper>();
-        for (let j = 0; j < header.length; j++) {
-          if (header[j].length > 0) {
-            let helper = { attributes: new Array<SampleElement>() };
-            helper.attributes.push({ field: header[j], value: row[j] });
-            hRow.push(helper);
+        for (let i = 1; i < tables[n].length; i++) {
+          let row = tables[n][i];
+          let hRow = new Array<Helper>();
+          for (let j = 0; j < header.length; j++) {
+            if (header[j].length > 0) {
+              let helper = { attributes: new Array<SampleElement>() };
+              helper.attributes.push({ field: header[j], value: row[j] });
+              hRow.push(helper);
+            }
           }
+          sample.push(hRow);
         }
-        sample.push(hRow);
+        samples.push(sample);
       }
-      samples.push(sample);
     }
     this.createNewContent(samples, key)
   }
