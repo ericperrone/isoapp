@@ -1,0 +1,38 @@
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title" id="modal-basic-title">Filter authors</h5>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-2">
+                <div class="text-left">
+                    Use the mouse for navigate and zoom the map. Press the SHIFT key + LEFT mouse button to draw a
+                    rectangular selection on the map.
+                </div>
+                <div>Top coordinates:</div>
+                <div class="row">
+                    <div class="col-6">{{ topLat }}</div>
+                    <div class="col-6">{{ topLong }}</div>
+                </div>
+                <div>Bottom coordinates:</div>
+                <div class="row">
+                    <div class="col-6">{{ bottomLat }}</div>
+                    <div class="col-6">{{ bottomLong }}</div>
+                </div>
+            </div>
+            <div class="col-10">
+                <main class="mt-2">
+                    <div id="ol-map" class="map-container" style="width: 100% !important; height: 500px !important;">
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <div class="p-2">
+        <app-geo-mouse-position [map]="map" style="padding: 1em;"></app-geo-mouse-position>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="cancel()">Cancel</button>
+        <button type="button" class="btn btn-outline-dark" (click)="confirm()" [disabled]="true">Confirm</button>
+    </div>
+</div>

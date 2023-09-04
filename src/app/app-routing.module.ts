@@ -10,6 +10,7 @@ import { MainDataProcessingComponent } from './data-processing/main-data-process
 import { SampleDefinitionComponent } from './data-processing/sample-definition/sample-definition.component';
 import { SaveDataComponent } from './data-processing/save-data/save-data.component';
 import { MainDbQueryingComponent } from './db-querying/main-db-querying/main-db-querying.component';
+import { GeoComponent } from './shared/components/geo/geo.component';
 
 
 const routes: Routes = [
@@ -23,7 +24,8 @@ const routes: Routes = [
   { path: 'content-manager2', component: ContentManagerStep2Component },
   { path: 'sample-definition', component: SampleDefinitionComponent },
   { path: 'save-data', component: SaveDataComponent },
-  { path: 'main-db-querying', component: MainDbQueryingComponent }
+  { path: 'main-db-querying', component: MainDbQueryingComponent },
+  { path: 'geo', component: GeoComponent }
 ];
 
 @NgModule({

@@ -34,6 +34,9 @@ import { CardRefDialogComponent } from './db-querying/card-dialogs/card-ref-dial
 import { CardKeywordsComponent } from './db-querying/cards/card-keywords/card-keywords.component';
 import { CardKeywordsDialogComponent } from './db-querying/card-dialogs/card-keywords-dialog/card-keywords-dialog.component';
 import { CardAuthorsDialogComponent } from './db-querying/card-dialogs/card-authors-dialog/card-authors-dialog.component';
+import { GeoComponent } from './shared/components/geo/geo.component';
+import { GeoMousePositionComponent } from './shared/components/geo-mouse-position/geo-mouse-position.component';
+import { DecimalPipe } from '@angular/common';
 
 
 @NgModule({
@@ -63,6 +66,8 @@ import { CardAuthorsDialogComponent } from './db-querying/card-dialogs/card-auth
     CardKeywordsComponent,
     CardKeywordsDialogComponent,
     CardAuthorsDialogComponent,
+    GeoComponent,
+    GeoMousePositionComponent,
   ],
   imports: [
     BrowserModule,
@@ -74,7 +79,7 @@ import { CardAuthorsDialogComponent } from './db-querying/card-dialogs/card-auth
     FormsModule, 
     ReactiveFormsModule
   ],
-  providers: [CookieService],
+  providers: [CookieService, DecimalPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

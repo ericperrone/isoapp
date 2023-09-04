@@ -16,15 +16,26 @@
     </div>
 
     <div class="container">
-      <div class="row">
-        <div class="col-sm">
+      <div class="row mt-2">
+        <div class="col-4">
           <app-card-ref (emitter)="checkFilter()"></app-card-ref>
         </div>
-        <div class="col-sm">
+        <div class="col-4">
           <app-card-authors (emitter)="checkFilter()"></app-card-authors>
         </div>
-        <div class="col-sm">
+        <div class="col-4">
           <app-card-keywords (emitter)="checkFilter()"></app-card-keywords>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-4">
+          <app-card-geo (emitter)="checkFilter()"></app-card-geo>
+        </div>
+        <div class="col-4">
+          &nbsp;
+        </div>
+        <div class="col-4">
+          &nbsp;
         </div>
       </div>
     </div>

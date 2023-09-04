@@ -30,6 +30,10 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['main-db-querying']);
   }
 
+  public gotoGeo() {
+    this.router.navigate(['geo']);
+  }
+
   public toggleSidebar(): void {
     if (this.transition === 'sideOff') {
       this.transition = 'transitionRight';
