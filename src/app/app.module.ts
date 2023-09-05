@@ -37,6 +37,7 @@ import { CardAuthorsDialogComponent } from './db-querying/card-dialogs/card-auth
 import { GeoComponent } from './shared/components/geo/geo.component';
 import { GeoMousePositionComponent } from './shared/components/geo-mouse-position/geo-mouse-position.component';
 import { DecimalPipe } from '@angular/common';
+import { GeoScaleLineComponent } from './shared/components/geo-scale-line/geo-scale-line.component';
 
 
 @NgModule({
@@ -68,6 +69,7 @@ import { DecimalPipe } from '@angular/common';
     CardAuthorsDialogComponent,
     GeoComponent,
     GeoMousePositionComponent,
+    GeoScaleLineComponent,
   ],
   imports: [
     BrowserModule,

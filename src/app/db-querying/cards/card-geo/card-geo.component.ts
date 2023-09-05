@@ -6,6 +6,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-card-geo',
@@ -22,7 +23,7 @@ export class CardGeoComponent implements OnInit, OnDestroy {
   private sub: Subscription | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
-  constructor(private storeService: StoreService,
+  constructor(private decimalPipe: DecimalPipe, private storeService: StoreService,
     private eventGeneratorService: EventGeneratorService,
     private modalService: NgbModal) { }
 
@@ -43,13 +44,17 @@ export class CardGeoComponent implements OnInit, OnDestroy {
   }
 
   public editCard(): void {
-    fullscreen: true
-    // let ref = this.modalService.open(GeoComponent, { centered: true, size: 'xl' });
     let ref = this.modalService.open(GeoComponent, { fullscreen: true });
     ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.resetFields();
+        const fractionDigits = 4;
+        const digitsInfo = `1.${fractionDigits}-${fractionDigits}`;
+        this.startLatitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.topLatitude, digitsInfo);
+        this.startLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.topLongitude, digitsInfo);
+        this.endLatitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.bottomLatitude, digitsInfo);
+        this.endLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.bottomLongitude, digitsInfo);
         this.emitter.emit(true);
       }
       ref.close()

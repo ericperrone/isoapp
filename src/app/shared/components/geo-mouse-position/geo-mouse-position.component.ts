@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, Input, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy, Input, ViewChild } from '@angular/core';
 import { CoordinateFormatterService } from 'src/app/services/common/coordinate-formatter.service';
 import Map from 'ol/Map';
 import ControlMousePosition from 'ol/control/MousePosition';
@@ -15,8 +15,7 @@ export class GeoMousePositionComponent implements OnInit, AfterViewInit {
   private control: ControlMousePosition | undefined;
   @ViewChild('geomouseposition') mouseposition: any;
 
-  constructor(private element: ElementRef,
-    private formatterService: CoordinateFormatterService) { }
+  constructor(private formatterService: CoordinateFormatterService) { }
 
   ngOnInit(): void {
   }

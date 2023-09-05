@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { epsg3857to4326, GeoGoordinates } from 'src/app/shared/tools';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +20,14 @@ export class CoordinateFormatterService {
     
     template = template || 'Lat. {y}  :  Long. {x}';
 
-    const x = coordinates[0];
-    const y = coordinates[1];
+    let x = coordinates[0];
+    let  y = coordinates[1];
+
+    let c4326 = epsg3857to4326(y, x);
+
+    x = c4326.longitude;
+    y = c4326.latitude;
+
     const digitsInfo = `1.${fractionDigits}-${fractionDigits}`;
     const sX = this.decimalPipe.transform(x, digitsInfo);
     const sY = this.decimalPipe.transform(y, digitsInfo);

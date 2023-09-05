@@ -6,11 +6,18 @@ import { SampleService } from 'src/app/services/rest/sample.service';
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
 
+export interface GeoRegion {
+  topLatitude: number;
+  topLongitude: number;
+  bottomLatitude: number;
+  bottomLongitude: number;
+}
+
 export interface QueryFilter {
   ref: string;
   authors: string[];
   keywords: string[];
-  geo?: any;
+  geo?: GeoRegion;
 }
 
 @Component({
