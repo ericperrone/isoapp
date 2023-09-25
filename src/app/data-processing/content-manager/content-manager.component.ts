@@ -580,6 +580,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
           default:
             break;
         }
+        ref.componentInstance.emitter.unsubscribe();
       }
     );
   }

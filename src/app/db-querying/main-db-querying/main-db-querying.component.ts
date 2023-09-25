@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
+import { GridComponent, GridItem } from 'src/app/shared/components/grid/grid.component';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -31,6 +32,7 @@ export class MainDbQueryingComponent implements OnInit {
   public filterOn = true;
   public jsonTable = [];
   public jsonHeader = [];
+  public gridContent: Array<Array<string>> | undefined;
 
   constructor(private storeService: StoreService,
     private sampleService: SampleService,
@@ -51,8 +53,9 @@ export class MainDbQueryingComponent implements OnInit {
     this.sampleService.mainQueryTable(filter).subscribe(
       (res) => {
         console.log(res);
-        this.jsonHeader = res[0];
-        this.jsonTable = res.slice(1);
+        // this.jsonHeader = res[0];
+        // this.jsonTable = res.slice(1);
+        this.gridContent = res;
         this.spinnerOn = false;
         this.filterOn = false;
       }
