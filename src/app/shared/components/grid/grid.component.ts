@@ -1,7 +1,10 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectBoxComponent } from '../../modals/select-box/select-box.component';
 import { ModalParams, ExclusiveChoice } from '../../modals/modal-params';
+import { saveCsvFile } from '../../tools';
+import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
+import { Subscription } from 'rxjs';
 
 export interface GridItem {
   header: boolean;
@@ -12,12 +15,14 @@ export interface GridItem {
   content: any;
 }
 
+export const EXPORT = '_EXPORT_';
+
 @Component({
   selector: 'app-grid',
   templateUrl: './grid.component.html',
   styleUrls: ['./grid.component.scss']
 })
-export class GridComponent implements OnInit, OnChanges {
+export class GridComponent implements OnInit, OnDestroy, OnChanges {
   // @HostListener("contextmenu", ["$event"])
   //  onRightClick(event: any) {
   //   event.preventDefault();
@@ -30,10 +35,25 @@ export class GridComponent implements OnInit, OnChanges {
   public gridCols = new Array<Array<GridItem>>();
   public gridRows = new Array<Array<GridItem>>();
   public tableOn = false;
+  private sub: Subscription | any;
 
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal,
+    private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
+    this.sub = this.eventGeneratorService.on(EXPORT).subscribe(
+      () => {
+        if (!!this.gridHeader && this.gridHeader.length > 0) {
+          saveCsvFile(this.buildCsv());
+        }        
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
@@ -170,6 +190,26 @@ export class GridComponent implements OnInit, OnChanges {
       e.visible = false;
     }
     this.tableOn = true;
+  }
+
+  private buildCsv(): string {
+    let csv = '';
+    for (let h of this.gridHeader) {
+      if (h.visible === true) {
+        csv += h.content + ';';
+      }
+    }
+    csv += '\n';
+
+    for (let r of this.gridRows) {
+      for (let item of r) {
+        if (item.visible === true) {
+          csv += item.content + ';';
+        }
+      }
+      csv += '\n';
+    }
+    return csv;
   }
 
 }

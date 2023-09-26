@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
-import { GridComponent, GridItem } from 'src/app/shared/components/grid/grid.component';
+import { GridComponent, GridItem, EXPORT } from 'src/app/shared/components/grid/grid.component';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -70,5 +70,9 @@ export class MainDbQueryingComponent implements OnInit {
     } else {
       this.queryDisabled = true;
     }
+  }
+
+  public export(): void {
+    this.eventGeneratorService.emit({ key: EXPORT });
   }
 }
