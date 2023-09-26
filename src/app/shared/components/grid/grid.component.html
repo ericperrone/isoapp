@@ -1,20 +1,28 @@
-<table class="table table-bordered table-hover" *ngIf="tableOn === true">
-  <thead class="thead-light">
-    <ng-template ngFor let-h [ngForOf]="gridHeader">
-      <th scope="col" *ngIf="h.visible === true">
-        <div class="inline-block clickable header-menu-button" (click)="displayMenu(h)"><i class="fa-solid fa-ellipsis-vertical"></i></div>
-        <div class="header-color inline-block selected" *ngIf="h.selected === true">{{ h.content }}</div>
-        <div class="header-color inline-block" *ngIf="h.selected === false">{{ h.content }}</div>
-      </th>  
-    </ng-template>
-  </thead>
-  <tr *ngFor="let r of gridRows">
-    <!-- <td *ngFor="let e of r">{{ e.content }}</td> -->
-    <ng-template ngFor let-e [ngForOf]="r">
-      <td scope="col" *ngIf="e.visible === true">
-        <span *ngIf="e.selected === true" class="selected p-0">{{ e.content }}</span>
-        <span *ngIf="e.selected === false" class="p-0">{{ e.content }}</span>
-      </td>  
-    </ng-template>
-  </tr>
-</table>
+<div>
+  <div class="w95 centered mt-1 scrollable" style="max-height: 30em;">
+    <table class="table table-bordered table-hover" *ngIf="tableOn === true">
+      <thead class="thead-light">
+        <ng-template ngFor let-h [ngForOf]="gridHeader">
+          <th scope="col" *ngIf="h.visible === true">
+            <div class="inline-block clickable header-menu-button" (click)="displayMenu(h)"><i
+                class="fa-solid fa-ellipsis-vertical"></i></div>
+            <div class="header-color inline-block selected" *ngIf="h.selected === true">{{ h.content }}</div>
+            <div class="header-color inline-block" *ngIf="h.selected === false">{{ h.content }}</div>
+          </th>
+        </ng-template>
+      </thead>
+      <tr *ngFor="let r of gridRows">
+        <!-- <td *ngFor="let e of r">{{ e.content }}</td> -->
+        <ng-template ngFor let-e [ngForOf]="r">
+          <td scope="col" *ngIf="e.visible === true">
+            <span *ngIf="e.selected === true" class="selected p-0">{{ e.content }}</span>
+            <span *ngIf="e.selected === false" class="p-0">{{ e.content }}</span>
+          </td>
+        </ng-template>
+      </tr>
+    </table>
+  </div>
+  <div class="w95 centered text-right mt-2">
+    <button class="btn btn-primary" [disabled]="deleteFlag === false" (click)="restoreAll()">Restore all</button>
+  </div>
+</div>

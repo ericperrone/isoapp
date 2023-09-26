@@ -35,6 +35,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public gridCols = new Array<Array<GridItem>>();
   public gridRows = new Array<Array<GridItem>>();
   public tableOn = false;
+  public deleteFlag = false;
   private sub: Subscription | any;
 
   constructor(private modalService: NgbModal,
@@ -149,11 +150,12 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
-  private restoreAll(): void {
+  public restoreAll(): void {
     if (!!this.dataset) {
       this.tableOn = false;
       this.build(this.dataset);
       this.tableOn = true;
+      this.deleteFlag = false;
     }
   }
 
@@ -190,6 +192,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       e.visible = false;
     }
     this.tableOn = true;
+    this.deleteFlag = true;
   }
 
   private buildCsv(): string {
