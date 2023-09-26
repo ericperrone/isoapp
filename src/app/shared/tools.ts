@@ -45,3 +45,8 @@ export function epsg3857to4326(lat3857: number, long3857: number): GeoGoordinate
 
     return { latitude: lat4326, longitude: long4326 };
 }
+
+export function saveCsvFile(csv: string): void {
+    const universalBOM = "\uFEFF";
+    window.open("data:text/csv;charset=utf-16," + encodeURIComponent(universalBOM + csv));
+}

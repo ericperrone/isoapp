@@ -24,6 +24,7 @@ export class GridComponent implements OnInit, OnChanges {
   //   console.log(event);
   //  }
   @Input() gridContent: Array<Array<string>> | undefined;
+  public dataset: Array<Array<string>> | undefined;
   public gridHeader = new Array<GridItem>();
   public selectedCols = new Array<number>();
   public gridCols = new Array<Array<GridItem>>();
@@ -36,7 +37,8 @@ export class GridComponent implements OnInit, OnChanges {
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
+    // console.log(changes);
+    this.dataset = changes['gridContent'].currentValue;
     this.build(changes['gridContent'].currentValue);
   }
 
@@ -45,6 +47,8 @@ export class GridComponent implements OnInit, OnChanges {
       return;
     }
     this.tableOn = false;
+    
+    this.reset();
 
     let header = gridContent[0];
     let table = gridContent.slice(1);
@@ -68,12 +72,20 @@ export class GridComponent implements OnInit, OnChanges {
     this.tableOn = true;
   }
 
+  private reset(): void {
+    this.gridHeader = new Array<GridItem>();
+    this.gridCols = new Array<Array<GridItem>>();
+    this.gridRows = new Array<Array<GridItem>>();
+    this.selectedCols = new Array<number>();
+  }
+
   public displayMenu(h: GridItem) {
     let params: ModalParams = {
       choices: [
         { text: 'Select', value: 0 },
         { text: 'Unselect', value: 1 },
-        { text: 'Delete', value: 2 }
+        { text: 'Delete', value: 2 },
+        // { text: 'Restore all', value: 3 }
       ]
     };
 
@@ -106,13 +118,23 @@ export class GridComponent implements OnInit, OnChanges {
           case 2:
             this.deleteCol(h);
             break;
+          case 3:
+            this.restoreAll();
+            break;
           default:
             break;
         }
         ref.componentInstance.emitter.unsubscribe();
       }
     );
+  }
 
+  private restoreAll(): void {
+    if (!!this.dataset) {
+      this.tableOn = false;
+      this.build(this.dataset);
+      this.tableOn = true;
+    }
   }
 
   private selectCol(h: GridItem): void {
