@@ -7,6 +7,7 @@ import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 
 @Component({
   selector: 'app-card-geo',
@@ -21,6 +22,9 @@ export class CardGeoComponent implements OnInit, OnDestroy {
   public disabled = true;
   public queryFilter: QueryFilter = { ref: '', authors: [], keywords: [] };
   private sub: Subscription | undefined;
+  private subModal: Subscription | undefined;
+  private ref: any;
+
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
   constructor(private decimalPipe: DecimalPipe, private storeService: StoreService,
@@ -35,17 +39,28 @@ export class CardGeoComponent implements OnInit, OnDestroy {
         this.queryFilter.geo = undefined;
       }
     );
+
+    this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () => {
+        if (!!this.ref) {
+          this.ref.close();
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
     if (!!this.sub) {
       this.sub.unsubscribe();
     }
+    if (!!this.subModal) {
+      this.subModal.unsubscribe();
+    }
   }
 
   public editCard(): void {
-    let ref = this.modalService.open(GeoComponent, { fullscreen: true });
-    ref.componentInstance.emitter.subscribe((result: string) => {
+    this.ref = this.modalService.open(GeoComponent, { fullscreen: true });
+    this.ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.resetFields();
@@ -57,7 +72,7 @@ export class CardGeoComponent implements OnInit, OnDestroy {
         this.endLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.bottomLongitude, digitsInfo);
         this.emitter.emit(true);
       }
-      ref.close()
+      this.ref.close()
     });
 
   }

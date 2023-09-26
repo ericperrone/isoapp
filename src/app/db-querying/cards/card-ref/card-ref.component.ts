@@ -6,6 +6,7 @@ import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-
 import { CardRefDialogComponent } from '../../card-dialogs/card-ref-dialog/card-ref-dialog.component';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 
 @Component({
   selector: 'app-card-ref',
@@ -16,6 +17,8 @@ export class CardRefComponent implements OnInit, OnDestroy {
   public queryFilter: QueryFilter = { ref: '', authors: [], keywords: [] };
   public disabled = true;
   private sub: Subscription | undefined;
+  private subModal: Subscription | undefined;
+  private ref: any;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
   constructor(private storeService: StoreService,
@@ -29,22 +32,32 @@ export class CardRefComponent implements OnInit, OnDestroy {
         this.queryFilter.ref = '';
       }
     );
+    this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () =>  {
+        if (!!this.ref) {
+          this.ref.close();
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
     if (!!this.sub) {
       this.sub.unsubscribe();
     }
+    if (!!this.subModal) {
+      this.subModal.unsubscribe();
+    }
   }
 
   public editCard(): void {
-    let ref = this.modalService.open(CardRefDialogComponent, { centered: true });
-    ref.componentInstance.emitter.subscribe((result: string) => {
+    this.ref = this.modalService.open(CardRefDialogComponent, { centered: true });
+    this.ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.emitter.emit(true);
       }
-      ref.close()
+      this.ref.close();
     });
   }
 

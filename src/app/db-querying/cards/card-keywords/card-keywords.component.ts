@@ -6,6 +6,7 @@ import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { CardKeywordsDialogComponent } from '../../card-dialogs/card-keywords-dialog/card-keywords-dialog.component';
 import { Subscription } from 'rxjs';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 
 @Component({
   selector: 'app-card-keywords',
@@ -17,6 +18,8 @@ export class CardKeywordsComponent implements OnInit, OnDestroy {
   public disabled = true;
   public keywords = '';
   private sub: Subscription | undefined;
+  private subModal: Subscription | undefined;
+  private ref: any;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
   constructor(private storeService: StoreService,
@@ -32,17 +35,27 @@ export class CardKeywordsComponent implements OnInit, OnDestroy {
         this.queryFilter.keywords = [];
       }
     );
+    this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () =>  {
+        if (!!this.ref) {
+          this.ref.close();
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
     if (!!this.sub) {
       this.sub.unsubscribe();
     }
+    if (this.subModal) {
+      this.subModal.unsubscribe();
+    }
   }
 
   public editCard(): void {
-    let ref = this.modalService.open(CardKeywordsDialogComponent, { centered: true });
-    ref.componentInstance.emitter.subscribe((result: string) => {
+    this.ref = this.modalService.open(CardKeywordsDialogComponent, { centered: true });
+    this.ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.keywords = '';
@@ -52,7 +65,7 @@ export class CardKeywordsComponent implements OnInit, OnDestroy {
         this.keywords = this.keywords.trim();
       }
       console.log(this.queryFilter);  
-      ref.close()
+      this.ref.close()
       this.emitter.emit(true);
     });
   }

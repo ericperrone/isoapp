@@ -1,5 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
+
+export const CLOSE_ALL_MODALS = '_CLOSE_ALL_MODALS_';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +15,8 @@ export class HeaderComponent implements OnInit {
   public slideRight: boolean = false;
   public transition: 'sideOff' | 'sideOn' | 'transitionLeft' | 'transitionRight' | undefined;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+    private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
     if (!!this.initialStatus) {
@@ -23,11 +27,14 @@ export class HeaderComponent implements OnInit {
   }
 
   public gotoDataProcessing() {
-    this.router.navigate(['main-data-processing']);
+    this.eventGeneratorService.emit({ key: CLOSE_ALL_MODALS });
+    setTimeout(() => this.router.navigate(['main-data-processing']), 100);
+    
   }
 
   public gotoDbQueries() {
-    this.router.navigate(['main-db-querying']);
+    this.eventGeneratorService.emit({ key: CLOSE_ALL_MODALS });
+    setTimeout(() => this.router.navigate(['main-db-querying']), 100);
   }
 
   public gotoGeo() {
