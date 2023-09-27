@@ -4,15 +4,25 @@
       <thead class="thead-light">
         <ng-template ngFor let-h [ngForOf]="gridHeader">
           <th scope="col" *ngIf="h.visible === true">
-            <div class="inline-block clickable header-menu-button" (click)="displayMenu(h)"><i
-                class="fa-solid fa-ellipsis-vertical"></i></div>
             <div class="header-color inline-block selected" *ngIf="h.selected === true">{{ h.content }}</div>
             <div class="header-color inline-block" *ngIf="h.selected === false">{{ h.content }}</div>
+            <div class="inline-block clickable header-menu-button" (click)="displayMenu(h)"><i
+                class="fa-solid fa-ellipsis-vertical"></i></div>
+            <!-- <div class="inline-block clickable header-menu-button" (click)="displayMenu(h)"><i
+                class="fa-solid fa-ellipsis-vertical"></i></div>
+            <div class="header-color inline-block selected" *ngIf="h.selected === true">{{ h.content }}</div>
+            <div class="header-color inline-block" *ngIf="h.selected === false">{{ h.content }}</div> -->
+
+            <!-- <div class="row header-color">
+              <div class="col-11 selected" *ngIf="h.selected === true">{{ h.content }}</div>
+              <div class="col-11" *ngIf="h.selected === false">{{ h.content }}</div>
+              <div class="col-1 clickable header-menu-button" (click)="displayMenu(h)"><i
+                class="fa-solid fa-ellipsis-vertical"></i></div>
+            </div>   -->
           </th>
         </ng-template>
       </thead>
       <tr *ngFor="let r of gridRows">
-        <!-- <td *ngFor="let e of r">{{ e.content }}</td> -->
         <ng-template ngFor let-e [ngForOf]="r">
           <td scope="col" *ngIf="e.visible === true">
             <span *ngIf="e.selected === true" class="selected p-0">{{ e.content }}</span>

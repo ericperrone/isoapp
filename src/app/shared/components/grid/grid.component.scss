@@ -6,8 +6,8 @@ td, th {
     max-width: 100%;
     white-space: nowrap;
     border-right: solid 1px lightgray;
-    padding-left: 5px;
-    padding-right: 5px;
+    // padding-left: 5px;
+    // padding-right: 5px;
     // border-bottom: solid 1px lightgray;;
 }
 
@@ -20,5 +20,7 @@ td, th {
 }
 
 .selected {
-    background-color: coral;
+    background-color: orange;
+    color: black;
+    border-radius: 3px;
 }
