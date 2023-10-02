@@ -132,6 +132,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
               this.session.content = res;
               this.loadContent();
               this.spinnerOn = false;
+              this.analyzeContent();
             }
           );
         }
@@ -315,7 +316,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
   }
 
   private purgeUndefined(tables: Array<Array<Array<string>>>): Array<Array<Array<string>>> {
-    let t =  new Array<Array<Array<string>>>();
+    let t = new Array<Array<Array<string>>>();
     for (let i = 0; i < tables.length; i++) {
       let table = tables[i];
       t[i] = new Array<Array<string>>();
@@ -328,7 +329,7 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       }
     }
     return t;
-  } 
+  }
 
   private transformToHelper(tables: Array<Array<Array<string>>>, key: string) {
     let samples = new Array<Array<Array<Helper>>>();
@@ -416,15 +417,17 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
       for (let i = 0; i < samples.length; i++) {
         let table = samples[i];
         let row = table[0];
-        for (let h of row) {
-          let field = h.attributes[0].field;
-          if (field === key) {
-            if (already === false) {
+        if (!!row) {
+          for (let h of row) {
+            let field = h.attributes[0].field;
+            if (field === key) {
+              if (already === false) {
+                header.push(field);
+                already = true;
+              }
+            } else {
               header.push(field);
-              already = true;
             }
-          } else {
-            header.push(field);
           }
         }
       }
@@ -442,18 +445,21 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
           let table = samples[i];
           // if (i === 0)
           row = table[n]; // riga n-ma tabella i-ma
-          for (let h of row) {
-            // console.log(h);
-            let field = h.attributes[0].field;
-            let value = h.attributes[0].value;
-            if (field === key) {
-              if (already === false) {
-                usedKey = !!value ? value : '';
-                newRow.push(usedKey);
-                already = true;
+          // console.log(row.isArray());
+          if (!!row) {
+            for (let h of row) {
+              // console.log(h);
+              let field = h.attributes[0].field;
+              let value = h.attributes[0].value;
+              if (field === key) {
+                if (already === false) {
+                  usedKey = !!value ? value : '';
+                  newRow.push(usedKey);
+                  already = true;
+                }
+              } else {
+                newRow.push(!!value ? value : '');
               }
-            } else {
-              newRow.push(!!value ? value : '');
             }
           }
         }
@@ -467,29 +473,6 @@ export class ContentManagerComponent extends DataGathering implements OnInit, On
     this.findTableEnd();
     this.paginateContent();
   }
-
-  // private sortTableByKey(table: Array<Array<string>>, key: string): Array<Array<string>> {
-  //   let sortedTable = new Array<Array<string>>();
-  //   let header = table[0];
-
-  //   let keyPosition = 0
-  //   for (let i = 0; i < header.length; i++) {
-  //     if (header[i] === key) {
-  //       keyPosition = i;
-  //       break;
-  //     }
-  //   }
-
-  //   let subTable = new Array<Array<string>>();
-  //   for (let i = 1; i < table.length; i++) {
-  //     subTable.push(table[i]);
-  //   }
-
-  //   console.log(subTable);
-
-  //   return sortedTable;
-  // }
-
 
   private deleteEmptyCols() {
     if (!this.content)
