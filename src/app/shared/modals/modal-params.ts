@@ -14,6 +14,7 @@ export interface ExclusiveChoice {
     text: string;
     value: number;
     color?: string;
+    icon?: string;
 }
 
 export const CONFIRM = 'confirm';

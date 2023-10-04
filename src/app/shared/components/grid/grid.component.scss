@@ -16,6 +16,7 @@ td, th {
 }
 
 .header-menu-button {
+    background-color: gainsboro;
     border-radius: 10px;
 }
 
@@ -23,4 +24,8 @@ td, th {
     background-color: orange;
     color: black;
     border-radius: 3px;
+}
+
+.transparent {
+    background-color: transparent;
 }

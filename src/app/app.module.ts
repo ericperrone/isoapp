@@ -39,6 +39,8 @@ import { GeoMousePositionComponent } from './shared/components/geo-mouse-positio
 import { DecimalPipe } from '@angular/common';
 import { GeoScaleLineComponent } from './shared/components/geo-scale-line/geo-scale-line.component';
 import { GridComponent } from './shared/components/grid/grid.component';
+import { ModelsMenuComponent } from './geo-modelling/models-menu/models-menu.component';
+import { MixingComponent } from './geo-modelling/mixing/mixing.component';
 
 
 @NgModule({
@@ -72,6 +74,8 @@ import { GridComponent } from './shared/components/grid/grid.component';
     GeoMousePositionComponent,
     GeoScaleLineComponent,
     GridComponent,
+    ModelsMenuComponent,
+    MixingComponent,
   ],
   imports: [
     BrowserModule,

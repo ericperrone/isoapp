@@ -8,7 +8,11 @@
     <div>
         <ul class="nav flex-column">
             <li class="nav-item" *ngFor="let c of params.choices">
-                <a class="nav-link active" [style]="setStyle(c)" (click)="emit(c.value)">{{ c.text }}</a>
+                <a class="nav-link active" [style]="setStyle(c)" (click)="emit(c.value)">
+                    <i *ngIf="!!c.icon" class="{{ c.icon }}">&nbsp;
+                    </i>
+                    {{ c.text }}
+                </a>
             </li>
         </ul>
     </div>

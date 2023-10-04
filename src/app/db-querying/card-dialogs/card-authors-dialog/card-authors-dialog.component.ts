@@ -47,7 +47,9 @@ export class CardAuthorsDialogComponent implements OnInit {
       this.authors.push(this.author);
       this.authors = distinct(this.authors);
       if (this.insertFlag === true)
-        this.authorService.insertAuthor({ id: -1, surname: this.surname, name: this.name }).subscribe();
+        this.authorService.insertAuthor({ id: -1, surname: this.surname, name: this.name }).subscribe(
+          (res) => console.log(res)
+          );
       this.surname = '';
       this.name = '';
     }
