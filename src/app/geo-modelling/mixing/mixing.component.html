@@ -1,1 +1,47 @@
-<p>mixing works!</p>
+<div class="application-frame">
+    <div>
+        <app-end-member [members]="params?.endMembers" (outMember)="getAnalyzedMembers($event)"
+            (onSelect)="getSelected($event)"></app-end-member>
+    </div>
+    <div class="w95 centered" *ngIf="!!computables">
+        <div *ngFor="let c of computables">
+            <div>
+                End member: {{ c.endMemberName }}
+            </div>
+            <div class="row">
+                <div class="col-3">{{ c.elementName }}</div>
+                <div class="col-2">{{ c.elementValue }}</div>
+                <div class="col-2"><input type="checkbox" #ratio (change)="onRatio($event)">ratio</div>
+                <div class="col-3">{{ c.concentration? c.concentration : '' }}</div>
+                <div class="col-2">{{ c.concentrationValue? c.concentrationValue : '' }}</div>
+            </div>
+        </div>
+
+    </div>
+    <div class="w95 centered text-right mt-2">
+        <button class="btn btn-primary m-1" (click)="close()">Close</button>
+        <button class="btn btn-primary m-1" (click)="submit()">Submit</button>
+    </div>
+    <div *ngIf="!!result">
+        <div class="w95 centered mt-2 scrollable" style="max-width: 95%">
+            <div>Element: {{ result.element }}</div>
+            <div>Member 1 {{ result.member1 }} - Member2 {{ result.member2 }} </div>
+            <table>
+                <tr>
+                    <td>Weight</td>
+                    <td *ngFor="let x of result.mix" class="text-right">
+                        {{ x.weight }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Value</td>
+                    <td *ngFor="let x of result.mix" class="text-right">
+                        {{ x.mix }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="w95 centered mt-2 text-right"><button class="btn btn-secondary m-1"
+                (click)="export()">Export</button></div>
+    </div>
+</div>

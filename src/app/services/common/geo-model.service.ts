@@ -8,14 +8,17 @@ export enum ModelList {
   Melting
 }
 
-export interface DataType {
-  type: ''
+export interface EndMemberItem {
+  type: string;
+  name: string;
+  value: string;
+  selected?: boolean;
 }
 
 export interface GeoModel {
   selectedModel: number;
-  fieldTypes: 
-  endMembers: Array<Array<string>>;
+  endMembers: Array<Array<EndMemberItem>>;
+  modalRef?: any;
 }
 
 @Injectable({
@@ -34,7 +37,10 @@ export class GeoModelService {
     if (!!this.model) {
       switch (this.model.selectedModel) {
         case ModelList.Mixing:
-          let ref = this.modalService.open(MixingComponent,  { centered: true, size: 'sm', scrollable: true });
+          let ref = this.modalService.open(MixingComponent,  { fullscreen: true });
+          // let ref = this.modalService.open(MixingComponent,  { centered: true, size: 'lg' });
+          this.model.modalRef = ref;
+          ref.componentInstance.params = this.model;
           break;
         default:
           break;  

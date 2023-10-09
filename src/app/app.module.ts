@@ -41,6 +41,7 @@ import { GeoScaleLineComponent } from './shared/components/geo-scale-line/geo-sc
 import { GridComponent } from './shared/components/grid/grid.component';
 import { ModelsMenuComponent } from './geo-modelling/models-menu/models-menu.component';
 import { MixingComponent } from './geo-modelling/mixing/mixing.component';
+import { EndMemberComponent } from './geo-modelling/end-member/end-member.component';
 
 
 @NgModule({
@@ -76,6 +77,7 @@ import { MixingComponent } from './geo-modelling/mixing/mixing.component';
     GridComponent,
     ModelsMenuComponent,
     MixingComponent,
+    EndMemberComponent,
   ],
   imports: [
     BrowserModule,

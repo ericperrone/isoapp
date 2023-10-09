@@ -5,7 +5,7 @@ import { ModalParams } from '../../modals/modal-params';
 import { saveCsvFile } from '../../tools';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { Subscription } from 'rxjs';
-import { GeoModelService } from 'src/app/services/common/geo-model.service';
+import { GeoModelService, GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
 
 export interface GridItem {
   header: boolean;
@@ -15,6 +15,7 @@ export interface GridItem {
   col: number;
   content: any;
   check: boolean;
+  type: string;
 }
 
 export const EXPORT = '_EXPORT_';
@@ -52,7 +53,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       () => {
         if (!!this.gridHeader && this.gridHeader.length > 0) {
           saveCsvFile(this.buildCsv());
-        }        
+        }
       }
     );
   }
@@ -74,12 +75,12 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
     this.tableOn = false;
-    
+
     this.reset();
 
     // let header = [ "", ...gridContent[0]];
     this.originalHeader = gridContent[0];
-    let header = new Array<string>(); 
+    let header = new Array<string>();
     for (let oh of this.originalHeader) {
       let p = oh.indexOf('\\');
       if (p > 0) {
@@ -98,7 +99,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     // this.gridCols[0][0] = gridItem;
 
     for (let i = 0; i < header.length; i++) {
-      let gridItem: GridItem = { header: true, visible: true, selected: false, row: 0, col: i, content: header[i], check: false };
+      let type = this.originalHeader[i].charAt(0);
+      let gridItem: GridItem = { header: true, visible: true, selected: false, row: 0, col: i, content: header[i], check: false, type: type };
       this.gridHeader.push(gridItem);
       this.gridCols[i] = new Array<GridItem>();
       this.gridCols[i][0] = gridItem;
@@ -109,8 +111,9 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       // let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: 0, content: "", check: true };
       // this.gridCols[0][r] = gridItem;
       // this.gridRows[r][0] = gridItem;
-    for (let c = 0; c < table[r].length; c++) {
-        let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: c, content: table[r][c], check: false };
+      for (let c = 0; c < table[r].length; c++) {
+        let type = this.originalHeader[c].charAt(0);
+        let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: c, content: table[r][c], check: false, type: type };
         this.gridCols[c][r] = gridItem;
         this.gridRows[r][c] = gridItem;
       }
@@ -128,10 +131,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public onCheck(gi: GridItem) {
-    
+
     let found = -1;
 
-    for(let i = 0; i < this.selectedRowsIndex.length; i++) {
+    for (let i = 0; i < this.selectedRowsIndex.length; i++) {
       if (this.selectedRowsIndex[i] === gi.row) {
         found = i;
         break;
@@ -268,6 +271,17 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public use(): void {
+    let members = new Array<Array<EndMemberItem>>();
+    for (let s of this.selectedRowsIndex) {
+      let row = this.gridRows[s];
+      let member = new Array<EndMemberItem>();
+      for (let c of row) {
+        if (c.visible)
+          member.push({ type: c.type, name: this.gridHeader[c.col].content, value: '' + c.content });
+      }
+      members.push(member);
+    }
+
     let params: ModalParams = {
       choices: [
         { text: 'Mixing model', value: 0, icon: 'fa-solid fa-flask' },
@@ -283,7 +297,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
         ref.close();
         switch (response) {
           case 0:
-            this.geoModelService.setModel({selectedModel: 0, endMembers: new Array<Array<string>>()});
+            this.geoModelService.setModel({ selectedModel: 0, endMembers: members });
             this.geoModelService.execute();
             break;
           case 1:

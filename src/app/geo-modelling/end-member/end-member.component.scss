@@ -1,3 +1,10 @@
+.endmember {
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
 table {
     border: solid 1px lightgray;
     border-bottom: 0px !important;
@@ -9,4 +16,8 @@ td, th {
     white-space: nowrap;
     border-right: solid 1px lightgray;
     border-bottom: solid 1px lightgray;
+}
+
+thead {
+    background-color: lightgray;
 }

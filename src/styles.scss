@@ -203,6 +203,34 @@ body {
     color: #ff4081;
 }
 
+.field {
+    // color: #cfe2ff
+    color: lightseagreen;
+}
+
+.chem {
+    // color: #a3cfbb
+    color: lightsalmon;
+}
+
+.isotope {
+    color: lightgreen;
+}
+
+.field-back {
+    // color: #cfe2ff
+    background-color: lightseagreen;
+}
+
+.chem-back {
+    // color: #a3cfbb
+    background-color: lightsalmon;
+}
+
+.isotope-back {
+    background-color: lightgreen;
+}
+
 .bold {
     font-weight: bold;
 }
