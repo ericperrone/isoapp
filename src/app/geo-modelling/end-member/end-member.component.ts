@@ -74,18 +74,10 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     // this.unSelectAll(item);
     true === item.selected ? item.selected = undefined : item.selected = true;
     this.onSelect.emit({ 'memberName': memberName, 'item': item });
+    if (!item.selected) {
+      this.unSelectAll();
+    }
   }
-
-  // private unSelectAll(item: EndMemberItem): void {
-  //   if (this.multipleSelectionMode)
-  //     return;
-  //   for (let m of this.endMembers) {
-  //     for (let mm of m.member) {
-  //       if (mm !== item)
-  //         mm.selected = false;
-  //     }
-  //   }
-  // }
 
   private unSelectAll(): void {
     if (!!this.endMembers) {
