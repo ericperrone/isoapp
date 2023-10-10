@@ -42,7 +42,6 @@ export class MixingComponent implements OnInit {
   public result: MixingResult | undefined;
   private firstSelectionItem: any;
   private secondSelectionItem: any;
-  private currentItem: any
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private geModelsService: GeoModelsService) { }
@@ -64,13 +63,15 @@ export class MixingComponent implements OnInit {
     this.secondSelectionItem = undefined;
     for (let a of this.ratios._results) {
         a.nativeElement.checked = false;
-        // a.nativeElement.disabled = true;
       }
+    for (let i = 0; i < this.ratio.length; i++) {
+      this.ratio[i] = false;
+    }  
+    this.result = undefined;
   }
 
   public getSelected(event: any) {
     console.log(event);
-    // let currentSelectionItem: any;
 
     if (!this.firstSelectionItem) {
       this.firstSelectionItem = event;
@@ -96,8 +97,6 @@ export class MixingComponent implements OnInit {
           sorted[index] = this.endMembers[index];
         }
 
-        // if (this.ratio === false) {
-        this.currentItem = event;
         if (!!this.computables) {
           let i = 0;
           if (!!this.secondSelectionItem) {
@@ -192,11 +191,6 @@ export class MixingComponent implements OnInit {
         return;
       }
     }
-
-    // for (let a of this.ratios._results) {
-    //   a.nativeElement.checked = this.ratio;
-    // }
-    // this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: this.ratio });
   }
 
   public submit() {
