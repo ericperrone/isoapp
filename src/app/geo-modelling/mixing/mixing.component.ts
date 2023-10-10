@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChildren } from '@angular/core';
 import { GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
-import { EndMember, MULTIPLE_SELECTION_MODE } from '../end-member/end-member.component';
+import { EndMember, RESET_SELECTION } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
@@ -55,6 +55,17 @@ export class MixingComponent implements OnInit {
     if (this.params?.modalRef) {
       this.params.modalRef.close();
     }
+  }
+
+  public reset(): void {
+    this.eventGeneratorService.emit({key: RESET_SELECTION});
+    this.resetComputables();
+    this.firstSelectionItem = undefined;
+    this.secondSelectionItem = undefined;
+    for (let a of this.ratios._results) {
+        a.nativeElement.checked = false;
+        // a.nativeElement.disabled = true;
+      }
   }
 
   public getSelected(event: any) {
@@ -140,8 +151,8 @@ export class MixingComponent implements OnInit {
     this.ratio = new Array<boolean>();
     for (let em of event) {
       this.ratio.push(false);
-      this.computables.push({ endMemberName: '', elementName: '', elementValue: '0' });
-      this.computablesBack.push({ endMemberName: '', elementName: '', elementValue: '0' });
+      this.computables.push({ endMemberName: '', elementName: '', elementValue: '' });
+      this.computablesBack.push({ endMemberName: '', elementName: '', elementValue: '' });
     }
   }
 
@@ -161,7 +172,7 @@ export class MixingComponent implements OnInit {
       for (let em of this.computables) {
         em.endMemberName = '';
         em.elementName = '';
-        em.elementValue = '0';
+        em.elementValue = '';
       }
     }
   }

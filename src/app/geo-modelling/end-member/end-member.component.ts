@@ -10,6 +10,7 @@ export interface EndMember {
 
 export const MULTIPLE_SELECTION_MODE = '_MULTIPLE_SELECTION_MODE_';
 export const SECOND_SELECTION = '_SECOND_SELECTION_';
+export const RESET_SELECTION = '_RESET_SELECTION_';
 
 @Component({
   selector: 'app-end-member',
@@ -30,10 +31,11 @@ export class EndMemberComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.analyzeMembers();
-    this.sub = this.eventGeneratorService.on(MULTIPLE_SELECTION_MODE).subscribe(
+    this.sub = this.eventGeneratorService.on(RESET_SELECTION).subscribe(
       (event: any) => {
-        this.multipleSelectionMode = event.content;
+        // this.multipleSelectionMode = event.content;
         // console.log(this.multipleSelectionMode);
+        this.unSelectAll();
       }
     )
   }
@@ -74,13 +76,23 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     this.onSelect.emit({ 'memberName': memberName, 'item': item });
   }
 
-  private unSelectAll(item: EndMemberItem): void {
-    if (this.multipleSelectionMode)
-      return;
-    for (let m of this.endMembers) {
-      for (let mm of m.member) {
-        if (mm !== item)
-          mm.selected = false;
+  // private unSelectAll(item: EndMemberItem): void {
+  //   if (this.multipleSelectionMode)
+  //     return;
+  //   for (let m of this.endMembers) {
+  //     for (let mm of m.member) {
+  //       if (mm !== item)
+  //         mm.selected = false;
+  //     }
+  //   }
+  // }
+
+  private unSelectAll(): void {
+    if (!!this.endMembers) {
+      for(let em of this.endMembers) {
+        for (let m of em.member) {
+          m.selected = false;
+        }
       }
     }
   }
