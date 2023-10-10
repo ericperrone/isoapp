@@ -9,6 +9,7 @@ export interface EndMember {
 }
 
 export const MULTIPLE_SELECTION_MODE = '_MULTIPLE_SELECTION_MODE_';
+export const SECOND_SELECTION = '_SECOND_SELECTION_';
 
 @Component({
   selector: 'app-end-member',
@@ -22,7 +23,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
   @Output() onSelect = new EventEmitter<any>();
 
   public endMembers = new Array<EndMember>();
-  public multipleSelectionMode = false;
+  public multipleSelectionMode = true;
   public sub: Subscription | undefined;
 
   constructor(private eventGeneratorService: EventGeneratorService) { }
@@ -32,7 +33,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     this.sub = this.eventGeneratorService.on(MULTIPLE_SELECTION_MODE).subscribe(
       (event: any) => {
         this.multipleSelectionMode = event.content;
-        console.log(this.multipleSelectionMode);
+        // console.log(this.multipleSelectionMode);
       }
     )
   }
@@ -68,7 +69,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
   }
 
   public onClick(item: EndMemberItem, memberName: string): void {    
-    this.unSelectAll(item);
+    // this.unSelectAll(item);
     true === item.selected ? item.selected = undefined : item.selected = true;
     this.onSelect.emit({ 'memberName': memberName, 'item': item });
   }
