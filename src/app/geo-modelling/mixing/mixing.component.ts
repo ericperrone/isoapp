@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChildren } from '@angular/core';
 import { GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
-import { EndMember, RESET_SELECTION } from '../end-member/end-member.component';
+import { EndMember, RESET_SELECTION, END_MEMBER } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
@@ -14,6 +14,7 @@ interface Computable {
   endMemberName: string;
   elementName: string;
   elementValue: string;
+  row: number;
   concentration?: string;
   concentrationValue?: string;
 }
@@ -40,8 +41,7 @@ export class MixingComponent implements OnInit {
   public ratio = new Array<boolean>();
   public isCollapsed = true;
   public result: MixingResult | undefined;
-  private firstSelectionItem: any;
-  private secondSelectionItem: any;
+  public currentSelectionItem: any;
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private geModelsService: GeoModelsService) { }
@@ -57,104 +57,92 @@ export class MixingComponent implements OnInit {
   }
 
   public reset(): void {
-    this.eventGeneratorService.emit({key: RESET_SELECTION});
+    this.eventGeneratorService.emit({ key: RESET_SELECTION });
     this.resetComputables();
-    this.firstSelectionItem = undefined;
-    this.secondSelectionItem = undefined;
     for (let a of this.ratios._results) {
-        a.nativeElement.checked = false;
-      }
+      a.nativeElement.checked = false;
+    }
     for (let i = 0; i < this.ratio.length; i++) {
       this.ratio[i] = false;
-    }  
+    }
     this.result = undefined;
+    if (this.computables)
+      this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
   }
 
-  public getSelected(event: any) {
-    console.log(event);
-
-    if (!this.firstSelectionItem) {
-      this.firstSelectionItem = event;
-    } else if (!this.secondSelectionItem) {
-      if (!event.item.selected) {
-        this.firstSelectionItem = undefined;
-      } else {
-        this.secondSelectionItem = event;
-      }
-    } else {
-      if (!event.item.selected) {
-        this.secondSelectionItem = undefined;
-      } else {
-        this.secondSelectionItem = event;
+  private getComputableByMemberName(name: string): Computable | undefined {
+    if (!!this.computables) {
+      for (let c of this.computables) {
+        if (c.endMemberName === name)
+          return c;
       }
     }
+    return undefined;
+  }
 
-    let sorted = Array<EndMember>();
-    if (!!event.item.selected && event.item.selected === true) {
-      if (!!this.endMembers) {
-        sorted = Array<EndMember>(this.endMembers.length);
-        for (let index = 0; index < this.endMembers.length; index++) {
-          sorted[index] = this.endMembers[index];
-        }
-
-        if (!!this.computables) {
-          let i = 0;
-          if (!!this.secondSelectionItem) {
-            if (this.ratio[0] === false)
-              i = 1;
+  public getSelected(event: any): void {
+    console.log(event);
+    if (!!this.computables && !!this.endMembers) {
+      let currentComputable = this.getComputableByMemberName(event.memberName);
+      if (!!currentComputable) {
+        if (!event.item.selected) {
+          this.resetComputable(currentComputable);
+        } else {
+          if (!event.item.value || event.item.value.length === 0) {
+            return;
           }
-
-          if (!!this.computablesBack)
-            for (let k = 0; k < this.computables.length; k++) {
-              this.computablesBack[k] = { ...this.computables[k] };
-            }
-
-          this.computables[i].endMemberName = sorted[i].name;
-          this.computables[i].elementName = event.item.name;
-          for (let s of sorted[i].member) {
-            if (s.name === event.item.name) {
-              this.computables[i].elementValue = s.value;
-            }
-          }
-
-          if (this.ratio[i] === true && !!this.computablesBack) {
-            this.computables[i].endMemberName = sorted[i].name;
-            this.computables[i].elementName = this.computablesBack[i].elementName + ' / ' + event.item.name;
-            this.computables[i].elementValue = '' + (parseFloat(this.computablesBack[i].elementValue) / parseFloat(event.item.value));
-            this.ratio[0] = false;
-          }
-
-          if (event.item.type === 'I') {
-            // console.log(sorted);
-            let element = this.getChemFromIsotope(event.item.name);
-            for (let j = 0; j < sorted[i].member.length; j++) {
-              if (sorted[i].member[j].name.indexOf(element) >= 0 && sorted[i].member[j].name !== this.firstSelectionItem.item.name) {
-                this.computables[i].concentration = sorted[i].member[j].name;
-                this.computables[i].concentrationValue = sorted[i].member[j].value;
-                break;
+          if (!this.ratio[currentComputable.row]) {
+            currentComputable.elementName = event.item.name;
+            currentComputable.elementValue = event.item.value;
+            if (event.item.type === 'I') {
+              // console.log(sorted);
+              let element = this.getChemFromIsotope(event.item.name);
+              for (let em of this.endMembers) {
+                if (em.name === event.memberName) {
+                  for (let m of em.member) {
+                    if (m.name.indexOf(element) >= 0 && m.name !== element) {
+                      currentComputable.concentration = m.name;
+                      currentComputable.concentrationValue = m.value;
+                      break;
+                    }
+                  }
+                }
               }
+            } else {
+              currentComputable.concentration = undefined;
+              currentComputable.concentrationValue = undefined;
+            }
+
+            if (currentComputable.row < this.computables?.length) {
+              this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
+            }
+          } else {
+            currentComputable.elementName = currentComputable.elementName + ' / ' + event.item.name;
+            currentComputable.elementValue = '' + (parseFloat(currentComputable.elementValue) / parseFloat(event.item.value));
+            if (currentComputable.row < this.computables?.length) {
+              this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
             }
           }
         }
       }
-    } else {
-      this.resetComputables();
     }
   }
 
   public getAnalyzedMembers(event: any) {
-    // console.log(event);
+    console.log(event);
     this.endMembers = event;
     this.computables = new Array<Computable>();
     this.computablesBack = new Array<Computable>();
     this.ratio = new Array<boolean>();
+    let n = 0;
     for (let em of event) {
       this.ratio.push(false);
-      this.computables.push({ endMemberName: '', elementName: '', elementValue: '' });
-      this.computablesBack.push({ endMemberName: '', elementName: '', elementValue: '' });
+      this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n });
+      this.computablesBack.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n });
+      n++;
     }
+    this.eventGeneratorService.emit({ key: END_MEMBER, content: event[0].name })
   }
-
 
   private getChemFromIsotope(isotope: string): string {
     let chem = '';
@@ -169,28 +157,26 @@ export class MixingComponent implements OnInit {
   private resetComputables(): void {
     if (!!this.computables) {
       for (let em of this.computables) {
-        em.endMemberName = '';
+        // em.endMemberName = '';
         em.elementName = '';
         em.elementValue = '';
+        !!em.concentrationValue ? em.concentrationValue = undefined : undefined;
+        !!em.concentration ? em.concentration = undefined : undefined;
       }
     }
   }
 
+  private resetComputable(c: Computable) {
+    c.elementName = '';
+    c.elementValue = '';
+    !!c.concentrationValue ? c.concentrationValue = undefined : undefined;
+    !!c.concentration ? c.concentration = undefined : undefined;
+  }
+
   public onRatio(event: any, c: Computable) {
-    if (!!this.secondSelectionItem) {
-      if (this.secondSelectionItem.memberName === c.endMemberName &&
-        this.secondSelectionItem.item.name === c.elementName) {
-        this.ratio[1] = event.target.checked;
-        return;
-      }
-    }
-    if (!!this.firstSelectionItem) {
-      if (this.firstSelectionItem.memberName === c.endMemberName &&
-        this.firstSelectionItem.item.name === c.elementName) {
-        this.ratio[0] = event.target.checked;
-        return;
-      }
-    }
+    if (!!this.computables)
+      this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[c.row].endMemberName });
+    this.ratio[c.row] = event.target.checked;
   }
 
   public submit() {

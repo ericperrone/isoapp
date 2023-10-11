@@ -11,6 +11,7 @@ export interface EndMember {
 export const MULTIPLE_SELECTION_MODE = '_MULTIPLE_SELECTION_MODE_';
 export const SECOND_SELECTION = '_SECOND_SELECTION_';
 export const RESET_SELECTION = '_RESET_SELECTION_';
+export const END_MEMBER = '_END_MEMBER_';
 
 @Component({
   selector: 'app-end-member',
@@ -25,24 +26,33 @@ export class EndMemberComponent implements OnInit, OnDestroy {
 
   public endMembers = new Array<EndMember>();
   public multipleSelectionMode = true;
-  public sub: Subscription | undefined;
+  public subReset: Subscription | undefined;
+  public subMember: Subscription | undefined;
+  private activeMember = '';
 
   constructor(private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
-    this.analyzeMembers();
-    this.sub = this.eventGeneratorService.on(RESET_SELECTION).subscribe(
+    this.subReset = this.eventGeneratorService.on(RESET_SELECTION).subscribe(
       (event: any) => {
-        // this.multipleSelectionMode = event.content;
-        // console.log(this.multipleSelectionMode);
         this.unSelectAll();
       }
+    );
+    this.subMember = this.eventGeneratorService.on(END_MEMBER).subscribe(
+      (event: any) => {
+        this.activeMember = event.content;
+        console.log(this.activeMember);
+      }
     )
+    this.analyzeMembers();
   }
 
   ngOnDestroy(): void {
-    if (!!this.sub) {
-      this.sub.unsubscribe();
+    if (!!this.subReset) {
+      this.subReset.unsubscribe();
+    }
+    if (!!this.subMember) {
+      this.subMember.unsubscribe();
     }
   }
 
@@ -70,18 +80,20 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onClick(item: EndMemberItem, memberName: string): void {    
-    // this.unSelectAll(item);
-    true === item.selected ? item.selected = undefined : item.selected = true;
-    this.onSelect.emit({ 'memberName': memberName, 'item': item });
-    if (!item.selected) {
-      this.unSelectAll();
+  public onClick(item: EndMemberItem, memberName: string): void {
+    if (memberName === this.activeMember) {
+      true === item.selected ? item.selected = undefined : item.selected = true;
+      this.onSelect.emit({ 'memberName': memberName, 'item': item });
+      if (!item.selected) {
+        // this.unSelectAll();
+        item.selected = false;
+      }
     }
   }
 
   private unSelectAll(): void {
     if (!!this.endMembers) {
-      for(let em of this.endMembers) {
+      for (let em of this.endMembers) {
         for (let m of em.member) {
           m.selected = false;
         }
