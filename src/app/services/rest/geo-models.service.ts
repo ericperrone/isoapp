@@ -14,7 +14,7 @@ export interface MixingModelPayload {
 export interface MixingModelMember {
   member: string;
   concentration: number;
-  isotope?: number;
+  concentration2?: number;
 }
 
 export interface MixingModelServicePayloadItem {
@@ -43,7 +43,7 @@ export class GeoModelsService extends Rest {
       let member: MixingModelMember = {
         member: p.endMemberName,
         concentration: parseFloat(p.elementValue),
-        isotope: p.concentrationValue ? parseFloat(p.concentrationValue) : undefined
+        concentration2: p.concentrationValue ? parseFloat(p.concentrationValue) : undefined
       };
       payloadItem.members.push(member);
     }

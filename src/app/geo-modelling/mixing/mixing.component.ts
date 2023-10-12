@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChildren } from '@angular/core';
 import { GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
-import { EndMember, RESET_SELECTION, END_MEMBER } from '../end-member/end-member.component';
+import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
@@ -15,6 +15,7 @@ interface Computable {
   elementName: string;
   elementValue: string;
   row: number;
+  active: boolean;
   concentration?: string;
   concentrationValue?: string;
 }
@@ -66,8 +67,11 @@ export class MixingComponent implements OnInit {
       this.ratio[i] = false;
     }
     this.result = undefined;
-    if (this.computables)
+    if (this.computables) {
       this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
+      this.onMemberSelection(this.computables[0]);
+    }
+      
   }
 
   private getComputableByMemberName(name: string): Computable | undefined {
@@ -113,15 +117,15 @@ export class MixingComponent implements OnInit {
               currentComputable.concentrationValue = undefined;
             }
 
-            if (currentComputable.row < this.computables?.length) {
-              this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
-            }
+            // if (currentComputable.row < this.computables?.length) {
+            //   this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
+            // }
           } else {
             currentComputable.elementName = currentComputable.elementName + ' / ' + event.item.name;
             currentComputable.elementValue = '' + (parseFloat(currentComputable.elementValue) / parseFloat(event.item.value));
-            if (currentComputable.row < this.computables?.length) {
-              this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
-            }
+            // if (currentComputable.row < this.computables?.length) {
+            //   this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
+            // }
           }
         }
       }
@@ -137,11 +141,22 @@ export class MixingComponent implements OnInit {
     let n = 0;
     for (let em of event) {
       this.ratio.push(false);
-      this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n });
-      this.computablesBack.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n });
+      this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
+      this.computablesBack.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
       n++;
     }
+    this.computables[0].active = true;
     this.eventGeneratorService.emit({ key: END_MEMBER, content: event[0].name })
+  }
+
+  public onMemberSelection(c: Computable) {
+    if (!!this.computables) {
+      for (let cc of this.computables) {
+        cc.active = false;
+      }
+      c.active = true;
+      this.eventGeneratorService.emit({ key: END_MEMBER, content: c.endMemberName });
+    }
   }
 
   private getChemFromIsotope(isotope: string): string {
@@ -174,10 +189,17 @@ export class MixingComponent implements OnInit {
   }
 
   public onRatio(event: any, c: Computable) {
-    if (!!this.computables)
-      this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[c.row].endMemberName });
-    this.ratio[c.row] = event.target.checked;
-  }
+    if (!!this.computables) {
+      this.ratio[c.row] = event.target.checked;
+      this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: event.target.checked });
+      // if (!!this.ratio[c.row]) {
+      //   this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[c.row].endMemberName });
+      //   this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: true });
+      // } else {
+      //   this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: false });
+      // }
+    }
+   }
 
   public submit() {
     if (!!this.computables) {

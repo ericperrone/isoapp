@@ -25,9 +25,10 @@ export class EndMemberComponent implements OnInit, OnDestroy {
   @Output() onSelect = new EventEmitter<any>();
 
   public endMembers = new Array<EndMember>();
-  public multipleSelectionMode = true;
+  public multipleSelectionMode = false;
   public subReset: Subscription | undefined;
   public subMember: Subscription | undefined;
+  public subMultiSelect: Subscription | undefined;
   private activeMember = '';
 
   constructor(private eventGeneratorService: EventGeneratorService) { }
@@ -41,7 +42,11 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     this.subMember = this.eventGeneratorService.on(END_MEMBER).subscribe(
       (event: any) => {
         this.activeMember = event.content;
-        console.log(this.activeMember);
+      }
+    )
+    this.subMultiSelect = this.eventGeneratorService.on(MULTIPLE_SELECTION_MODE).subscribe(
+      (event: any) => {
+        this.multipleSelectionMode = event.content;
       }
     )
     this.analyzeMembers();
@@ -53,6 +58,9 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     }
     if (!!this.subMember) {
       this.subMember.unsubscribe();
+    }
+    if (!!this.subMultiSelect) {
+      this.subMultiSelect.unsubscribe();
     }
   }
 
@@ -82,11 +90,27 @@ export class EndMemberComponent implements OnInit, OnDestroy {
 
   public onClick(item: EndMemberItem, memberName: string): void {
     if (memberName === this.activeMember) {
+      if (!this.multipleSelectionMode) {
+        this.unSelectByMember(memberName);
+      }
       true === item.selected ? item.selected = undefined : item.selected = true;
-      this.onSelect.emit({ 'memberName': memberName, 'item': item });
       if (!item.selected) {
         // this.unSelectAll();
         item.selected = false;
+      }
+      this.onSelect.emit({ 'memberName': memberName, 'item': item });
+    }
+  }
+
+  private unSelectByMember(memberName: string) {
+    if (!!this.endMembers) {
+      for (let em of this.endMembers) {
+        if (em.name === memberName) {
+          for (let m of em.member) {
+            m.selected = false;
+          }
+          break;
+        }
       }
     }
   }

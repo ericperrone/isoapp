@@ -5,10 +5,11 @@
     </div>
     <div class="w95 centered" *ngIf="!!computables">
         <div *ngFor="let c of computables">
-            <div>
-                End member: {{ c.endMemberName }}
+            <div class="mt-2 mb-2">
+                <button type="button" class="btn btn-outline-primary" *ngIf="!!c.active" (click)="onMemberSelection(c)">End member: <strong>{{ c.endMemberName }}</strong></button>
+                <button type="button" class="btn btn-outline-secondary" *ngIf="!c.active" (click)="onMemberSelection(c)">End member: {{ c.endMemberName }}</button>
             </div>
-            <div class="row">
+            <div class="row mt-2 underlined">
                 <div class="col-3">{{ c.elementName }}</div>
                 <div class="col-2">{{ c.elementValue }}</div>
                 <div class="col-2"><input class="clickable" type="checkbox" #ratio (change)="onRatio($event, c)" [disabled]="c.elementValue.length === 0"> ratio</div>
