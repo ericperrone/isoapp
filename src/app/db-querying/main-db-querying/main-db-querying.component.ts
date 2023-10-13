@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { GridComponent, GridItem, EXPORT } from 'src/app/shared/components/grid/grid.component';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+import { Subscription } from 'rxjs';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -26,13 +28,14 @@ export interface QueryFilter {
   templateUrl: './main-db-querying.component.html',
   styleUrls: ['./main-db-querying.component.scss']
 })
-export class MainDbQueryingComponent implements OnInit {
+export class MainDbQueryingComponent implements OnInit, OnDestroy {
   public queryDisabled = true;
   public spinnerOn = false;
   public filterOn = true;
   public jsonTable = [];
   public jsonHeader = [];
   public gridContent: Array<Array<string>> | undefined;
+  private sub: Subscription | undefined;
 
   constructor(private storeService: StoreService,
     private sampleService: SampleService,
@@ -40,6 +43,15 @@ export class MainDbQueryingComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.push({ key: FILTER_KEY, data: { ref: '', authors: [], keywords: [] } });
+    this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () => this.filterOn = true
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   public resetFilters(): void {

@@ -1,6 +1,25 @@
-<div class="scrollable centered" style="max-width: 95%; max-height: 40%; border: 1px solid lightgray; padding: 1px;">
+<!-- <div class="scrollable centered" style="max-width: 95%; max-height: 40%; border: 1px solid lightgray; padding: 1px;">
     <div *ngFor="let em of endMembers">
         <span class="endmember field-back">{{ em.name }}</span>
+        <table>
+            <thead>
+                <th *ngFor="let item of em.member">
+                    {{ item.name }}
+                </th>
+            </thead>
+            <tr>
+                <td *ngFor="let item of em.member" class="clickable" (click)="onClick(item, em.name)">
+                    <span style="background-color: orange;" *ngIf="true === item.selected">{{ item.value }}</span>
+                    <span *ngIf="!item.selected">{{ item.value }}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div> -->
+
+<div *ngFor="let em of endMembers" class="centered mt-2 mb-1" style="max-width: 95%; padding: 1px;">
+    <span class="endmember field-back">{{ em.name }}</span>
+    <div class="scrollable centered" style="max-width: 100%; max-height: 40%; border: 1px solid lightgray; padding: 1px;">
         <table>
             <thead>
                 <th *ngFor="let item of em.member">

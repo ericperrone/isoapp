@@ -33,7 +33,7 @@ export class GeoModelService {
     this.model = model;
   }
 
-  public execute() {
+  public execute(): any {
     if (!!this.model) {
       switch (this.model.selectedModel) {
         case ModelList.Mixing:
@@ -41,6 +41,7 @@ export class GeoModelService {
           // let ref = this.modalService.open(MixingComponent,  { centered: true, size: 'lg' });
           this.model.modalRef = ref;
           ref.componentInstance.params = this.model;
+          return ref;
           break;
         default:
           break;  

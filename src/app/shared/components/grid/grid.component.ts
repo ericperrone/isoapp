@@ -6,6 +6,7 @@ import { saveCsvFile } from '../../tools';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { Subscription } from 'rxjs';
 import { GeoModelService, GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 
 export interface GridItem {
   header: boolean;
@@ -43,6 +44,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public tableOn = false;
   public deleteFlag = false;
   private sub: Subscription | any;
+  private subClose: Subscription | any;
+  private ref: any;
 
   constructor(private modalService: NgbModal,
     private eventGeneratorService: EventGeneratorService,
@@ -56,11 +59,22 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
         }
       }
     );
+
+    this.subClose = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () => {
+        if (!!this.ref) {
+          this.ref.close();
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
     if (!!this.sub) {
       this.sub.unsubscribe();
+    }
+    if (!!this.subClose) {
+      this.subClose.unsubscribe();
     }
   }
 
@@ -298,7 +312,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
         switch (response) {
           case 0:
             this.geoModelService.setModel({ selectedModel: 0, endMembers: members });
-            this.geoModelService.execute();
+            this.ref = this.geoModelService.execute();
             break;
           case 1:
             break;
