@@ -35,7 +35,7 @@ export class SampleService extends Rest {
     if (filter.authors.length > 0) {
       let auth = '';
       for (let a of filter.authors) {
-        auth += a + ',';
+        auth += a + ';';
       }
       url += "&auth=" + auth.substring(0, auth.length - 1);
     }

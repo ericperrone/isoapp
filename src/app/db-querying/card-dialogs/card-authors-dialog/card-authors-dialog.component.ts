@@ -42,7 +42,7 @@ export class CardAuthorsDialogComponent implements OnInit {
   public addAuthor(): void {
     if (this.surname.length === 0 || this.name.length === 0)
       return;
-    this.author = this.surname + ' ' + this.name;
+    this.author = this.surname + ',' + this.name;
     if (this.author.length > 0) {
       this.authors.push(this.author);
       this.authors = distinct(this.authors);

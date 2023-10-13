@@ -46,9 +46,9 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
       if (result === CONFIRM) {
         let queryFilter = this.storeService.get(FILTER_KEY);
         if (this.authors.length > 0)
-          this.authors += ', ';
+          this.authors += '; ';
         for (let key of queryFilter.authors) {
-          this.authors += key + ', ';
+          this.authors += key + '; ';
         }
         this.authors = this.authors.trim();
         this.authors = this.authors.substring(0, this.authors.length - 1);

@@ -60,7 +60,7 @@ export class CardAuthorsComponent implements OnInit, OnDestroy {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.authors = '';
         for (let key of this.queryFilter.authors) {
-          this.authors += key + ', ';
+          this.authors += key + ';';
         }
         this.authors = this.authors.trim();
         this.authors = this.authors.substring(0, this.authors.length - 1);
