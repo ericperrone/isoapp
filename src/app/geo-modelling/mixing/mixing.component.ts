@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, ViewChildren } from '@angular/core';
-import { GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
+import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
-import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
+import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 
 interface MemberItem {
@@ -48,12 +48,16 @@ export class MixingComponent implements OnInit {
   public endMembers: Array<EndMember> | undefined;
   public computables: Array<Computable> | undefined;
   public computablesBack: Array<Computable> | undefined;
+  public submitOn = false;
   public ratio = new Array<boolean>();
   public isCollapsed = true;
   public result: Array<MixingResult> | undefined;
   public currentSelectionItem: any;
   public step: number = 0.05;
   public outResult = new Array<ShowedRow>();
+  private tempResult = new Array<ShowedRow>();
+  public resultReady = false;
+  public addReady = false;
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private geModelsService: GeoModelsService) { }
@@ -78,12 +82,29 @@ export class MixingComponent implements OnInit {
       this.ratio[i] = false;
     }
     this.result = undefined;
+    this.addReady = false;
     this.outResult = new Array<ShowedRow>();
+    this.tempResult = new Array<ShowedRow>();
+    this.resultReady = false;
     if (this.computables) {
       this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
       this.onMemberSelection(this.computables[0]);
     }
+  }
 
+  public add(): void {
+    this.eventGeneratorService.emit({ key: RESET_SELECTION });
+    this.resetComputables();
+    for (let a of this.ratios._results) {
+      a.nativeElement.checked = false;
+    }
+    for (let i = 0; i < this.ratio.length; i++) {
+      this.ratio[i] = false;
+    }
+    if (this.computables) {
+      this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
+      this.onMemberSelection(this.computables[0]);
+    }
   }
 
   private getComputableByMemberName(name: string): Computable | undefined {
@@ -97,7 +118,7 @@ export class MixingComponent implements OnInit {
   }
 
   public getSelected(event: any): void {
-    console.log(event);
+    // console.log(event);
     if (!!this.computables && !!this.endMembers) {
       let currentComputable = this.getComputableByMemberName(event.memberName);
       if (!!currentComputable) {
@@ -111,7 +132,6 @@ export class MixingComponent implements OnInit {
             currentComputable.elementName = event.item.name;
             currentComputable.elementValue = event.item.value;
             if (event.item.type === 'I') {
-              // console.log(sorted);
               let element = this.getChemFromIsotope(event.item.name);
               for (let em of this.endMembers) {
                 if (em.name === event.memberName) {
@@ -128,24 +148,29 @@ export class MixingComponent implements OnInit {
               currentComputable.concentration = undefined;
               currentComputable.concentrationValue = undefined;
             }
-
-            // if (currentComputable.row < this.computables?.length) {
-            //   this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
-            // }
           } else {
             currentComputable.elementName = currentComputable.elementName + ' / ' + event.item.name;
             currentComputable.elementValue = '' + (parseFloat(currentComputable.elementValue) / parseFloat(event.item.value));
-            // if (currentComputable.row < this.computables?.length) {
-            //   this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[1 + currentComputable.row].endMemberName });
-            // }
           }
         }
       }
     }
+    this.submitOn = this.checkComputables();
+  }
+
+  private checkComputables(): boolean {
+    if (!!this.computables) {
+      for (let c of this.computables) {
+        if (!c.elementValue || c.elementValue.length === 0)
+          return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   public getAnalyzedMembers(event: any) {
-    console.log(event);
+    // console.log(event);
     this.endMembers = event;
     this.computables = new Array<Computable>();
     this.computablesBack = new Array<Computable>();
@@ -182,9 +207,9 @@ export class MixingComponent implements OnInit {
   }
 
   private resetComputables(): void {
+    this.submitOn = false;
     if (!!this.computables) {
       for (let em of this.computables) {
-        // em.endMemberName = '';
         em.elementName = '';
         em.elementValue = '';
         !!em.concentrationValue ? em.concentrationValue = undefined : undefined;
@@ -212,7 +237,7 @@ export class MixingComponent implements OnInit {
       const payload = this.computables;
       let s = this.geModelsService.mixingModel(payload, this.step).subscribe(
         (res: any) => {
-          // this.outResult = new Array<ShowedCol>();
+          this.tempResult = new Array<ShowedRow>();
           this.result = res;
           console.log(this.result);
           if (!!this.result) {
@@ -220,28 +245,25 @@ export class MixingComponent implements OnInit {
             for (let n = 0; n < nRow; n++) {
               let r = new Array<string>();
               r.push(this.result[0].samples[n].member + ": " + this.result[0].samples[n].element);
-              this.outResult.push({ row: r });
+              this.tempResult.push({ row: r });
             }
             let r = new Array<string>();
             r.push('MIX');
-            this.outResult.push({ row: r });
+            this.tempResult.push({ row: r });
 
             for (let r of this.result) {
               for (let n = 0; n < nRow; n++) {
-                this.outResult[n].row.push('' + r.samples[n].f);
+                this.tempResult[n].row.push('' + r.samples[n].f);
               }
-              this.outResult[this.outResult.length - 1].row.push('' + r.mix);
+              this.tempResult[this.tempResult.length - 1].row.push('' + r.mix);
             }
-
           }
-          // this.result = {
-          //   element: res[0].element,
-          //   member1: res[0].memberA,
-          //   member2: res[0].memberB,
-          //   mix: res[0].mix
-          // }
-          // console.log(this.result);
+          console.log(this.tempResult);
+          this.outResult = [...this.outResult, ...this.tempResult];
+          console.log(this.outResult);
+          this.resultReady = true;
           s.unsubscribe();
+          this.addReady = true;
         }
       )
     }
@@ -249,27 +271,28 @@ export class MixingComponent implements OnInit {
 
   public export() {
     let out = '';
-    // let table = new Array<Array<string>>();
-    for (let i = 0; i < this.outResult[0].row.length; i++) {
+    if (!this.outResult || this.outResult.length === 0) {
+      return;
+    }
+
+    let max = this.getMaxLength();
+
+    for (let i = 0; i < max; i++) {
       for (let j = 0; j < this.outResult.length; j++) {
-        // table[i][j] = this.outResult[j].row[i];
-        out += this.outResult[j].row[i] + ';';
+        out += (!!this.outResult[j].row[i] ? this.outResult[j].row[i] : '') + ';';
       }
       out += '\n';
     }
     saveCsvFile(out);
+  }
 
-
-    // if (!!this.result) {
-    //   let out = '';
-    //   out += this.result.element + '\n';
-    //   out += this.result.member1 + '\n';
-    //   out += this.result.member2 + '\n';
-    //   out += 'weight; value\n';
-    //   for (let m of this.result.mix) {
-    //     out += '' + m.weight + ';' + m.mix + '\n';
-    //   }
-    //   saveCsvFile(out);
-    // }
+  private getMaxLength(): number {
+    let max = this.outResult[0].row.length;
+    for (let i = 1; i < this.outResult.length; i++) {
+      if (max < this.outResult[i].row.length) {
+        max = this.outResult[i].row.length;
+      }
+    }
+    return max;
   }
 }

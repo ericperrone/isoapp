@@ -6,13 +6,16 @@
     <div class="w95 centered" *ngIf="!!computables">
         <div *ngFor="let c of computables">
             <div class="mt-2 mb-2">
-                <button type="button" class="btn btn-outline-primary" *ngIf="!!c.active" (click)="onMemberSelection(c)">End member: <strong>{{ c.endMemberName }}</strong></button>
-                <button type="button" class="btn btn-outline-secondary" *ngIf="!c.active" (click)="onMemberSelection(c)">End member: {{ c.endMemberName }}</button>
+                <button type="button" class="btn btn-outline-primary" *ngIf="!!c.active"
+                    (click)="onMemberSelection(c)">End member: <strong>{{ c.endMemberName }}</strong></button>
+                <button type="button" class="btn btn-outline-secondary" *ngIf="!c.active"
+                    (click)="onMemberSelection(c)">End member: {{ c.endMemberName }}</button>
             </div>
             <div class="row mt-2 underlined">
                 <div class="col-3">{{ c.elementName }}</div>
                 <div class="col-2">{{ c.elementValue }}</div>
-                <div class="col-2"><input class="clickable" type="checkbox" #ratio (change)="onRatio($event, c)" [disabled]="c.elementValue.length === 0"> ratio</div>
+                <div class="col-2"><input class="clickable" type="checkbox" #ratio (change)="onRatio($event, c)"
+                        [disabled]="c.elementValue.length === 0"> ratio</div>
                 <div class="col-3">{{ c.concentration? c.concentration : '' }}</div>
                 <div class="col-2">{{ c.concentrationValue? c.concentrationValue : '' }}</div>
             </div>
@@ -24,28 +27,33 @@
             <div class="col-2">
                 <div class="form-group">
                     <label for="step">Increment</label>
-                    <input type="number" data-bs-input class="form-control" id="step" min="0.01" max="1.0" step="0.01" [(ngModel)]="step">
-                  </div>
+                    <input type="number" data-bs-input class="form-control" id="step" min="0.01" max="1.0" step="0.01"
+                        [(ngModel)]="step">
+                </div>
             </div>
             <div class="col-10 text-right">
-                <button class="btn btn-primary m-1" (click)="close()">Close</button>
-                <button class="btn btn-primary m-1" (click)="reset()">Reset</button>
-                <button class="btn btn-primary m-1" (click)="submit()">Submit</button>        
+                <button class="btn btn-secondary m-1" (click)="close()"><i class="fa-solid fa-xmark"></i> Close</button>
+                <button class="btn btn-secondary m-1" (click)="reset()"><i class="fa-solid fa-rotate"></i>
+                    Reset</button>
+                <button class="btn btn-secondary m-1" (click)="add()" [disabled]="!addReady"><i
+                        class="fa-solid fa-plus"></i> Add</button>
+                <button class="btn btn-primary m-1" (click)="submit()" [disabled]="!submitOn"><i
+                        class="fa-solid fa-check"></i> Submit</button>
             </div>
         </div>
     </div>
     <div *ngIf="!!result">
-        <div class="w95 centered mt-2 scrollable" style="max-width: 95%">
-            <table>
+        <div class="w95 centered mt-2 scrollable" style="max-width: 95%" *ngIf="resultReady">
+            <table class="centered">
                 <tr *ngFor="let res of outResult">
                     <ng-template ngFor let-cell [ngForOf]="res.row" let-i="index">
-                        <td class="evidence background-light-dark" *ngIf="i === 0">{{ cell }}</td>
-                        <td class="text-right" *ngIf="i > 0">{{ cell }}</td>
+                        <td class="evidence p-1" *ngIf="i === 0">{{ cell }}</td>
+                        <td class="text-right p-1" *ngIf="i > 0">{{ cell }}</td>
                     </ng-template>
                 </tr>
             </table>
         </div>
-        <div class="w95 centered mt-2 text-right"><button class="btn btn-secondary m-1"
-                (click)="export()">Export</button></div>
+        <div class="w95 centered mt-2 text-right"><button class="btn btn-primary m-1" (click)="export()"><i
+                    class="fa-solid fa-download"></i> Export</button></div>
     </div>
 </div>

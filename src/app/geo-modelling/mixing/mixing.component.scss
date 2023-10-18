@@ -1,5 +1,5 @@
 table {
-    border: solid 1px lightgray;
+    border: solid 1px gray;
     border-bottom: 0px !important;
     border-right: 0px !important;
 }
@@ -7,15 +7,16 @@ table {
 td, th {
     max-width: 100%;
     white-space: nowrap;
-    border-right: solid 1px lightgray;
-    border-bottom: solid 1px lightgray;
+    border-right: solid 1px gray;
+    border-bottom: solid 1px gray;
 }
 
 .underlined {
-    border-bottom: solid 1px lightgray;
+    border-bottom: solid 1px gray;
 }
 
 .evidence {
     font-weight: bold;
-    color: white;
+    color: black;
+    background-color: lightgray;
 }
