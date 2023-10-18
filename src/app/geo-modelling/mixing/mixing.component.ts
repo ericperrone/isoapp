@@ -21,11 +21,20 @@ interface Computable {
 }
 
 interface MixingResult {
-  element: string,
-  member1: string,
-  member2: string,
-  mix: Array<{ weight: number, mix: number }>;
+  mix: number;
+  samples: Array<{ member: string; element: string; f: number }>;
 }
+
+interface ShowedRow {
+  row: Array<string>;
+}
+
+// interface MixingResult {
+//   element: string,
+//   member1: string,
+//   member2: string,
+//   mix: Array<{ weight: number, mix: number }>;
+// }
 
 @Component({
   selector: 'app-mixing',
@@ -41,8 +50,10 @@ export class MixingComponent implements OnInit {
   public computablesBack: Array<Computable> | undefined;
   public ratio = new Array<boolean>();
   public isCollapsed = true;
-  public result: MixingResult | undefined;
+  public result: Array<MixingResult> | undefined;
   public currentSelectionItem: any;
+  public step: number = 0.05;
+  public outResult = new Array<ShowedRow>();
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private geModelsService: GeoModelsService) { }
@@ -67,11 +78,12 @@ export class MixingComponent implements OnInit {
       this.ratio[i] = false;
     }
     this.result = undefined;
+    this.outResult = new Array<ShowedRow>();
     if (this.computables) {
       this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
       this.onMemberSelection(this.computables[0]);
     }
-      
+
   }
 
   private getComputableByMemberName(name: string): Computable | undefined {
@@ -192,28 +204,43 @@ export class MixingComponent implements OnInit {
     if (!!this.computables) {
       this.ratio[c.row] = event.target.checked;
       this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: event.target.checked });
-      // if (!!this.ratio[c.row]) {
-      //   this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[c.row].endMemberName });
-      //   this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: true });
-      // } else {
-      //   this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: false });
-      // }
     }
-   }
+  }
 
   public submit() {
     if (!!this.computables) {
       const payload = this.computables;
-      let s = this.geModelsService.mixingModel(payload).subscribe(
+      let s = this.geModelsService.mixingModel(payload, this.step).subscribe(
         (res: any) => {
-          console.log(res);
-          this.result = {
-            element: res[0].element,
-            member1: res[0].memberA,
-            member2: res[0].memberB,
-            mix: res[0].mix
-          }
+          // this.outResult = new Array<ShowedCol>();
+          this.result = res;
           console.log(this.result);
+          if (!!this.result) {
+            let nRow = this.result[0].samples.length;
+            for (let n = 0; n < nRow; n++) {
+              let r = new Array<string>();
+              r.push(this.result[0].samples[n].member + ": " + this.result[0].samples[n].element);
+              this.outResult.push({ row: r });
+            }
+            let r = new Array<string>();
+            r.push('MIX');
+            this.outResult.push({ row: r });
+
+            for (let r of this.result) {
+              for (let n = 0; n < nRow; n++) {
+                this.outResult[n].row.push('' + r.samples[n].f);
+              }
+              this.outResult[this.outResult.length - 1].row.push('' + r.mix);
+            }
+
+          }
+          // this.result = {
+          //   element: res[0].element,
+          //   member1: res[0].memberA,
+          //   member2: res[0].memberB,
+          //   mix: res[0].mix
+          // }
+          // console.log(this.result);
           s.unsubscribe();
         }
       )
@@ -221,16 +248,28 @@ export class MixingComponent implements OnInit {
   }
 
   public export() {
-    if (!!this.result) {
-      let out = '';
-      out += this.result.element + '\n';
-      out += this.result.member1 + '\n';
-      out += this.result.member2 + '\n';
-      out += 'weight; value\n';
-      for (let m of this.result.mix) {
-        out += '' + m.weight + ';' + m.mix + '\n';
+    let out = '';
+    // let table = new Array<Array<string>>();
+    for (let i = 0; i < this.outResult[0].row.length; i++) {
+      for (let j = 0; j < this.outResult.length; j++) {
+        // table[i][j] = this.outResult[j].row[i];
+        out += this.outResult[j].row[i] + ';';
       }
-      saveCsvFile(out);
+      out += '\n';
     }
+    saveCsvFile(out);
+
+
+    // if (!!this.result) {
+    //   let out = '';
+    //   out += this.result.element + '\n';
+    //   out += this.result.member1 + '\n';
+    //   out += this.result.member2 + '\n';
+    //   out += 'weight; value\n';
+    //   for (let m of this.result.mix) {
+    //     out += '' + m.weight + ';' + m.mix + '\n';
+    //   }
+    //   saveCsvFile(out);
+    // }
   }
 }

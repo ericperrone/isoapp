@@ -13,12 +13,12 @@ export interface MixingModelPayload {
 
 export interface MixingModelMember {
   member: string;
+  element: string;
   concentration: number;
   concentration2?: number;
 }
 
 export interface MixingModelServicePayloadItem {
-  element: string;
   increment: number;
   members: Array<MixingModelMember>;
 }
@@ -30,17 +30,17 @@ export class GeoModelsService extends Rest {
 
   constructor(private http: HttpClient) { super(); }
 
-  public mixingModel(data: Array<MixingModelPayload>): Observable<any> {
+  public mixingModel(data: Array<MixingModelPayload>, increment?: number): Observable<any> {
     let payload = { data: new Array<MixingModelServicePayloadItem>() };
 
     let payloadItem: MixingModelServicePayloadItem = {
-      element: data[0].elementName,
-      increment: 0.01,
+      increment: !!increment? increment : 0.01,
       members: new Array<MixingModelMember>()
     };
 
     for (let p of data) {
       let member: MixingModelMember = {
+        element: data[0].elementName,
         member: p.endMemberName,
         concentration: parseFloat(p.elementValue),
         concentration2: p.concentrationValue ? parseFloat(p.concentrationValue) : undefined
