@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, ViewChildren } from '@angular/core';
+import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
