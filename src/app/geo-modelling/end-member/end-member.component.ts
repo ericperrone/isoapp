@@ -29,7 +29,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
   public subReset: Subscription | undefined;
   public subMember: Subscription | undefined;
   public subMultiSelect: Subscription | undefined;
-  private activeMember = '';
+  public activeMember = '';
 
   constructor(private eventGeneratorService: EventGeneratorService) { }
 
@@ -95,7 +95,6 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       }
       true === item.selected ? item.selected = undefined : item.selected = true;
       if (!item.selected) {
-        // this.unSelectAll();
         item.selected = false;
       }
       this.onSelect.emit({ 'memberName': memberName, 'item': item });
