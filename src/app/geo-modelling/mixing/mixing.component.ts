@@ -109,17 +109,20 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   public add(): void {
-    this.eventGeneratorService.emit({ key: RESET_SELECTION });
-    this.resetComputables();
-    for (let a of this.ratios._results) {
-      a.nativeElement.checked = false;
-    }
-    for (let i = 0; i < this.ratio.length; i++) {
-      this.ratio[i] = false;
-    }
-    if (this.computables) {
-      this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
-      this.onMemberSelection(this.computables[0]);
+    // this.eventGeneratorService.emit({ key: RESET_SELECTION });
+    if (!!this.computables) {
+      this.resetComputables();
+      for (let a of this.ratios._results) {
+        a.nativeElement.checked = false;
+      }
+      for (let i = 0; i < this.ratio.length; i++) {
+        this.ratio[i] = false;
+        this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: { checked: false, active: this.computables[i].endMemberName, maxSelectable: 1 } });
+      }
+      if (this.computables) {
+        this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
+        this.onMemberSelection(this.computables[0]);
+      }
     }
   }
 
@@ -168,6 +171,13 @@ export class MixingComponent implements OnInit, OnDestroy {
             currentComputable.elementName = currentComputable.elementName + ' / ' + event.item.name;
             currentComputable.elementValue = '' + (parseFloat(currentComputable.elementValue) / parseFloat(event.item.value));
           }
+        }
+      }
+      for (let i = 0; i < this.computables.length; i++) {
+        if (this.computables[i].elementName.length === 0 && this.computables[i].elementValue.length === 0) {
+          this.ratio[i] = false;
+          this.ratios._results[i].nativeElement.checked = false;
+          this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: { checked: false, active: this.computables[i].endMemberName, maxSelectable: 1 } });
         }
       }
     }
@@ -278,6 +288,7 @@ export class MixingComponent implements OnInit, OnDestroy {
           this.resultReady = true;
           s.unsubscribe();
           this.addReady = true;
+          this.add();
         }
       )
     }

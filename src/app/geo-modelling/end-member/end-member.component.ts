@@ -155,6 +155,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
         for (let m of em.member) {
           m.selected = false;
         }
+        em.maxSelectable = 1;
       }
     }
   }
