@@ -40,7 +40,7 @@ export class GeoModelsService extends Rest {
 
     for (let p of data) {
       let member: MixingModelMember = {
-        element: data[0].elementName,
+        element: p.elementName,
         member: p.endMemberName,
         concentration: parseFloat(p.elementValue),
         concentration2: p.concentrationValue ? parseFloat(p.concentrationValue) : undefined
