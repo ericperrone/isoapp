@@ -1,10 +1,11 @@
-import { Component, OnInit, Input, ViewChildren } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ViewChildren } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
-import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE } from '../end-member/end-member.component';
+import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
+import { Subscription } from 'rxjs';
 
 interface MemberItem {
   endMemberName: string;
@@ -30,19 +31,12 @@ interface ShowedRow {
   row: Array<string>;
 }
 
-// interface MixingResult {
-//   element: string,
-//   member1: string,
-//   member2: string,
-//   mix: Array<{ weight: number, mix: number }>;
-// }
-
 @Component({
   selector: 'app-mixing',
   templateUrl: './mixing.component.html',
   styleUrls: ['./mixing.component.scss']
 })
-export class MixingComponent implements OnInit {
+export class MixingComponent implements OnInit, OnDestroy {
   @Input('params') params: GeoModel | undefined;
   @ViewChildren('ratio') ratios: any;
   public members = new Array<MemberItem>();
@@ -59,12 +53,33 @@ export class MixingComponent implements OnInit {
   private tempResult = new Array<ShowedRow>();
   public resultReady = false;
   public addReady = false;
+  private subReset: Subscription | undefined;
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private geModelsService: GeoModelsService) { }
 
   ngOnInit(): void {
     // console.log(this.params);
+    this.subReset = this.eventGeneratorService.on(RESET_SELECTION_OUT).subscribe(
+      event => {
+        if (!!this.computables) {
+          for (let i = 0; i < this.computables.length; i++) {
+            if (this.computables[i].endMemberName === event.content) {
+              this.computables[i].elementName = '';
+              this.computables[i].elementValue = '';
+              this.ratio[i] = false;
+              break;
+            }
+          }
+        }
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.subReset) {
+      this.subReset.unsubscribe();
+    }
   }
 
   public close(): void {
@@ -229,7 +244,7 @@ export class MixingComponent implements OnInit {
   public onRatio(event: any, c: Computable) {
     if (!!this.computables) {
       this.ratio[c.row] = event.target.checked;
-      this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: event.target.checked });
+      this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: { checked: event.target.checked, active: c.endMemberName, maxSelectable: event.target.checked ? 2 : 1 } });
     }
   }
 
@@ -259,9 +274,7 @@ export class MixingComponent implements OnInit {
               this.tempResult[this.tempResult.length - 1].row.push('' + r.mix);
             }
           }
-          console.log(this.tempResult);
           this.outResult = [...this.outResult, ...this.tempResult];
-          console.log(this.outResult);
           this.resultReady = true;
           s.unsubscribe();
           this.addReady = true;

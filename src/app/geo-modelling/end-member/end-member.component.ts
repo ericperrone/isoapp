@@ -6,11 +6,14 @@ import { Subscription } from 'rxjs';
 export interface EndMember {
   name: string;
   member: Array<EndMemberItem>;
+  multipleSelectionMode: boolean;
+  maxSelectable: number;
 }
 
 export const MULTIPLE_SELECTION_MODE = '_MULTIPLE_SELECTION_MODE_';
 export const SECOND_SELECTION = '_SECOND_SELECTION_';
 export const RESET_SELECTION = '_RESET_SELECTION_';
+export const RESET_SELECTION_OUT = '_RESET_SELECTION_OUT_';
 export const END_MEMBER = '_END_MEMBER_';
 
 @Component({
@@ -25,7 +28,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
   @Output() onSelect = new EventEmitter<any>();
 
   public endMembers = new Array<EndMember>();
-  public multipleSelectionMode = false;
+  // public multipleSelectionMode = false;
   public subReset: Subscription | undefined;
   public subMember: Subscription | undefined;
   public subMultiSelect: Subscription | undefined;
@@ -46,7 +49,15 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     )
     this.subMultiSelect = this.eventGeneratorService.on(MULTIPLE_SELECTION_MODE).subscribe(
       (event: any) => {
-        this.multipleSelectionMode = event.content;
+        let m = this.getMemberByName(event.content.active);
+        m.multipleSelectionMode = event.content.checked;
+        if (!event.content.checked)  {
+          this.unSelectByMember(m.name);
+          m.maxSelectable = 1;
+          this.eventGeneratorService.emit({key: RESET_SELECTION_OUT, content: m.name});
+        } else {
+          m.maxSelectable = 2;
+        }     
       }
     )
     this.analyzeMembers();
@@ -78,7 +89,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
                   newMember.push(nm);
                 }
               }
-              this.endMembers.push({ name: m.value, member: newMember });
+              this.endMembers.push({ name: m.value, member: newMember, multipleSelectionMode: false, maxSelectable: 1 });
               break;
             }
           }
@@ -88,17 +99,41 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getMemberByName(name: string): EndMember {
+    for (let m of this.endMembers) {
+      if (m.name === name) {
+        return m;
+      }
+    }
+    return {name: '', member: new Array<EndMemberItem>(), multipleSelectionMode: false, maxSelectable: 1};
+  }
+
   public onClick(item: EndMemberItem, memberName: string): void {
     if (memberName === this.activeMember) {
-      if (!this.multipleSelectionMode) {
+      let m = this.getMemberByName(memberName);
+      if (!m.multipleSelectionMode) {
         this.unSelectByMember(memberName);
       }
-      true === item.selected ? item.selected = undefined : item.selected = true;
-      if (!item.selected) {
-        item.selected = false;
-      }
+      let nSelected = this.countSelected(m);
+
+      true === item.selected ? item.selected = false : (nSelected < m.maxSelectable ? item.selected = true : item.selected = false);
+      // if (!item.selected) {
+      //   item.selected = false;
+      // }
+      if (nSelected == m.maxSelectable && !item.selected)
+        return;
       this.onSelect.emit({ 'memberName': memberName, 'item': item });
     }
+  }
+
+  private countSelected(em: EndMember): number {
+    let count = 0;
+    for (let m of em.member) {
+      if (!!m.selected) {
+        count ++;
+      }
+    }
+    return count;
   }
 
   private unSelectByMember(memberName: string) {
