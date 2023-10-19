@@ -283,6 +283,7 @@ export class MixingComponent implements OnInit {
         out += (!!this.outResult[j].row[i] ? this.outResult[j].row[i] : '') + ';';
       }
       out += '\n';
+      out = out.replace(/\./g, ',');
     }
     saveCsvFile(out);
   }
