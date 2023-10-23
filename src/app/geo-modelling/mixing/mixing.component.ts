@@ -6,6 +6,7 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 import { Subscription } from 'rxjs';
+import { ChemElements, getElementByisotope } from 'src/app/shared/const';
 
 interface MemberItem {
   endMemberName: string;
@@ -152,10 +153,11 @@ export class MixingComponent implements OnInit, OnDestroy {
             currentComputable.elementValue = event.item.value;
             if (event.item.type === 'I') {
               let element = this.getChemFromIsotope(event.item.name);
+              element = element.toLowerCase()
               for (let em of this.endMembers) {
                 if (em.name === event.memberName) {
                   for (let m of em.member) {
-                    if (m.name.indexOf(element) >= 0 && m.name !== element) {
+                    if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
                       currentComputable.concentration = m.name;
                       currentComputable.concentrationValue = m.value;
                       break;
@@ -224,11 +226,13 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   private getChemFromIsotope(isotope: string): string {
     let chem = '';
-    for (let i = 0; i < isotope.length; i++) {
-      if (isotope.charAt(i) >= '0' && isotope.charAt(i) <= '9')
-        return chem;
-      chem += '' + isotope.charAt(i);
-    }
+    chem = getElementByisotope(isotope);
+    // let i = isotope.toLowerCase();
+    // for (let c of ChemElements) {
+    //   let chm = c.toLowerCase();
+    //   if (i.indexOf(chm) >= 0)
+    //     return c;
+    // }
     return chem;
   }
 

@@ -121,7 +121,7 @@ export const ChemElements = [
     'TiO2',
     'Al2O3',
     'Fe2O3',
-    'Fe2O3 (Tot)',
+    'Fe2O3 (Tot)',
     'FeO',
     'FeO (Tot)',
     'MgO',
@@ -256,16 +256,30 @@ export const Isotopes = [
     '208Pb', 'Pb208'
 ];
 
+export function getElementByisotope(isotope: string): string {
+    let element = '';
+    let iso = isotope.toLowerCase();
+    for (let ch of ChemElements) {
+        let c = ch.toLowerCase();
+        let match = iso.match(c);
+        if (!!match) {
+            if (match[0].length > element.length && match[0] !== iso)
+            element = ch;
+        }
+    }
+    return element;
+}
+
 export function checkChemElement(element: string): boolean {
     let ele = element;
     if (ele.indexOf('(') > 0) {
-        ele = ele.split('(')[0].trim().trimEnd().trimStart();;
+        ele = ele.split('(')[0].trim().trimEnd().trimStart();
     }
     if (ele.indexOf(' ') > 0) {
-        ele = ele.split(' ')[0].trim().trimEnd().trimStart();;
+        ele = ele.split(' ')[0].trim().trimEnd().trimStart();
     }
     if (ele.indexOf('/') > 0) {
-        ele = ele.split('/')[0].trim().trimEnd().trimStart();;
+        ele = ele.split('/')[0].trim().trimEnd().trimStart();
     }
     for (let e of ChemElements) {
         if (e.toLowerCase() === ele.toLowerCase())
