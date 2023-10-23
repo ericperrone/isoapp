@@ -6,7 +6,10 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 import { Subscription } from 'rxjs';
-import { ChemElements, getElementByisotope } from 'src/app/shared/const';
+import { getElementByisotope } from 'src/app/shared/const';
+import { StoreService } from 'src/app/services/common/store.service';
+
+export const OUT_RESULT = '_OUT_RESULT_';
 
 interface MemberItem {
   endMemberName: string;
@@ -43,7 +46,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public members = new Array<MemberItem>();
   public endMembers: Array<EndMember> | undefined;
   public computables: Array<Computable> | undefined;
-  public computablesBack: Array<Computable> | undefined;
+  // public computablesBack: Array<Computable> | undefined;
   public submitOn = false;
   public ratio = new Array<boolean>();
   public isCollapsed = true;
@@ -57,10 +60,15 @@ export class MixingComponent implements OnInit, OnDestroy {
   private subReset: Subscription | undefined;
 
   constructor(private eventGeneratorService: EventGeneratorService,
+    private storeService: StoreService,
     private geModelsService: GeoModelsService) { }
 
   ngOnInit(): void {
     // console.log(this.params);
+    this.outResult = this.storeService.get(OUT_RESULT);
+    if (!this.outResult) {
+      this.outResult = new Array<ShowedRow>();
+    }
     this.subReset = this.eventGeneratorService.on(RESET_SELECTION_OUT).subscribe(
       event => {
         if (!!this.computables) {
@@ -107,6 +115,11 @@ export class MixingComponent implements OnInit, OnDestroy {
       this.eventGeneratorService.emit({ key: END_MEMBER, content: this.computables[0].endMemberName });
       this.onMemberSelection(this.computables[0]);
     }
+  }
+
+  public clean(): void {
+    this.storeService.clean(OUT_RESULT);
+    this.outResult = new Array<ShowedRow>();
   }
 
   public add(): void {
@@ -201,13 +214,15 @@ export class MixingComponent implements OnInit, OnDestroy {
     // console.log(event);
     this.endMembers = event;
     this.computables = new Array<Computable>();
-    this.computablesBack = new Array<Computable>();
+    // if (!this.computablesBack)
+    // this.computablesBack = new Array<Computable>();
+    // else this.computables = [...this.computablesBack];
     this.ratio = new Array<boolean>();
     let n = 0;
     for (let em of event) {
       this.ratio.push(false);
       this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
-      this.computablesBack.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
+      // this.computablesBack.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
       n++;
     }
     this.computables[0].active = true;
@@ -227,12 +242,6 @@ export class MixingComponent implements OnInit, OnDestroy {
   private getChemFromIsotope(isotope: string): string {
     let chem = '';
     chem = getElementByisotope(isotope);
-    // let i = isotope.toLowerCase();
-    // for (let c of ChemElements) {
-    //   let chm = c.toLowerCase();
-    //   if (i.indexOf(chm) >= 0)
-    //     return c;
-    // }
     return chem;
   }
 
@@ -269,7 +278,7 @@ export class MixingComponent implements OnInit, OnDestroy {
         (res: any) => {
           this.tempResult = new Array<ShowedRow>();
           this.result = res;
-          console.log(this.result);
+          // console.log(this.result);
           if (!!this.result) {
             let nRow = this.result[0].samples.length;
             for (let n = 0; n < nRow; n++) {
@@ -289,6 +298,7 @@ export class MixingComponent implements OnInit, OnDestroy {
             }
           }
           this.outResult = [...this.outResult, ...this.tempResult];
+          this.storeService.push({ key: OUT_RESULT, data: this.outResult });
           this.resultReady = true;
           s.unsubscribe();
           this.addReady = true;

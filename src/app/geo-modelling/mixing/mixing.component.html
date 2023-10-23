@@ -34,9 +34,10 @@
                 </div>                
             </div>
             <div class="col-10 text-right">
-                <button class="btn btn-secondary m-1" (click)="close()"><i class="fa-solid fa-xmark"></i> Close</button>
+                <button class="btn btn-secondary m-1" (click)="close()"><i class="fa-solid fa-delete-left"></i> Back to data</button>
+                <button class="btn btn-secondary m-1" (click)="clean()"><i class="fa-solid fa-xmark"></i> Clean cache</button>
                 <button class="btn btn-secondary m-1" (click)="reset()"><i class="fa-solid fa-rotate"></i>
-                    Reset</button>
+                    Reset selection</button>
                 <!-- <button class="btn btn-secondary m-1" (click)="add()" [disabled]="!addReady"><i
                         class="fa-solid fa-plus"></i> Add</button> -->
                 <button class="btn btn-primary m-1" (click)="submit()" [disabled]="!submitOn"><i
@@ -44,7 +45,7 @@
             </div>
         </div>
     </div>
-    <div *ngIf="!!result">
+    <div *ngIf="!!outResult && outResult.length > 0">
         <div class="w95 centered mt-2 scrollable" style="max-width: 95%" *ngIf="resultReady">
             <table class="centered">
                 <tr *ngFor="let res of outResult">

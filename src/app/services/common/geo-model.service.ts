@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MixingComponent } from 'src/app/geo-modelling/mixing/mixing.component';
+import { StoreService } from './store.service';
+// import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 
 export enum ModelList {
   Mixing = 0,
@@ -27,7 +29,8 @@ export interface GeoModel {
 export class GeoModelService {
   private model: GeoModel | undefined;
 
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal,
+    private storeService: StoreService) { }
 
   public setModel(model: GeoModel): void {
     this.model = model;
@@ -37,8 +40,8 @@ export class GeoModelService {
     if (!!this.model) {
       switch (this.model.selectedModel) {
         case ModelList.Mixing:
-          let ref = this.modalService.open(MixingComponent,  { fullscreen: true });
-          // let ref = this.modalService.open(MixingComponent,  { centered: true, size: 'lg' });
+          // this.storeService.clean(OUT_RESULT);
+          let ref = this.modalService.open(MixingComponent,  { fullscreen: true, windowClass: 'background-white' });
           this.model.modalRef = ref;
           ref.componentInstance.params = this.model;
           return ref;
