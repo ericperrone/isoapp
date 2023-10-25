@@ -16,7 +16,9 @@
                 <div class="col-2">{{ c.elementValue }}</div>
                 <div class="col-2"><input class="clickable" type="checkbox" #ratio (change)="onRatio($event, c)"
                         [disabled]="c.elementValue.length === 0"> ratio
-                        <span class="fa-solid fa-circle-info" style="color: darkgreen;" ngbPopover="If checked allow you to evaluate a ratio between two elements" triggers="mouseenter:mouseleave"></span>
+                    <span class="fa-solid fa-circle-info" style="color: darkgreen;"
+                        ngbPopover="If checked allow you to evaluate a ratio between two elements"
+                        triggers="mouseenter:mouseleave"></span>
                 </div>
                 <div class="col-3">{{ c.concentration? c.concentration : '' }}</div>
                 <div class="col-2">{{ c.concentrationValue? c.concentrationValue : '' }}</div>
@@ -28,14 +30,18 @@
         <div class="row">
             <div class="col-2">
                 <div class="form-group">
-                    <label for="step">Increment <span class="fa-solid fa-circle-info" style="color: darkgreen;" ngbPopover="The increment of the weight proportion of the end member in the mixture" triggers="mouseenter:mouseleave"></span></label>
+                    <label for="step">Increment <span class="fa-solid fa-circle-info" style="color: darkgreen;"
+                            ngbPopover="The increment of the weight proportion of the end member in the mixture"
+                            triggers="mouseenter:mouseleave"></span></label>
                     <input type="number" data-bs-input class="form-control" id="step" min="0.01" max="1.0" step="0.01"
                         [(ngModel)]="step">
-                </div>                
+                </div>
             </div>
             <div class="col-10 text-right">
-                <button class="btn btn-secondary m-1" (click)="close()"><i class="fa-solid fa-delete-left"></i> Back to data</button>
-                <button class="btn btn-secondary m-1" (click)="clean()"><i class="fa-solid fa-xmark"></i> Clean cache</button>
+                <button class="btn btn-secondary m-1" (click)="close()"><i class="fa-solid fa-delete-left"></i> Back to
+                    data</button>
+                <button class="btn btn-secondary m-1" (click)="clean()"><i class="fa-solid fa-xmark"></i> Clean
+                    cache</button>
                 <button class="btn btn-secondary m-1" (click)="reset()"><i class="fa-solid fa-rotate"></i>
                     Reset selection</button>
                 <!-- <button class="btn btn-secondary m-1" (click)="add()" [disabled]="!addReady"><i
@@ -46,7 +52,8 @@
         </div>
     </div>
     <div *ngIf="!!outResult && outResult.length > 0">
-        <div class="w95 centered mt-2 scrollable" style="max-width: 95%" *ngIf="resultReady">
+        <!-- <div class="w95 centered mt-2 scrollable" style="max-width: 95%" *ngIf="resultReady"> -->
+        <div class="w95 centered mt-2 scrollable" style="max-width: 95%">
             <table class="centered">
                 <tr *ngFor="let res of outResult">
                     <ng-template ngFor let-cell [ngForOf]="res.row" let-i="index">
