@@ -5,6 +5,7 @@ import { SampleService } from 'src/app/services/rest/sample.service';
 import { GridComponent, GridItem, EXPORT } from 'src/app/shared/components/grid/grid.component';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { Subscription } from 'rxjs';
+import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -60,6 +61,7 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
   }
 
   public submitQuery(): void {
+    this.storeService.clean(OUT_RESULT);
     let filter: QueryFilter = this.storeService.get(FILTER_KEY);
     this.spinnerOn = true;
     this.sampleService.mainQueryTable(filter).subscribe(
