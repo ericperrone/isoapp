@@ -5,6 +5,7 @@ import { CONFIRM, CANCEL } from 'src/app/shared/modals/modal-params';
 import { distinct, deleteByValue } from 'src/app/shared/tools';
 import { AuthorService } from 'src/app/services/rest/author.service';
 import { Author } from 'src/app/models/author';
+import { CACHE_AUTH } from 'src/app/shared/const';
 
 @Component({
   selector: 'app-card-authors-dialog',
@@ -48,8 +49,16 @@ export class CardAuthorsDialogComponent implements OnInit {
       this.authors = distinct(this.authors);
       if (this.insertFlag === true)
         this.authorService.insertAuthor({ id: -1, surname: this.surname, name: this.name }).subscribe(
-          (res) => console.log(res)
-          );
+          (res) => {
+            // console.log(res);
+            this.storeService.clean(CACHE_AUTH);
+            const s = this.authorService.getAuthors().subscribe(
+              (result: any) => {
+                // console.log(result);
+                this.storeService.push({ key: CACHE_AUTH, data: result });
+              }
+            );
+          });
       this.surname = '';
       this.name = '';
     }

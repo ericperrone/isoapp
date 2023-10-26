@@ -6,6 +6,8 @@ import { GridComponent, GridItem, EXPORT } from 'src/app/shared/components/grid/
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { Subscription } from 'rxjs';
 import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
+import { AuthorService } from 'src/app/services/rest/author.service';
+import { CACHE_AUTH } from 'src/app/shared/const';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -39,6 +41,7 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
   private sub: Subscription | undefined;
 
   constructor(private storeService: StoreService,
+    private authorService: AuthorService,
     private sampleService: SampleService,
     private eventGeneratorService: EventGeneratorService) { }
 
@@ -47,6 +50,14 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
     this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
       () => this.filterOn = true
     );
+
+    this.storeService.clean(CACHE_AUTH);
+    const s = this.authorService.getAuthors().subscribe(
+      (res: any) => {
+        console.log(res);
+        this.storeService.push({key: CACHE_AUTH, data: res});
+      }
+    ); 
   }
 
   ngOnDestroy(): void {

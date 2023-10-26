@@ -293,6 +293,8 @@ export const FIELDS = [
     'alter', 'drill', 'geol', 'erupt', 'year', 'elevation'
 ];
 
+export const CACHE_AUTH = '_CACHE_AUTH_';
+
 export function checkField(field: string) {
     let f = field.toLowerCase();
     for (let e of FIELDS) {
