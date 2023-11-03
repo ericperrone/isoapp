@@ -6,8 +6,9 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 import { Subscription } from 'rxjs';
-import { getElementByisotope } from 'src/app/shared/const';
+import { CACHE_AUTH, getElementByisotope } from 'src/app/shared/const';
 import { StoreService } from 'src/app/services/common/store.service';
+import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 
 export const OUT_RESULT = '_OUT_RESULT_';
 
@@ -31,6 +32,11 @@ interface MixingResult {
   samples: Array<{ member: string; element: string; f: number }>;
 }
 
+interface chartData {
+  title: string;
+  points: Array<number>;
+}
+
 interface ShowedRow {
   row: Array<string>;
 }
@@ -46,7 +52,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public members = new Array<MemberItem>();
   public endMembers: Array<EndMember> | undefined;
   public computables: Array<Computable> | undefined;
-  // public computablesBack: Array<Computable> | undefined;
+  public chartView = false;
   public submitOn = false;
   public ratio = new Array<boolean>();
   public isCollapsed = true;
@@ -57,6 +63,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   private tempResult = new Array<ShowedRow>();
   public resultReady = false;
   public addReady = false;
+  public chartOptions = {};
   private subReset: Subscription | undefined;
 
   constructor(private eventGeneratorService: EventGeneratorService,
@@ -325,6 +332,241 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
     saveCsvFile(out);
   }
+
+  // private getEndMebers(data: any): Array<Array<any>> {
+  //   let endms = new Array<Array<number>>();
+  //   let cardinality = this.getCardinality(data);
+  //   if (cardinality > 0) {
+  //     for (let i = 0; i < data.length; i += cardinality) {
+  //       let ems = new Array<any>();
+  //       for (let j = 1; j < data[i].row.length; j++) {
+  //         for (let c = cardinality - 2; c >= 0; c--) {
+  //           if (data[i + c].row[j] === '1') {
+  //             ems.push({ x: parseFloat(data[i].row[j]), y: parseFloat(data[i + cardinality - 1].row[j]) });
+  //           }
+  //         }
+  //       }
+  //       endms.push(ems);
+  //     }
+  //   }
+  //   for (let e of endms) {
+  //     e.push(e[0]);
+  //   }
+  //   return endms;
+  // }
+
+
+  private getCardinality(data: any): number {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].row[0] === 'MIX')
+        return i + 1;
+    }
+    return 0;
+  }
+
+  private getChartNumber(data: any): number {
+    let counter = 0;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].row[0] === 'MIX')
+        counter++;
+    }
+    return counter * this.compute(counter);
+  }
+
+  private compute(n: number): number {
+    if (n === 1) {
+      return 0;
+    }
+    return n - 1 + this.compute(n - 1);
+  }
+
+  public chart(): void {
+    this.chartView = true;
+    let data = this.storeService.get(OUT_RESULT);
+    console.log(data);
+
+    let step = parseFloat(data[0].row[2]);
+
+    let cardinality = this.getCardinality(data);
+    if (cardinality === 0)
+      return;
+
+    if (data.length > 0 && data.length % cardinality === 0) {
+      let chartsData = this.getChartsData(data);
+      if (chartsData.length < 2) {
+        this.chartView = false;
+        return;
+      }
+
+      let charts = new Array();
+
+      for (let i = 0; i < chartsData.length; i += 2) {
+        if (i + 1 < chartsData.length) {
+          let dp = new Array<any>();
+          for (let k = 0; k < chartsData[i].points.length; k++) {
+            dp.push({ x: chartsData[i].points[k], y: chartsData[i + 1].points[k] });
+          }
+          charts.push({
+            type: 'line',
+            name: chartsData[i].title + ' ' + chartsData[i + 1].title,
+            showInLegend: true,
+            dataPoints: dp
+          });
+        }
+      }
+
+      console.log(charts);
+
+      this.chartOptions = {
+        animationEnabled: true,
+        theme: "light2",
+        title: {
+          text: "Mixing model"
+        },
+        axisX: {
+          title: '',
+          // valueFormatString: "MMM",
+          // intervalType: "month",
+          // interval: 1
+        },
+        axisY: {
+          title: '',
+          // suffix: "°F"
+        },
+        toolTip: {
+          shared: true
+        },
+        legend: {
+          cursor: "pointer",
+          itemclick: function (e: any) {
+            if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+              e.dataSeries.visible = false;
+            } else {
+              e.dataSeries.visible = true;
+            }
+            e.chart.render();
+          }
+        },
+        data: charts
+      }
+    }
+  }
+
+  private getChartsData(data: any): Array<chartData> {
+    let charts = new Array<chartData>();
+    let title = '';
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].row[0] === 'MIX') {
+        let points = new Array();
+        for (let j = 1; j < data[i].row.length; j++) {
+          points.push(parseFloat(data[i].row[j]));
+        }
+        charts.push({
+          title: title,
+          points: points
+        });
+        title = '';
+      } else
+        title += data[i].row[0] + '; '
+    }
+    return charts;
+  }
+
+  // public chart2(): void {
+  //   this.chartView = true;
+  //   let data = this.storeService.get(OUT_RESULT);
+  //   console.log(data);
+  //   let endems = this.getEndMebers(data);
+  //   console.log(endems);
+
+  //   let step = parseFloat(data[0].row[2]);
+
+  //   let cardinality = this.getCardinality(data);
+  //   if (cardinality === 0)
+  //     return;
+
+  //   if (data.length > 0 && data.length % cardinality === 0) {
+  //     let endMemberNumber = cardinality - 1;
+  //     let chartNumber = this.getChartNumber(data);
+  //     if (chartNumber === 0) {
+  //       chartNumber = 1;
+  //     }
+  //     console.log("nr. endmember: " + endMemberNumber + " nr. chart: " + chartNumber);
+
+  //     let charts = new Array();
+
+  //     for (let n = 0; n < chartNumber; n++) {
+  //       let index = n * cardinality;
+  //       let points = new Array();
+  //       let start = 0;
+  //       for (let i = 1, j = 1; i < data[index + cardinality - 1].row.length; i++, j++) {
+  //         let x = start + step * (j - 1);
+  //         if (x > 1) {
+  //           charts.push({
+  //             type: "scatter",
+  //             name: "" + data[index].row[0],
+  //             showInLegend: true,
+  //             dataPoints: points
+  //           });
+  //           points = new Array();
+  //           j = 0;
+  //           x = start + step * j;
+  //         }
+  //         points.push({ x: x, y: parseFloat(data[index + cardinality - 1].row[i]) });
+  //       }
+  //       charts.push({
+  //         type: "scatter",
+  //         name: "" + data[index].row[0],
+  //         showInLegend: true,
+  //         dataPoints: points
+  //       });
+  //     }
+
+  //     for (let e of endems) {
+  //       charts.push({
+  //         type: "line",
+  //         name: "End members",
+  //         showInLegend: true,
+  //         dataPoints: e
+  //       });
+  //     }
+
+  //     console.log(charts);
+
+  //     this.chartOptions = {
+  //       animationEnabled: true,
+  //       theme: "light2",
+  //       title: {
+  //         text: "Mixing model"
+  //       },
+  //       axisX: {
+  //         title: '',
+  //         // valueFormatString: "MMM",
+  //         // intervalType: "month",
+  //         // interval: 1
+  //       },
+  //       axisY: {
+  //         title: '',
+  //         // suffix: "°F"
+  //       },
+  //       toolTip: {
+  //         shared: true
+  //       },
+  //       legend: {
+  //         cursor: "pointer",
+  //         itemclick: function (e: any) {
+  //           if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+  //             e.dataSeries.visible = false;
+  //           } else {
+  //             e.dataSeries.visible = true;
+  //           }
+  //           e.chart.render();
+  //         }
+  //       },
+  //       data: charts
+  //     }
+  //   }
+  // }
 
   private getMaxLength(): number {
     let max = this.outResult[0].row.length;

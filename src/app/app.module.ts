@@ -7,7 +7,7 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
+import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 
 import { AppComponent } from './app.component';
 import { MainComponent } from './main/main.component';
@@ -87,7 +87,8 @@ import { EndMemberComponent } from './geo-modelling/end-member/end-member.compon
     HttpClientModule,
     NgbNavModule,
     FormsModule, 
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CanvasJSAngularChartsModule
   ],
   providers: [CookieService, DecimalPipe],
   bootstrap: [AppComponent]
