@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, ViewChildren } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
-import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT } from '../end-member/end-member.component';
+import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, INVERSE } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
@@ -20,7 +20,9 @@ interface MemberItem {
 interface Computable {
   endMemberName: string;
   elementName: string;
+  elementNameCopy?: string;
   elementValue: string;
+  elementValueCopy?: string;
   row: number;
   active: boolean;
   concentration?: string;
@@ -49,12 +51,14 @@ interface ShowedRow {
 export class MixingComponent implements OnInit, OnDestroy {
   @Input('params') params: GeoModel | undefined;
   @ViewChildren('ratio') ratios: any;
+  @ViewChildren('inverse') inverses: any;
   public members = new Array<MemberItem>();
   public endMembers: Array<EndMember> | undefined;
   public computables: Array<Computable> | undefined;
   public chartView = false;
   public submitOn = false;
   public ratio = new Array<boolean>();
+  public inverse = new Array<boolean>();
   public isCollapsed = true;
   public result: Array<MixingResult> | undefined;
   public currentSelectionItem: any;
@@ -65,6 +69,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public addReady = false;
   public chartOptions = {};
   private subReset: Subscription | undefined;
+  private geoData: any;
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private storeService: StoreService,
@@ -110,6 +115,9 @@ export class MixingComponent implements OnInit, OnDestroy {
     for (let a of this.ratios._results) {
       a.nativeElement.checked = false;
     }
+    for (let a of this.inverses._results) {
+      a.nativeElement.checked = false;
+    }
     for (let i = 0; i < this.ratio.length; i++) {
       this.ratio[i] = false;
     }
@@ -130,11 +138,16 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   public add(): void {
-    // this.eventGeneratorService.emit({ key: RESET_SELECTION });
     if (!!this.computables) {
       this.resetComputables();
       for (let a of this.ratios._results) {
         a.nativeElement.checked = false;
+      }
+      for (let a of this.inverses._results) {
+        a.nativeElement.checked = false;
+      }
+      for (let i = 0; i < this.ratio.length; i++) {
+        this.ratio[i] = false;
       }
       for (let i = 0; i < this.ratio.length; i++) {
         this.ratio[i] = false;
@@ -151,6 +164,16 @@ export class MixingComponent implements OnInit, OnDestroy {
     if (!!this.computables) {
       for (let c of this.computables) {
         if (c.endMemberName === name)
+          return c;
+      }
+    }
+    return undefined;
+  }
+
+  private getComputableByRow(row: number): Computable | undefined {
+    if (!!this.computables) {
+      for (let c of this.computables) {
+        if (c.row === row)
           return c;
       }
     }
@@ -221,15 +244,11 @@ export class MixingComponent implements OnInit, OnDestroy {
     // console.log(event);
     this.endMembers = event;
     this.computables = new Array<Computable>();
-    // if (!this.computablesBack)
-    // this.computablesBack = new Array<Computable>();
-    // else this.computables = [...this.computablesBack];
     this.ratio = new Array<boolean>();
     let n = 0;
     for (let em of event) {
       this.ratio.push(false);
       this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
-      // this.computablesBack.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
       n++;
     }
     this.computables[0].active = true;
@@ -274,7 +293,29 @@ export class MixingComponent implements OnInit, OnDestroy {
   public onRatio(event: any, c: Computable) {
     if (!!this.computables) {
       this.ratio[c.row] = event.target.checked;
+      if (!!event.target.checked) {
+        this.inverses._results[c.row].nativeElement.checked = false;
+        if (c.elementName.startsWith('1 /')) c.elementName = '' + c.elementNameCopy;
+      }
       this.eventGeneratorService.emit({ key: MULTIPLE_SELECTION_MODE, content: { checked: event.target.checked, active: c.endMemberName, maxSelectable: event.target.checked ? 2 : 1 } });
+    }
+  }
+
+  public onInverse(event: any, c: Computable) {
+    if (!!this.computables) {
+      this.inverse[c.row] = event.target.checked;
+      if (!!event.target.checked) {
+        c.elementNameCopy = '' + c.elementName;
+        if (!c.elementName.startsWith(' 1 /')) c.elementName = '1 / ' + c.elementName;
+        c.elementValueCopy = '' + c.elementValue;
+        let v = parseFloat(c.elementValue);
+        v = 1 / v;
+        c.elementValue = '' + v;
+        this.ratios._results[c.row].nativeElement.checked = false;
+      } else {
+        c.elementName = '' + c.elementNameCopy;
+        c.elementValue = '' + c.elementValueCopy;
+      }
     }
   }
 
@@ -284,7 +325,8 @@ export class MixingComponent implements OnInit, OnDestroy {
       let s = this.geModelsService.mixingModel(payload, this.step).subscribe(
         (res: any) => {
           this.tempResult = new Array<ShowedRow>();
-          this.result = res;
+          this.result = res.results;
+          this.geoData = res.geoData;
           // console.log(this.result);
           if (!!this.result) {
             let nRow = this.result[0].samples.length;
@@ -332,29 +374,6 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
     saveCsvFile(out);
   }
-
-  // private getEndMebers(data: any): Array<Array<any>> {
-  //   let endms = new Array<Array<number>>();
-  //   let cardinality = this.getCardinality(data);
-  //   if (cardinality > 0) {
-  //     for (let i = 0; i < data.length; i += cardinality) {
-  //       let ems = new Array<any>();
-  //       for (let j = 1; j < data[i].row.length; j++) {
-  //         for (let c = cardinality - 2; c >= 0; c--) {
-  //           if (data[i + c].row[j] === '1') {
-  //             ems.push({ x: parseFloat(data[i].row[j]), y: parseFloat(data[i + cardinality - 1].row[j]) });
-  //           }
-  //         }
-  //       }
-  //       endms.push(ems);
-  //     }
-  //   }
-  //   for (let e of endms) {
-  //     e.push(e[0]);
-  //   }
-  //   return endms;
-  // }
-
 
   private getCardinality(data: any): number {
     for (let i = 0; i < data.length; i++) {
@@ -471,102 +490,6 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
     return charts;
   }
-
-  // public chart2(): void {
-  //   this.chartView = true;
-  //   let data = this.storeService.get(OUT_RESULT);
-  //   console.log(data);
-  //   let endems = this.getEndMebers(data);
-  //   console.log(endems);
-
-  //   let step = parseFloat(data[0].row[2]);
-
-  //   let cardinality = this.getCardinality(data);
-  //   if (cardinality === 0)
-  //     return;
-
-  //   if (data.length > 0 && data.length % cardinality === 0) {
-  //     let endMemberNumber = cardinality - 1;
-  //     let chartNumber = this.getChartNumber(data);
-  //     if (chartNumber === 0) {
-  //       chartNumber = 1;
-  //     }
-  //     console.log("nr. endmember: " + endMemberNumber + " nr. chart: " + chartNumber);
-
-  //     let charts = new Array();
-
-  //     for (let n = 0; n < chartNumber; n++) {
-  //       let index = n * cardinality;
-  //       let points = new Array();
-  //       let start = 0;
-  //       for (let i = 1, j = 1; i < data[index + cardinality - 1].row.length; i++, j++) {
-  //         let x = start + step * (j - 1);
-  //         if (x > 1) {
-  //           charts.push({
-  //             type: "scatter",
-  //             name: "" + data[index].row[0],
-  //             showInLegend: true,
-  //             dataPoints: points
-  //           });
-  //           points = new Array();
-  //           j = 0;
-  //           x = start + step * j;
-  //         }
-  //         points.push({ x: x, y: parseFloat(data[index + cardinality - 1].row[i]) });
-  //       }
-  //       charts.push({
-  //         type: "scatter",
-  //         name: "" + data[index].row[0],
-  //         showInLegend: true,
-  //         dataPoints: points
-  //       });
-  //     }
-
-  //     for (let e of endems) {
-  //       charts.push({
-  //         type: "line",
-  //         name: "End members",
-  //         showInLegend: true,
-  //         dataPoints: e
-  //       });
-  //     }
-
-  //     console.log(charts);
-
-  //     this.chartOptions = {
-  //       animationEnabled: true,
-  //       theme: "light2",
-  //       title: {
-  //         text: "Mixing model"
-  //       },
-  //       axisX: {
-  //         title: '',
-  //         // valueFormatString: "MMM",
-  //         // intervalType: "month",
-  //         // interval: 1
-  //       },
-  //       axisY: {
-  //         title: '',
-  //         // suffix: "°F"
-  //       },
-  //       toolTip: {
-  //         shared: true
-  //       },
-  //       legend: {
-  //         cursor: "pointer",
-  //         itemclick: function (e: any) {
-  //           if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-  //             e.dataSeries.visible = false;
-  //           } else {
-  //             e.dataSeries.visible = true;
-  //           }
-  //           e.chart.render();
-  //         }
-  //       },
-  //       data: charts
-  //     }
-  //   }
-  // }
 
   private getMaxLength(): number {
     let max = this.outResult[0].row.length;

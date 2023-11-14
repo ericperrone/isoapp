@@ -52,7 +52,7 @@ export class GeoModelsService extends Rest {
 
     return this.http.post(this.serviceUrl + 'mixing-model', payload).pipe(map(
       (res: any) => {
-        // console.log(res);
+        console.log(res);
         return res;
       }
     ),

@@ -8,6 +8,7 @@ export interface EndMember {
   member: Array<EndMemberItem>;
   multipleSelectionMode: boolean;
   maxSelectable: number;
+  inverse?: boolean;
 }
 
 export const MULTIPLE_SELECTION_MODE = '_MULTIPLE_SELECTION_MODE_';
@@ -15,6 +16,7 @@ export const SECOND_SELECTION = '_SECOND_SELECTION_';
 export const RESET_SELECTION = '_RESET_SELECTION_';
 export const RESET_SELECTION_OUT = '_RESET_SELECTION_OUT_';
 export const END_MEMBER = '_END_MEMBER_';
+export const INVERSE = '_INVERSE_';
 
 @Component({
   selector: 'app-end-member',
@@ -32,11 +34,18 @@ export class EndMemberComponent implements OnInit, OnDestroy {
   public subReset: Subscription | undefined;
   public subMember: Subscription | undefined;
   public subMultiSelect: Subscription | undefined;
+  public subInverse: Subscription | undefined;
   public activeMember = '';
 
   constructor(private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
+    this.subInverse = this.eventGeneratorService.on(INVERSE).subscribe(
+      (event: any) => {
+        let m = this.getMemberByName(event.content.active);
+        m.inverse = event.content.checked;
+      }
+    );
     this.subReset = this.eventGeneratorService.on(RESET_SELECTION).subscribe(
       (event: any) => {
         this.unSelectAll();
@@ -72,6 +81,9 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     }
     if (!!this.subMultiSelect) {
       this.subMultiSelect.unsubscribe();
+    }
+    if (!!this.subInverse) {
+      this.subInverse.unsubscribe();
     }
   }
 
@@ -122,7 +134,12 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       // }
       if (nSelected == m.maxSelectable && !item.selected)
         return;
-      this.onSelect.emit({ 'memberName': memberName, 'item': item });
+      let outItem = {...item};
+      if (!!m.inverse) {
+        let x = parseFloat(outItem.value);
+        outItem.value = '' + (1 / x);
+      }
+      this.onSelect.emit({ 'memberName': memberName, 'item': outItem });
     }
   }
 
