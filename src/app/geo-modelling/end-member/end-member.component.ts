@@ -16,6 +16,7 @@ export const SECOND_SELECTION = '_SECOND_SELECTION_';
 export const RESET_SELECTION = '_RESET_SELECTION_';
 export const RESET_SELECTION_OUT = '_RESET_SELECTION_OUT_';
 export const END_MEMBER = '_END_MEMBER_';
+export const END_MEMBER_SET = '_END_MEMBER_SET_';
 export const INVERSE = '_INVERSE_';
 
 @Component({
@@ -60,13 +61,13 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       (event: any) => {
         let m = this.getMemberByName(event.content.active);
         m.multipleSelectionMode = event.content.checked;
-        if (!event.content.checked)  {
+        if (!event.content.checked) {
           this.unSelectByMember(m.name);
           m.maxSelectable = 1;
-          this.eventGeneratorService.emit({key: RESET_SELECTION_OUT, content: m.name});
+          this.eventGeneratorService.emit({ key: RESET_SELECTION_OUT, content: m.name });
         } else {
           m.maxSelectable = 2;
-        }     
+        }
       }
     )
     this.analyzeMembers();
@@ -117,7 +118,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
         return m;
       }
     }
-    return {name: '', member: new Array<EndMemberItem>(), multipleSelectionMode: false, maxSelectable: 1};
+    return { name: '', member: new Array<EndMemberItem>(), multipleSelectionMode: false, maxSelectable: 1 };
   }
 
   public onClick(item: EndMemberItem, memberName: string): void {
@@ -129,12 +130,9 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       let nSelected = this.countSelected(m);
 
       true === item.selected ? item.selected = false : (nSelected < m.maxSelectable ? item.selected = true : item.selected = false);
-      // if (!item.selected) {
-      //   item.selected = false;
-      // }
       if (nSelected == m.maxSelectable && !item.selected)
         return;
-      let outItem = {...item};
+      let outItem = { ...item };
       if (!!m.inverse) {
         let x = parseFloat(outItem.value);
         outItem.value = '' + (1 / x);
@@ -143,11 +141,16 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     }
   }
 
+  public selectActive(e: EndMember) {
+    this.activeMember = e.name;
+    this.eventGeneratorService.emit({ key: END_MEMBER_SET, content: this.activeMember });
+  }
+
   private countSelected(em: EndMember): number {
     let count = 0;
     for (let m of em.member) {
       if (!!m.selected) {
-        count ++;
+        count++;
       }
     }
     return count;

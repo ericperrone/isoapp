@@ -18,8 +18,10 @@
 </div> -->
 
 <div *ngFor="let em of endMembers" class="centered mt-2 mb-1" style="max-width: 95%; padding: 1px;">
-    <span class="endmember" *ngIf="em.name !== activeMember">{{ em.name }}</span>
-    <span class="endmember active-border color-primary" *ngIf="em.name === activeMember">{{ em.name }}</span>
+    <!-- <span class="endmember clickable" *ngIf="em.name !== activeMember" (click)="selectActive(em)">{{ em.name }}</span>
+    <span class="endmember active-border color-primary" *ngIf="em.name === activeMember">{{ em.name }}</span> -->
+    <button type="button" class="btn btn-outline-primary" *ngIf="em.name === activeMember"><strong>{{ em.name }}</strong></button>
+    <button type="button" class="btn btn-outline-secondary" *ngIf="em.name !== activeMember" (click)="selectActive(em)">{{ em.name }}</button>
     <div class="scrollable centered" style="max-width: 100%; max-height: 40%; border: 1px solid lightgray; padding: 1px;">
         <table>
             <thead>

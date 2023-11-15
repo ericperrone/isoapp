@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, ViewChildren } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
-import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, INVERSE } from '../end-member/end-member.component';
+import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, END_MEMBER_SET } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
@@ -70,6 +70,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public addReady = false;
   public chartOptions = {};
   private subReset: Subscription | undefined;
+  private subEndMemberSet: Subscription | undefined;
   private geoData = new Array<any>();
 
   constructor(private eventGeneratorService: EventGeneratorService,
@@ -101,11 +102,25 @@ export class MixingComponent implements OnInit, OnDestroy {
         }
       }
     );
+
+    this.subEndMemberSet = this.eventGeneratorService.on(END_MEMBER_SET).subscribe(
+      event => {
+        if (!!this.computables) {
+          let c = this.getComputableByMemberName(event.content);
+          if (!!c)
+            this.selectMember(c);
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
     if (!!this.subReset) {
       this.subReset.unsubscribe();
+    }
+
+    if (!!this.subEndMemberSet) {
+      this.subEndMemberSet.unsubscribe();
     }
   }
 
@@ -113,18 +128,6 @@ export class MixingComponent implements OnInit, OnDestroy {
     if (this.params?.modalRef) {
       this.params.modalRef.close();
     }
-  }
-
-  public onConcentrationChange(c: Computable, event: any) {
-    // console.log(c);
-    // console.log(event.target.value);
-    // c.concentration = event.target.value;
-  }
-
-  public onConcentrationValueChange(c: Computable, event: any) {
-    // console.log(c);
-    // console.log(event.target.value);
-    // c.concentrationValue = event.target.value;
   }
 
   public reset(): void {
@@ -222,7 +225,7 @@ export class MixingComponent implements OnInit, OnDestroy {
                   for (let m of em.member) {
                     currentComputable.concentration = '';
                     currentComputable.concentrationValue = '';
-                  if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
+                    if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
                       currentComputable.concentration = m.name;
                       currentComputable.concentrationValue = m.value;
                       break;
@@ -284,6 +287,15 @@ export class MixingComponent implements OnInit, OnDestroy {
       }
       c.active = true;
       this.eventGeneratorService.emit({ key: END_MEMBER, content: c.endMemberName });
+    }
+  }
+
+  public selectMember(c: Computable) {
+    if (!!this.computables) {
+      for (let cc of this.computables) {
+        cc.active = false;
+      }
+      c.active = true;
     }
   }
 
@@ -467,12 +479,12 @@ export class MixingComponent implements OnInit, OnDestroy {
       let dpem = new Array<any>();
       for (let i = 0; i < geoData.length - 1; i++) {
         for (let j = 0; j < geoData[i].members.length; j++) {
-          dpem.push({x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration});
+          dpem.push({ x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration });
         }
       }
 
       for (let j = 0; j < geoData[0].members.length; j++) {
-        dpem.push({x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration});
+        dpem.push({ x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration });
       }
 
       charts.push({
