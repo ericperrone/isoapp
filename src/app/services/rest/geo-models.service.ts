@@ -7,8 +7,8 @@ export interface MixingModelPayload {
   endMemberName: string;
   elementName: string;
   elementValue: string;
-  concentration?: string;
-  concentrationValue?: string;
+  concentration: string;
+  concentrationValue: string;
 }
 
 export interface MixingModelMember {
@@ -43,7 +43,7 @@ export class GeoModelsService extends Rest {
         element: p.elementName,
         member: p.endMemberName,
         concentration: parseFloat(p.elementValue),
-        concentration2: p.concentrationValue ? parseFloat(p.concentrationValue) : undefined
+        concentration2: p.concentrationValue.length > 0 ? parseFloat(p.concentrationValue) : undefined
       };
       payloadItem.members.push(member);
     }

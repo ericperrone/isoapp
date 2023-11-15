@@ -26,8 +26,8 @@ interface Computable {
   elementValueCopy?: string;
   row: number;
   active: boolean;
-  concentration?: string;
-  concentrationValue?: string;
+  concentration: string;
+  concentrationValue: string;
 }
 
 interface MixingResult {
@@ -113,6 +113,18 @@ export class MixingComponent implements OnInit, OnDestroy {
     if (this.params?.modalRef) {
       this.params.modalRef.close();
     }
+  }
+
+  public onConcentrationChange(c: Computable, event: any) {
+    // console.log(c);
+    // console.log(event.target.value);
+    // c.concentration = event.target.value;
+  }
+
+  public onConcentrationValueChange(c: Computable, event: any) {
+    // console.log(c);
+    // console.log(event.target.value);
+    // c.concentrationValue = event.target.value;
   }
 
   public reset(): void {
@@ -208,7 +220,9 @@ export class MixingComponent implements OnInit, OnDestroy {
               for (let em of this.endMembers) {
                 if (em.name === event.memberName) {
                   for (let m of em.member) {
-                    if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
+                    currentComputable.concentration = '';
+                    currentComputable.concentrationValue = '';
+                  if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
                       currentComputable.concentration = m.name;
                       currentComputable.concentrationValue = m.value;
                       break;
@@ -217,8 +231,8 @@ export class MixingComponent implements OnInit, OnDestroy {
                 }
               }
             } else {
-              currentComputable.concentration = undefined;
-              currentComputable.concentrationValue = undefined;
+              currentComputable.concentration = '';
+              currentComputable.concentrationValue = '';
             }
           } else {
             currentComputable.elementName = currentComputable.elementName + ' / ' + event.item.name;
@@ -256,7 +270,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     let n = 0;
     for (let em of event) {
       this.ratio.push(false);
-      this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', row: n, active: false });
+      this.computables.push({ endMemberName: em.name, elementName: '', elementValue: '', concentration: '', concentrationValue: '', row: n, active: false });
       n++;
     }
     this.computables[0].active = true;
@@ -285,8 +299,8 @@ export class MixingComponent implements OnInit, OnDestroy {
       for (let em of this.computables) {
         em.elementName = '';
         em.elementValue = '';
-        !!em.concentrationValue ? em.concentrationValue = undefined : undefined;
-        !!em.concentration ? em.concentration = undefined : undefined;
+        !!em.concentrationValue ? em.concentrationValue = '' : '';
+        !!em.concentration ? em.concentration = '' : '';
       }
     }
   }
@@ -294,8 +308,8 @@ export class MixingComponent implements OnInit, OnDestroy {
   private resetComputable(c: Computable) {
     c.elementName = '';
     c.elementValue = '';
-    !!c.concentrationValue ? c.concentrationValue = undefined : undefined;
-    !!c.concentration ? c.concentration = undefined : undefined;
+    !!c.concentrationValue ? c.concentrationValue = '' : '';
+    !!c.concentration ? c.concentration = '' : '';
   }
 
   public onRatio(event: any, c: Computable) {
