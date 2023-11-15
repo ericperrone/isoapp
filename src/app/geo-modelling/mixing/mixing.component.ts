@@ -11,6 +11,7 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 
 export const OUT_RESULT = '_OUT_RESULT_';
+export const GEO_DATA = '_GEO_DATA_';
 
 interface MemberItem {
   endMemberName: string;
@@ -69,7 +70,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public addReady = false;
   public chartOptions = {};
   private subReset: Subscription | undefined;
-  private geoData: any;
+  private geoData = new Array<any>();
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private storeService: StoreService,
@@ -81,6 +82,11 @@ export class MixingComponent implements OnInit, OnDestroy {
     if (!this.outResult) {
       this.outResult = new Array<ShowedRow>();
     }
+    this.geoData = this.storeService.get(GEO_DATA);
+    if (!this.geoData) {
+      this.geoData = new Array<any>();
+    }
+
     this.subReset = this.eventGeneratorService.on(RESET_SELECTION_OUT).subscribe(
       event => {
         if (!!this.computables) {
@@ -134,7 +140,9 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   public clean(): void {
     this.storeService.clean(OUT_RESULT);
+    this.storeService.clean(GEO_DATA);
     this.outResult = new Array<ShowedRow>();
+    this.geoData = new Array<any>();
   }
 
   public add(): void {
@@ -326,8 +334,12 @@ export class MixingComponent implements OnInit, OnDestroy {
         (res: any) => {
           this.tempResult = new Array<ShowedRow>();
           this.result = res.results;
-          this.geoData = res.geoData;
+          // this.geoData = res.geoData;
+          this.geoData = [...this.geoData, ...res.geoData];
+          this.storeService.push({ key: GEO_DATA, data: this.geoData });
+
           // console.log(this.result);
+
           if (!!this.result) {
             let nRow = this.result[0].samples.length;
             for (let n = 0; n < nRow; n++) {
@@ -403,8 +415,10 @@ export class MixingComponent implements OnInit, OnDestroy {
     this.chartView = true;
     let data = this.storeService.get(OUT_RESULT);
     console.log(data);
+    let geoData = this.storeService.get(GEO_DATA);
+    console.log(geoData);
 
-    let step = parseFloat(data[0].row[2]);
+    // let step = parseFloat(data[0].row[2]);
 
     let cardinality = this.getCardinality(data);
     if (cardinality === 0)
@@ -426,15 +440,31 @@ export class MixingComponent implements OnInit, OnDestroy {
             dp.push({ x: chartsData[i].points[k], y: chartsData[i + 1].points[k] });
           }
           charts.push({
-            type: 'line',
+            type: 'scatter',
             name: chartsData[i].title + ' ' + chartsData[i + 1].title,
             showInLegend: true,
-            dataPoints: dp
+            dataPoints: dp,
           });
         }
       }
 
       console.log(charts);
+
+      let dpem = new Array<any>();
+      for (let i = 0; i < geoData.length - 1; i++) {
+        for (let j = 0; j < geoData[i].members.length; j++) {
+          dpem.push({x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration});
+        }
+      }
+
+      for (let j = 0; j < geoData[0].members.length; j++) {
+        dpem.push({x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration});
+      }
+
+      charts.push({
+        type: 'line',
+        dataPoints: dpem
+      });
 
       this.chartOptions = {
         animationEnabled: true,
