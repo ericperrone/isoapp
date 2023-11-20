@@ -12,6 +12,8 @@ import { DataProcessingService } from 'src/app/services/rest/data-processing.ser
 import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { Subscription } from 'rxjs';
 import { Sample } from 'src/app/models/sample';
+import { ChemElements, Isotopes } from 'src/app/shared/const';
+import { ElementsService } from 'src/app/services/rest/elements.service';
 
 @Component({
   selector: 'app-save-data',
@@ -33,6 +35,7 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
 
   constructor(private dataProcessingService: DataProcessingService,
     private sampleService: SampleService,
+    private elementsService: ElementsService,
     private datasetService: DatasetService,
     private router: Router,
     private modalService: NgbModal,
@@ -142,6 +145,24 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
           );
 
           this.displayMessage(res);
+          const s = this.elementsService.getElements().subscribe(
+            (res: any) => {
+              if (!!res && res.length > 0) {
+                ChemElements.length = 0;
+                Isotopes.length = 0;
+                for (let r of res) {
+                  if (!!r.isotope) {
+                    Isotopes.push(r.element);
+                  } else {
+                    ChemElements.push(r.element);
+                  }
+                }
+              }
+              s.unsubscribe();
+            }
+            
+          );
+      
         }
       }
     );
