@@ -27,13 +27,15 @@
       </thead>
       <tr *ngFor="let r of gridRows">
         <ng-template ngFor let-e [ngForOf]="r">
-          <td scope="col" *ngIf="e.visible === true && e.selected === true" class="selected">
-            <span *ngIf="e.check === false" class="p-0 transparent clickable" (click)="onCheck(e)">{{ e.content }}</span>
-            <span *ngIf="e.check === true" class="p-0 transparent clickable"><input type="checkbox" (click)="onCheck(e)"></span>
+          <td scope="col" *ngIf="e.visible === true && e.selected === true" class="selected clickable" (click)="onCheck(e)">
+            <span *ngIf="e.check === false" class="p-0 transparent clickable">{{ e.content }}</span>
+            <!-- <span *ngIf="e.check === false" class="p-0 transparent clickable" (click)="onCheck(e)">{{ e.content }}</span> -->
+            <!-- <span *ngIf="e.check === true" class="p-0 transparent clickable"><input type="checkbox" (click)="onCheck(e)"></span> -->
           </td>
-          <td scope="col" *ngIf="e.visible === true && e.selected === false">
-            <span *ngIf="e.check === false" class="p-0 transparent clickable" (click)="onCheck(e)">{{ e.content }}</span>
-            <span *ngIf="e.check === true" class="p-0 transparent clickable"><input type="checkbox" (click)="onCheck(e)"></span>
+          <td scope="col" *ngIf="e.visible === true && e.selected === false" class="clickable" (click)="onCheck(e)">
+            <span *ngIf="e.check === false" class="p-0 transparent clickable">{{ e.content }}</span>
+            <!-- <span *ngIf="e.check === false" class="p-0 transparent clickable" (click)="onCheck(e)">{{ e.content }}</span> -->
+            <!-- <span *ngIf="e.check === true" class="p-0 transparent clickable"><input type="checkbox" (click)="onCheck(e)"></span> -->
           </td>
         </ng-template>
       </tr>
