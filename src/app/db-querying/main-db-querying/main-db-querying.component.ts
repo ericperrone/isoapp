@@ -90,7 +90,7 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
   public checkFilter(): void {
     let filter: QueryFilter = this.storeService.get(FILTER_KEY);
     console.log(filter);
-    if (filter.authors.length > 0 || filter.keywords.length > 0 || filter.ref.length > 0) {
+    if (filter.authors.length > 0 || filter.keywords.length > 0 || filter.ref.length > 0 || !!filter.geo) {
       this.queryDisabled = false;
     } else {
       this.queryDisabled = true;
