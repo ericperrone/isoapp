@@ -27,7 +27,7 @@ export class SampleService extends Rest {
     }
     if (filter.keywords.length > 0) {
       let keys = '';
-      for(let k of filter.keywords) {
+      for (let k of filter.keywords) {
         keys += k + ' ';
       }
       url += "&meta=" + keys.trimEnd();
@@ -38,6 +38,10 @@ export class SampleService extends Rest {
         auth += a + ';';
       }
       url += "&auth=" + auth.substring(0, auth.length - 1);
+    }
+    if (!!filter.geo) {
+      url += "&x0=" + filter.geo.topLongitude + "&x1=" + filter.geo.bottomLongitude
+        + "&y0=" + filter.geo.topLatitude + "&y1=" + filter.geo.bottomLatitude;
     }
     return url;
   }
