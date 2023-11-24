@@ -15,6 +15,7 @@ table {
     border: solid 1px lightgray;
     border-bottom: 0px !important;
     border-right: 0px !important;
+    white-space: nowrap;
 }
 
 td, th {
@@ -22,6 +23,7 @@ td, th {
     white-space: nowrap;
     border-right: solid 1px lightgray;
     border-bottom: solid 1px lightgray;
+    min-width: 6em;
 }
 
 thead {
