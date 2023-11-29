@@ -3,12 +3,16 @@ import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, END_MEMBER_SET } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
-import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
+import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 import { Subscription } from 'rxjs';
 import { CACHE_AUTH, getElementByisotope } from 'src/app/shared/const';
 import { StoreService } from 'src/app/services/common/store.service';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { PlotComponent, CLOSE, PLOT } from 'src/app/shared/modals/plot/plot.component';
+import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
+import { ModalParams } from 'src/app/shared/modals/modal-params';
 
 export const OUT_RESULT = '_OUT_RESULT_';
 export const GEO_DATA = '_GEO_DATA_';
@@ -68,14 +72,19 @@ export class MixingComponent implements OnInit, OnDestroy {
   private tempResult = new Array<ShowedRow>();
   public resultReady = false;
   public addReady = false;
-  public chartOptions = {};
+  public chartOptions: any;
   private subReset: Subscription | undefined;
   private subEndMemberSet: Subscription | undefined;
-  private geoData = new Array<any>();
+  public geoData = new Array<any>();
+  private ref: any;
+  public xPoint = 0;
+  public yPoint = 0;
+  public charts: any;
 
   constructor(private eventGeneratorService: EventGeneratorService,
+    private modalService: NgbModal,
     private storeService: StoreService,
-    private geModelsService: GeoModelsService) { }
+    public geoModelsService: GeoModelsService) { }
 
   ngOnInit(): void {
     // console.log(this.params);
@@ -356,7 +365,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public submit() {
     if (!!this.computables) {
       const payload = this.computables;
-      let s = this.geModelsService.mixingModel(payload, this.step).subscribe(
+      let s = this.geoModelsService.mixingModel(payload, this.step).subscribe(
         (res: any) => {
           this.tempResult = new Array<ShowedRow>();
           this.result = res.results;
@@ -443,8 +452,8 @@ export class MixingComponent implements OnInit, OnDestroy {
     console.log(data);
     let geoData = this.storeService.get(GEO_DATA);
     console.log(geoData);
-
-    // let step = parseFloat(data[0].row[2]);
+    let xText = geoData[0].members[0].element;
+    let yText = geoData[1].members[0].element;
 
     let cardinality = this.getCardinality(data);
     if (cardinality === 0)
@@ -467,7 +476,7 @@ export class MixingComponent implements OnInit, OnDestroy {
           }
           charts.push({
             type: 'scatter',
-            name: chartsData[i].title + ' ' + chartsData[i + 1].title,
+            name: 'Mixed points', // chartsData[i].title + ' ' + chartsData[i + 1].title,
             showInLegend: true,
             dataPoints: dp,
           });
@@ -499,14 +508,10 @@ export class MixingComponent implements OnInit, OnDestroy {
           text: "Mixing model"
         },
         axisX: {
-          title: '',
-          // valueFormatString: "MMM",
-          // intervalType: "month",
-          // interval: 1
+          title: '' + xText,
         },
         axisY: {
-          title: '',
-          // suffix: "°F"
+          title: '' + yText,
         },
         toolTip: {
           shared: true
@@ -556,4 +561,91 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
     return max;
   }
+
+  getChartInstance(chart: object) {
+    this.charts = chart;
+    console.log(this.charts);
+  }
+
+  public plot(geoData: any, geoModelsService: GeoModelsService) {
+    let that = this;
+    this.ref = this.modalService.open(PlotComponent, { centered: true });
+    this.ref.componentInstance.emitter.subscribe((result: any) => {
+      if (result.cmd === PLOT) {
+        this.xPoint = result.xPoint;
+        this.yPoint = result.yPoint;
+        if (!!this.chartOptions && !!this.chartOptions.data) {
+          let data = [...this.chartOptions.data];
+          let userData = undefined;
+          for (let d of data) {
+            if (!!d.name && d.name === 'User plotted point')
+              userData = d;
+          }
+          if (!userData) {
+            data.push({
+              type: 'scatter',
+              name: 'User plotted point',
+              showInLegend: true,
+              markerType: 'square',
+              color: 'red',
+              click: function (e: any) {
+                console.log(e.dataPoint);
+                let xs = new Array<MixingModelPayload>();
+                let ys = new Array<MixingModelPayload>();
+  
+                xs = [...geoData[0].members];
+                ys = [...geoData[1].members];
+  
+                let payload = {
+                  xPoint: e.dataPoint.x,
+                  yPoint: e.dataPoint.y,
+                  xs: xs,
+                  ys: ys
+                };
+  
+                console.log(payload);
+  
+                let s = geoModelsService.mixingPlot(payload).subscribe(
+                  (res: any) => {
+                    console.log(res);
+                    let ref = that.modalService.open(AlertComponent, { centered: true });
+                    if ( typeof(res) === 'string' && res.startsWith('Error')) {
+                      let params: ModalParams = {
+                        headerText: 'Info',
+                        bodyText: 'The selected point cannot be produced by a mixing of the related endmembers.'
+                      };
+                      ref.componentInstance.params = params;
+                    } else {
+                      let list = [];
+                      for (let i = 0; i < res.weights.length; i++) {
+                        list.push({ key: res.geoData.xs[i].member, value: res.weights[i] })
+                      }
+                      let params: ModalParams = {
+                        headerText: 'Info',
+                        bodyText: 'The selected point can be produced by a mixing of the related endmembers.',
+                        list: list
+                      };
+                      ref.componentInstance.params = params;
+                    }
+                    ref.componentInstance.emitter.subscribe(() => ref.close());
+                    s.unsubscribe();
+                  }
+                );
+              },
+              dataPoints: [{ x: this.xPoint, y: this.yPoint }]
+            });           
+          } else {
+            userData.dataPoints.push({ x: this.xPoint, y: this.yPoint });
+          }
+
+          this.chartOptions.data.length = 0;
+          this.charts.render();
+          this.chartOptions.data = data;
+          this.charts.render();
+        }
+      }
+      this.ref.close();
+    });
+  }
 }
+

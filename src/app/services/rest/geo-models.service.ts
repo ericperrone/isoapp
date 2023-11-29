@@ -3,6 +3,13 @@ import { Rest } from './rest';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
 
+export interface MixingPlot {
+  xPoint: number;
+  yPoint: number;
+  xs: Array<MixingModelPayload>;
+  ys: Array<MixingModelPayload>;
+}
+
 export interface MixingModelPayload {
   endMemberName: string;
   elementName: string;
@@ -59,4 +66,20 @@ export class GeoModelsService extends Rest {
       catchError(this.handleError)
     );
   }
+
+  public mixingPlot(payload: MixingPlot): Observable<any> {
+    console.log(payload);
+     return this.http.post(this.serviceUrl + 'mixing-plot', payload).pipe(map(
+      (res: any) => {
+        console.log(res);
+        return res;
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
 }
+
+
+
+
