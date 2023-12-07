@@ -10,6 +10,8 @@ import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams, DataListItem, CONFIRM } from 'src/app/shared/modals/modal-params';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
+import { SelectBoxComponent } from 'src/app/shared/modals/select-box/select-box.component';
+
 
 @Component({
   selector: 'app-list-file',
@@ -118,6 +120,25 @@ export class ListFileComponent implements OnInit {
         }
       }
     );
+  }
+
+  public externalSites(): void {
+    let ref = this.modalService.open(SelectBoxComponent, { centered: true });
+    let choices = [{ text: 'Georoc', value: 1, color: 'blue' }];
+    ref.componentInstance.params = { bodyText: 'Available external sites:', choices:  choices};
+    ref.componentInstance.emitter.subscribe(
+      (response: number) => {
+        ref.close();
+        // console.log('response: ' + response);
+        switch (response) {
+          case 1:
+            this.router.navigate(['georoc']);
+            break;
+          default:
+            break;
+        }
+        ref.componentInstance.emitter.unsubscribe();
+    });
   }
 
   public processFile(dataset: Dataset): void {

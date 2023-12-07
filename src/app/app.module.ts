@@ -43,6 +43,7 @@ import { ModelsMenuComponent } from './geo-modelling/models-menu/models-menu.com
 import { MixingComponent } from './geo-modelling/mixing/mixing.component';
 import { EndMemberComponent } from './geo-modelling/end-member/end-member.component';
 import { PlotComponent } from './shared/modals/plot/plot.component';
+import { GeorocComponent } from './data-processing/georoc/georoc.component';
 
 
 @NgModule({
@@ -80,6 +81,7 @@ import { PlotComponent } from './shared/modals/plot/plot.component';
     MixingComponent,
     EndMemberComponent,
     PlotComponent,
+    GeorocComponent,
   ],
   imports: [
     BrowserModule,

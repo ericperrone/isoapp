@@ -3,3 +3,9 @@ export interface Author {
     surname: string;
     name: string;
 }
+
+export interface AuthorName {
+    personId: number;
+    lastName: string;
+    firstName : string;
+}
