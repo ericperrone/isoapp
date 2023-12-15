@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModalParams, ExclusiveChoice, CONFIRM, CANCEL } from '../modal-params';
 
 

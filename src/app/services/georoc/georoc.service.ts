@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of, switchMap } from 'rxjs';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, catchError, map, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthorName } from 'src/app/models/author';
 
 export const GEOROC_URL = 'https://api-test.georoc.eu/api/v1/';
@@ -13,6 +13,35 @@ export class GeorocService {
   private GEOROC_KEY_VALUE: string = 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==';
   constructor(private http: HttpClient) { }
 
+  public getSampleFullData(sampleId: number): Observable<any> {
+    let endpoint = GEOROC_URL + 'queries/fulldata/' + sampleId;
+    return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
+      (res: any) => {
+        console.log(res);
+        return res;
+      }
+    ),
+      catchError(this.handleError)
+    );    
+  }
+
+  public getSamplesByAuthor(lastName: string, firstName: string): Observable<any> {
+    let endpoint = GEOROC_URL + 'queries/samples?lastname=eq:' + lastName + '&firstname=eq:' + firstName;
+    return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
+      (res: any) => {
+        let data = new Array<number>();
+        if (!!res) {
+          for (let r of res.data) {
+            data.push(r.sampleID);
+          }
+        }
+        return data;
+      }
+    ),
+      catchError(this.handleError)
+    );    
+  }
+
   public getAuthorList(): Observable<any> {
     let endpoint = GEOROC_URL + 'queries/authors';
     return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
@@ -20,7 +49,7 @@ export class GeorocService {
         let authors = new Array<AuthorName>();
         if (!!res) {
           for (let r of res.data) {
-            authors.push({ personId: r.personId, firstName: r.personFirstName, lastName: r.personLastName });
+            authors.push({ personId: r.personID, firstName: r.personFirstName, lastName: r.personLastName });
           }
         }
         return authors;

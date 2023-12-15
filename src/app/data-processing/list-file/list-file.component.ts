@@ -97,7 +97,6 @@ export class ListFileComponent implements OnInit {
         }
       }
     );
-
   }
 
   public delete(dataset: Dataset): void {

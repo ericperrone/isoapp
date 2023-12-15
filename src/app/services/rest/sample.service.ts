@@ -13,6 +13,13 @@ export class SampleService extends Rest {
 
   constructor(private http: HttpClient) { super(); }
 
+  public insertFullData(fullData: any): Observable<any> {
+    let payload = {
+      data: fullData
+    }
+    return this.http.post(this.serviceUrl + 'insert-fulldata', payload);
+  }
+
   public insertSample(sampleList: Array<Sample>): Observable<any> {
     let payload = {
       samples: sampleList
