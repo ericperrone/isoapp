@@ -24,7 +24,15 @@ export class SampleService extends Rest {
     let payload = {
       samples: sampleList
     }
-    return this.http.post(this.serviceUrl + 'insert-sample', payload);
+    return this.http.post(this.serviceUrl + 'insert-sample', payload).pipe(map(
+      (res: any) => {
+        if (res.status && res.status === 'success') {
+          return res;
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );;
   }
 
   private buildQueryString(filter: QueryFilter): string {
