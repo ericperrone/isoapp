@@ -92,6 +92,13 @@ export class GeorocComponent implements OnInit, OnDestroy {
         this.sampleIndex++;
         if (this.sampleIndex >= this.sampleList.length) {
           this.progress.close();
+          console.log(this.finalReport);
+          let text = 'Author: ' + this.finalReport.author + '.\n\n';
+          text += 'Inserted ' + this.finalReport.inserted + ' new items of ' + this.finalReport.items + '.\n';
+          text += 'Not inserted ' + this.finalReport.rejected + ' items (already in database) of ' + this.finalReport.items + '.\n';
+          let ref = this.modalService.open(AlertComponent, { centered: true });
+          ref.componentInstance.params = { headerText: 'ERROR', bodyText: text };
+          ref.componentInstance.emitter.subscribe(() => { ref.close(); });
         } else {
           this.eventGeneratorService.emit({
             key: PROGRESS_TEXT,
