@@ -45,6 +45,8 @@ import { EndMemberComponent } from './geo-modelling/end-member/end-member.compon
 import { PlotComponent } from './shared/modals/plot/plot.component';
 import { GeorocComponent } from './data-processing/georoc/georoc.component';
 import { ProgressComponent } from './shared/modals/progress/progress.component';
+import { LoginComponent } from './admin/login/login.component';
+import { AdminComponent } from './admin/admin/admin.component';
 
 
 @NgModule({
@@ -84,6 +86,8 @@ import { ProgressComponent } from './shared/modals/progress/progress.component';
     PlotComponent,
     GeorocComponent,
     ProgressComponent,
+    LoginComponent,
+    AdminComponent,
   ],
   imports: [
     BrowserModule,

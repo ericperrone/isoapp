@@ -39,7 +39,7 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
     private datasetService: DatasetService,
     private router: Router,
     private modalService: NgbModal,
-    private storeService: StoreService) { super(); }
+    public storeService: StoreService) { super(); }
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
@@ -124,9 +124,13 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
 
   private recursiveInsert(counter: number, limit: number): void {
     let s = this.sampleService.insertSample(this.payloads[counter]).subscribe(
-      (res) => {
+      res => {
         s.unsubscribe();
-        if (counter < limit - 1) {
+        if (!!res.errorCode) {
+          res.message = res.errorDetail.message;
+          this.spinnerOn = false;
+          this.displayMessage(res);
+        } else if (counter < limit - 1) {
           this.recursiveInsert(counter + 1, limit);
         } else {
           this.spinnerOn = false;
@@ -143,7 +147,6 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
               );
             }
           );
-
           this.displayMessage(res);
           const s = this.elementsService.getElements().subscribe(
             (res: any) => {
@@ -159,10 +162,8 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
                 }
               }
               s.unsubscribe();
-            }
-            
+            }            
           );
-      
         }
       }
     );

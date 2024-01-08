@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="w95 text-right m-1">
-        <button type="button" class="btn btn-primary" (click)="saveSamples()">Save data</button>
+        <button type="button" class="btn btn-primary" (click)="saveSamples()" [disabled]="!storeService.getCurrentUser()">Save data</button>
         <!-- <button type="button" class="btn btn-success" (click)="saveSamples()">Upload</button> -->
     </div>
     <div class="centered w95 h50 scrollable">

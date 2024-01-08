@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
+import { StoreService } from 'src/app/services/common/store.service';
 
 export const CLOSE_ALL_MODALS = '_CLOSE_ALL_MODALS_';
 
@@ -16,6 +17,7 @@ export class HeaderComponent implements OnInit {
   public transition: 'sideOff' | 'sideOn' | 'transitionLeft' | 'transitionRight' | undefined;
 
   constructor(private router: Router,
+    public storeService: StoreService,
     private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
@@ -41,6 +43,10 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['geo']);
   }
 
+  public gotoLogin() {
+    this.router.navigate(['login']);
+  }
+
   public toggleSidebar(): void {
     if (this.transition === 'sideOff') {
       this.transition = 'transitionRight';
@@ -53,6 +59,10 @@ export class HeaderComponent implements OnInit {
         this.transition = 'sideOff';
       }, 1000);      
     }
+  }
+
+  public logout() {
+    this.storeService.deleteCurrentUser();
   }
 }
 

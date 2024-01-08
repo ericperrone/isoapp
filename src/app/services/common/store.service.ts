@@ -3,6 +3,11 @@ import { Observable, of } from 'rxjs';
 
 export const CURRENT_USER = '_CURRENT_USER_';
 
+export interface UserInfo {
+  username: string;
+  key?: string;
+}
+
 export interface storeParam {
   key: string,
   data: any
@@ -34,9 +39,17 @@ export class StoreService {
   public deleteCurrentUser(): void {
     delete(this.store[CURRENT_USER]);
   }
+
+  public setCurrentUser(currentUser: UserInfo): void {
+    this.store[CURRENT_USER] = currentUser;
+  }
+
+  public getCurrentUser(): UserInfo {
+    return this.store[CURRENT_USER];
+  }
   
   public onKey(key: string): Observable<any> | undefined {
     return of(this.store[key]);
   }
-
+ 
 }

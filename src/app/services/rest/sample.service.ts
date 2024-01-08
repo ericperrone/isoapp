@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Rest, corsOptions } from './rest';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable } from 'rxjs';
 import { Sample } from 'src/app/models/sample';
 import { QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { StoreService, UserInfo } from '../common/store.service';
 
 
 @Injectable({
@@ -11,18 +12,49 @@ import { QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-queryi
 })
 export class SampleService extends Rest {
 
-  constructor(private http: HttpClient) { super(); }
+  constructor(private http: HttpClient, private storeService: StoreService) { super(); }
 
   public insertFullData(fullData: any): Observable<any> {
     let payload = {
       data: fullData
     }
+
+    let userInfo: UserInfo = this.storeService.getCurrentUser();
+    if (!!userInfo) {
+      const headers: HttpHeaders = new HttpHeaders({
+        'token': '' + userInfo.key,
+      });
+      const options = {
+        'headers': headers
+      };
+      return this.http.post(this.serviceUrl + 'insert-fulldata', payload, options);
+    }
+
     return this.http.post(this.serviceUrl + 'insert-fulldata', payload);
   }
 
   public insertSample(sampleList: Array<Sample>): Observable<any> {
     let payload = {
       samples: sampleList
+    }
+
+    let userInfo: UserInfo = this.storeService.getCurrentUser();
+    if (!!userInfo) {
+      const headers: HttpHeaders = new HttpHeaders({
+        'token': '' + userInfo.key,
+      });
+      const options = {
+        'headers': headers
+      };
+      return this.http.post(this.serviceUrl + 'insert-sample', payload).pipe(map(
+        (res: any) => {
+          if (res.status && res.status === 'success') {
+            return res;
+          }
+        }
+      ),
+        catchError(this.handleError)
+      );
     }
     return this.http.post(this.serviceUrl + 'insert-sample', payload).pipe(map(
       (res: any) => {

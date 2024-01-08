@@ -15,8 +15,8 @@
                 (click)="uploadFile()"><i class="fa-solid fa-upload"></i> upload</button>.
         <!-- </div>
         <div style="margin: 2px;"> -->
-            You can also try to download data from external sites; in this case press the button: <button type="button"
-                class="btn btn-outline-dark" (click)="externalSites()"><i class="fa-solid fa-globe"></i>
+            You can also try to download data from external sites (login as administrator is required); in this case press the button: <button type="button"
+                class="btn btn-outline-dark" (click)="externalSites()" [disabled]="!storeService.getCurrentUser()"><i class="fa-solid fa-globe"></i>
                 Explore external sites</button>
         </div>
         <!-- <div class="centered text-left" *ngIf="!!selected && selected.length > 0"><span class="bold selected-file">{{ selected }}</span></div> -->

@@ -23,6 +23,6 @@ export class Rest {
             `Backend returned code ${error.status}, body was: `, error.error);
         }
         // return throwError(() => new Error('Error code: ' + error.status + ' Error detail: ' + error.error));
-        return of ('Error code: ' + error.status + ' Error detail: ' + error.error);
+        return of ({ 'status': 'error', 'errorCode': error.status , 'errorDetail': error.error });
       }
 }

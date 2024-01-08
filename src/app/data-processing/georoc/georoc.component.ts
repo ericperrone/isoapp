@@ -18,6 +18,13 @@ import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress
 
 export const FULL_DATA_LOOP = '_FULL_DATA_LOOP_';
 
+interface FinalReport {
+  author: String;
+  items: number;
+  inserted: number;
+  rejected: number;
+}
+
 @Component({
   selector: 'app-georoc',
   templateUrl: './georoc.component.html',
@@ -39,6 +46,7 @@ export class GeorocComponent implements OnInit, OnDestroy {
   public filteredAuthors: any;
   public waitingSpinner = false;
   public selection: any;
+  public finalReport: FinalReport = {author: '', items: 0, inserted: 0, rejected: 0};
   private previousSelection: any;
   private sampleList = new Array<number>();
   private sampleIndex = 0;
@@ -206,6 +214,8 @@ export class GeorocComponent implements OnInit, OnDestroy {
           this.sampleList.push(r);
         }
         // console.log(res);
+        this.finalReport.author = this.selection.lastName + ' ' + this.selection.firstName;
+        this.finalReport.items = res.length;
         let ref = this.modalService.open(ConfirmComponent, { centered: true });
         ref.componentInstance.params = {
           headerText: 'Confirm',
@@ -231,6 +241,7 @@ export class GeorocComponent implements OnInit, OnDestroy {
 
   private importSamples(): void {
     if (this.sampleIndex >= this.sampleList.length) {
+      console.log(this.finalReport);
       return;
     }
     let sampleData = this.geoRocService.getSampleFullData(this.sampleList[this.sampleIndex]).subscribe(
@@ -241,6 +252,12 @@ export class GeorocComponent implements OnInit, OnDestroy {
         let s = this.sampleService.insertFullData(fullData).subscribe(
           (res: any) => {
             console.log(res);
+            let r = parseInt(res.result);
+            if (r === 1) {
+              this.finalReport.inserted ++;
+            } else {
+              this.finalReport.rejected ++;
+            }
             s.unsubscribe();
             this.eventGeneratorService.emit({key: FULL_DATA_LOOP});
           }

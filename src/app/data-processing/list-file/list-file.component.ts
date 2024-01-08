@@ -34,7 +34,7 @@ export class ListFileComponent implements OnInit {
   constructor(private router: Router,
     private datasetService: DatasetService,
     private modalService: NgbModal,
-    private storeService: StoreService) { }
+    public storeService: StoreService) { }
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);

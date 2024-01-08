@@ -12,6 +12,8 @@ import { SaveDataComponent } from './data-processing/save-data/save-data.compone
 import { MainDbQueryingComponent } from './db-querying/main-db-querying/main-db-querying.component';
 import { GeoComponent } from './shared/components/geo/geo.component';
 import { GeorocComponent } from './data-processing/georoc/georoc.component';
+import { LoginComponent } from './admin/login/login.component';
+import { AdminComponent } from './admin/admin/admin.component';
 
 
 const routes: Routes = [
@@ -27,7 +29,9 @@ const routes: Routes = [
   { path: 'save-data', component: SaveDataComponent },
   { path: 'main-db-querying', component: MainDbQueryingComponent },
   { path: 'geo', component: GeoComponent },
-  { path: 'georoc', component: GeorocComponent }
+  { path: 'georoc', component: GeorocComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'admin', component: AdminComponent },
 ];
 
 @NgModule({
