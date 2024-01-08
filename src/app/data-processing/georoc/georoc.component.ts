@@ -98,7 +98,7 @@ export class GeorocComponent implements OnInit, OnDestroy {
           text += 'Not inserted ' + this.finalReport.rejected + ' items (already in database) of ' + this.finalReport.items + '.\n';
           let ref = this.modalService.open(AlertComponent, { centered: true });
           ref.componentInstance.params = { headerText: 'ERROR', bodyText: text };
-          ref.componentInstance.emitter.subscribe(() => { ref.close(); });
+          ref.componentInstance.emitter.subscribe(() => { this.finalReport = {author: '', items: 0, inserted: 0, rejected: 0}; ref.close(); });
         } else {
           this.eventGeneratorService.emit({
             key: PROGRESS_TEXT,
@@ -234,6 +234,7 @@ export class GeorocComponent implements OnInit, OnDestroy {
             ref.close();
             if (response === CONFIRM) {
               this.sampleIndex = 0;
+              
               this.progress = this.modalService.open(ProgressComponent, { centered: true });
               ref.componentInstance.params = {
                 bodyText: 'Processed ' + this.sampleIndex + ' items of ' + this.sampleList.length
@@ -242,7 +243,8 @@ export class GeorocComponent implements OnInit, OnDestroy {
             }
           }
         );
-      }
+        sub.unsubscribe();
+      }     
     );
   }
 
