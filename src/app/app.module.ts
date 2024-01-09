@@ -47,6 +47,8 @@ import { GeorocComponent } from './data-processing/georoc/georoc.component';
 import { ProgressComponent } from './shared/modals/progress/progress.component';
 import { LoginComponent } from './admin/login/login.component';
 import { AdminComponent } from './admin/admin/admin.component';
+import { ChangePasswordComponent } from './admin/change-password/change-password.component';
+import { NewAdministratorComponent } from './admin/new-administrator/new-administrator.component';
 
 
 @NgModule({
@@ -88,6 +90,8 @@ import { AdminComponent } from './admin/admin/admin.component';
     ProgressComponent,
     LoginComponent,
     AdminComponent,
+    ChangePasswordComponent,
+    NewAdministratorComponent,
   ],
   imports: [
     BrowserModule,

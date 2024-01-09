@@ -4,6 +4,7 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { StoreService } from 'src/app/services/common/store.service';
 
 export const CLOSE_ALL_MODALS = '_CLOSE_ALL_MODALS_';
+export const LOGOUT = '_LOGOUT_';
 
 @Component({
   selector: 'app-header',
@@ -63,6 +64,7 @@ export class HeaderComponent implements OnInit {
 
   public logout() {
     this.storeService.deleteCurrentUser();
+    this.eventGeneratorService.emit({ key: LOGOUT });
   }
 }
 

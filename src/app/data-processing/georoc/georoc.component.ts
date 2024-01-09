@@ -10,7 +10,7 @@ import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeorocService } from 'src/app/services/georoc/georoc.service';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
-import { ModalParams, CONFIRM, CANCEL } from 'src/app/shared/modals/modal-params';
+import { ModalParams, CONFIRM, CANCEL, DataListItem } from 'src/app/shared/modals/modal-params';
 import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
@@ -92,12 +92,21 @@ export class GeorocComponent implements OnInit, OnDestroy {
         this.sampleIndex++;
         if (this.sampleIndex >= this.sampleList.length) {
           this.progress.close();
-          console.log(this.finalReport);
-          let text = 'Author: ' + this.finalReport.author + '.\n\n';
-          text += 'Inserted ' + this.finalReport.inserted + ' new items of ' + this.finalReport.items + '.\n';
-          text += 'Not inserted ' + this.finalReport.rejected + ' items (already in database) of ' + this.finalReport.items + '.\n';
+          // console.log(this.finalReport);
+ 
+          let listInfo = new Array<DataListItem>();
+          listInfo.push({ key: 'Author', value: '' + this.finalReport.author });
+          listInfo.push({ key: 'Processed', value: '' + this.finalReport.items });
+          listInfo.push({ key: 'Inserted', value: '' + this.finalReport.inserted });
+          listInfo.push({ key: 'Rejected', value: '' + this.finalReport.rejected + ' (already in database)' });
+        
+          let params: ModalParams = {
+            headerText: 'Final report',
+            list: listInfo
+          };
+
           let ref = this.modalService.open(AlertComponent, { centered: true });
-          ref.componentInstance.params = { headerText: 'ERROR', bodyText: text };
+          ref.componentInstance.params = params;
           ref.componentInstance.emitter.subscribe(() => { this.finalReport = {author: '', items: 0, inserted: 0, rejected: 0}; ref.close(); });
         } else {
           this.eventGeneratorService.emit({

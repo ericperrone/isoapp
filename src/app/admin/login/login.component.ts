@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { StoreService } from 'src/app/services/common/store.service';
 import { AdminService } from 'src/app/services/rest/admin.service';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
@@ -14,10 +15,14 @@ export class LoginComponent implements OnInit {
   public username = '';
   public password = '';
   constructor(private modalService: NgbModal,
+    private storeService: StoreService,
     private router: Router,
     private adminService: AdminService) { }
 
   ngOnInit(): void {
+    if (!!this.storeService.getCurrentUser()) {
+      this.router.navigate(['admin']);
+    }
   }
 
   public login(): void {

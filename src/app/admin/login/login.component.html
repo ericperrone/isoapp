@@ -1,13 +1,11 @@
 <app-header>[initialStatus]="'transitionLeft'"></app-header>
 <div class="application-page">
     <div class="w95 centered">
-        <p><span class="mr-1">Login as Administrator</span></p>
+        <ngb-alert type="custom" [dismissible]="false">Login as administrator</ngb-alert>
         <div class="login centered">
-            <!-- <label for="username" class="text-left">User name</label> -->
-            <input type="text" class="form-control mt-2" id="username" placeholder="User name" [(ngModel)]="username">
-            <!-- <label for="username" class="text-left">User password</label> -->
-            <input type="password" class="form-control mt-2" id="password" placeholder="password" [(ngModel)]="password">
-            <button type="button" class="btn btn-primary mt-4 mb-2" (click)="login()" [disabled]="username.length <= 0 || password.length <= 0">Confirm</button>
+            <input type="text" class="form-control mt-2" id="username" placeholder="User name" [(ngModel)]="username" autofocus>
+            <input type="password" class="form-control mt-2" id="password" placeholder="Password" [(ngModel)]="password">
+            <button type="button" class="btn btn-primary mt-4 mb-2" (keyup.enter)="login" (click)="login()" [disabled]="username.length <= 0 || password.length <= 0">Confirm</button>
         </div>
     </div>
 </div>
