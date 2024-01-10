@@ -1,5 +1,6 @@
 <app-header>[initialStatus]="'transitionLeft'"></app-header>
 <div class="application-page">
+    <ngb-alert type="custom" [dismissible]="false">Administrator management page</ngb-alert>
     <div *ngIf="!!logged" class="centered list-container">
         <div class="text-right mt-1 mb-1">
             <button type="button" class="btn btn-outline-dark" (click)="addAdministrator()"><i

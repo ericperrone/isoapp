@@ -62,31 +62,8 @@ export class GeorocComponent implements OnInit, OnDestroy {
     private geoRocService: GeorocService) { }
 
   ngOnInit(): void {
-    this.spinnerOn = true;
-    let s = this.geoRocService.getAuthorList().subscribe(
-      (res: any) => {
-        this.spinnerOn = false;
-
-        if (typeof res === 'string') {
-          let ref = this.modalService.open(AlertComponent, { centered: true });
-          ref.componentInstance.params = { headerText: 'ERROR', bodyText: res };
-          ref.componentInstance.emitter.subscribe(() => { ref.close(); this.goPrevious() });
-        } else {
-          this.authors = res.sort(function (a: any, b: any) {
-            let cmp = ('' + a.lastName).localeCompare('' + b.lastName);
-            switch (cmp) {
-              case 0:
-                return ('' + a.firstName).localeCompare('' + b.firstName);
-              default:
-                return cmp;
-            }
-          });
-          this.filteredAuthors = [...this.authors];
-        }
-        // console.log(this.authors);
-      }
-    );
-
+    this.loadAuthors();
+    
     this.loop = this.eventGeneratorService.on(FULL_DATA_LOOP).subscribe(
       () => {
         this.sampleIndex++;
@@ -123,6 +100,33 @@ export class GeorocComponent implements OnInit, OnDestroy {
     if (!!this.loop) {
       this.loop.unsubscribe();
     }
+  }
+
+  private loadAuthors() {
+    this.spinnerOn = true;
+    let s = this.geoRocService.getAuthorList().subscribe(
+      (res: any) => {
+        this.spinnerOn = false;
+
+        if (typeof res === 'string') {
+          let ref = this.modalService.open(AlertComponent, { centered: true });
+          ref.componentInstance.params = { headerText: 'ERROR', bodyText: res };
+          ref.componentInstance.emitter.subscribe(() => { ref.close(); this.goPrevious() });
+        } else {
+          this.authors = res.sort(function (a: any, b: any) {
+            let cmp = ('' + a.lastName).localeCompare('' + b.lastName);
+            switch (cmp) {
+              case 0:
+                return ('' + a.firstName).localeCompare('' + b.firstName);
+              default:
+                return cmp;
+            }
+          });
+          this.filteredAuthors = [...this.authors];
+        }
+        // console.log(this.authors);
+      }
+    );
   }
 
   public select(author: any) {

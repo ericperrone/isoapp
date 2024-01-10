@@ -59,6 +59,23 @@ export class GeorocService {
     );
   }
 
+  public getLocations1List(): Observable<any> {
+    let endpoint = GEOROC_URL + 'queries/locations/1';
+    return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
+      (res: any) => {
+        let locations = new Array<string>();
+        if (!!res) {
+          for (let r of res.data) {
+            locations.push(r.name);
+          }
+        }
+        return locations;
+      }
+    ),
+      catchError(this.handleError)
+    );   
+  }
+
 
   private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
