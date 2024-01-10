@@ -294,6 +294,7 @@ export const FIELDS = [
 ];
 
 export const CACHE_AUTH = '_CACHE_AUTH_';
+export const CACHE_LINKS = '_CACHE_LINKS_';
 
 export function checkField(field: string) {
     let f = field.toLowerCase();

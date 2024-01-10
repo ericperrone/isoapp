@@ -86,7 +86,7 @@ export class CardAuthorsDialogComponent implements OnInit {
       }
     }
     if (this.surname.length > 2) {
-      this.authorService.getAuthors(this.surname).subscribe(
+      let s = this.authorService.getAuthors(this.surname).subscribe(
         (res: any) => {
           Array.from(this.authlist?.nativeElement.children).forEach(child => {
             this.renderer.removeChild(this.authlist?.nativeElement, child);
@@ -99,6 +99,7 @@ export class CardAuthorsDialogComponent implements OnInit {
             option.setAttribute('value', r.surname + ', ' + r.name);
             this.renderer.appendChild(this.authlist?.nativeElement, option);
           }
+          // s.unsubscribe();
         }
       );
     }

@@ -7,7 +7,8 @@ import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { Subscription } from 'rxjs';
 import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 import { AuthorService } from 'src/app/services/rest/author.service';
-import { CACHE_AUTH } from 'src/app/shared/const';
+import { CACHE_AUTH, CACHE_LINKS } from 'src/app/shared/const';
+import { DatasetService } from 'src/app/services/rest/dataset.service';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -43,6 +44,7 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
   constructor(private storeService: StoreService,
     private authorService: AuthorService,
     private sampleService: SampleService,
+    private datasetService: DatasetService,
     private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
@@ -52,11 +54,15 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
     );
 
     this.storeService.clean(CACHE_AUTH);
-    const s = this.authorService.getAuthors().subscribe(
+    let s: any = this.authorService.getAuthors().subscribe(
       (res: any) => {
-        console.log(res);
+        // console.log(res);
         this.storeService.push({key: CACHE_AUTH, data: res});
+        s.unsubscribe();
       }
+    );
+    let t: any = this.datasetService.getLinks().subscribe(
+      res => t.unsubscribe()
     ); 
   }
 

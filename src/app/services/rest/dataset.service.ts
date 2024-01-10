@@ -1,16 +1,59 @@
 import { Injectable } from '@angular/core';
 import { Rest } from './rest';
 import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
-import { catchError, map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Dataset } from 'src/app/models/dataset';
+import { CACHE_LINKS } from 'src/app/shared/const';
+import { StoreService } from '../common/store.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DatasetService extends Rest {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+    private storeService: StoreService) {
     super();
+  }
+
+  public getLinks(link?: string): Observable<any> {
+    if (this.storeService.get(CACHE_LINKS)) {
+      return this.getLinksFromCache(link);
+    }
+    return this.getLinksFromRemote();
+  }
+
+  public getLinksFromRemote(): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-links').pipe(map(
+      (res: any) => {
+        let links = new Array<string>();
+        if (!!res) {
+          console.log(res);
+          for (let r of res) {
+            links.push(r);
+          }
+        }
+        this.storeService.clean(CACHE_LINKS);
+        this.storeService.push({ key: CACHE_LINKS, data: links});
+        return links;
+      }
+    ),
+      catchError(this.handleError)
+    );   
+  }
+
+  public getLinksFromCache(link?: string): Observable<any> {
+    console.log('CACHE');
+    let linkList = this.storeService.get(CACHE_LINKS);
+    let outList = new Array<any>();
+    if (!!link) {
+      for (let a of linkList) {
+        if (a.toLowerCase().indexOf(link.toLowerCase()) >= 0) {
+          outList.push(a);
+        }
+      }
+    }
+    return of(outList);
   }
 
   public getDatasetList(): Observable<any> {
