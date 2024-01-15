@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
+import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service'
@@ -49,6 +50,8 @@ import { LoginComponent } from './admin/login/login.component';
 import { AdminComponent } from './admin/admin/admin.component';
 import { ChangePasswordComponent } from './admin/change-password/change-password.component';
 import { NewAdministratorComponent } from './admin/new-administrator/new-administrator.component';
+import { GeorocByAuthorsComponent } from './data-processing/georoc/georoc-by-authors/georoc-by-authors.component';
+import { GeorocByLocationsComponent } from './data-processing/georoc/georoc-by-locations/georoc-by-locations.component';
 
 
 @NgModule({
@@ -92,6 +95,8 @@ import { NewAdministratorComponent } from './admin/new-administrator/new-adminis
     AdminComponent,
     ChangePasswordComponent,
     NewAdministratorComponent,
+    GeorocByAuthorsComponent,
+    GeorocByLocationsComponent,
   ],
   imports: [
     BrowserModule,
@@ -100,6 +105,7 @@ import { NewAdministratorComponent } from './admin/new-administrator/new-adminis
     NgbModule,
     HttpClientModule,
     NgbNavModule,
+    NgbTypeaheadModule,
     FormsModule, 
     ReactiveFormsModule,
     CanvasJSAngularChartsModule

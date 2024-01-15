@@ -25,6 +25,23 @@ export class GeorocService {
     );    
   }
 
+  public getSamplesByLocation(location: string): Observable<any> {
+    let endpoint = GEOROC_URL + 'queries/samples?location1=eq:' + location;
+    return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
+      (res: any) => {
+        let data = new Array<number>();
+        if (!!res) {
+          for (let r of res.data) {
+            data.push(r.sampleID);
+          }
+        }
+        return data;
+      }
+    ),
+      catchError(this.handleError)
+    );    
+  }
+
   public getSamplesByAuthor(lastName: string, firstName: string): Observable<any> {
     let endpoint = GEOROC_URL + 'queries/samples?lastname=eq:' + lastName + '&firstname=eq:' + firstName;
     return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
@@ -60,7 +77,7 @@ export class GeorocService {
   }
 
   public getLocations1List(): Observable<any> {
-    let endpoint = GEOROC_URL + 'queries/locations/1';
+    let endpoint = GEOROC_URL + 'queries/locations/l1';
     return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
       (res: any) => {
         let locations = new Array<string>();
