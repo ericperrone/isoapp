@@ -99,10 +99,13 @@ function buildSample(data: GeorocData[]): Sample {
         sample.fields.push({ field: 'LATITUDE', value: '' + d.latitude });
         sample.fields.push({ field: 'LONGITUDE', value: '' + d.longitude });
         sample.fields.push({ field: 'GEOROC_ID', value: '' + d.sampleNum });
-        if (!!d.locationNames)
+        let loc = '';
+        if (!!d.locationNames)            
             for (let i = 0; i < d.locationNames.length; i++) {
-                sample.fields.push({ field: 'LOCATION ' + (i + 1), value: d.locationNames[i] });
+                // sample.fields.push({ field: 'LOCATION ' + (i + 1), value: d.locationNames[i] });
+                loc += d.locationNames[i] + ';;';
             }
+            sample.fields.push({ field: 'LOCATIONS', value: loc });
     }
     return sample;
 }

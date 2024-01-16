@@ -52,6 +52,7 @@ import { ChangePasswordComponent } from './admin/change-password/change-password
 import { NewAdministratorComponent } from './admin/new-administrator/new-administrator.component';
 import { GeorocByAuthorsComponent } from './data-processing/georoc/georoc-by-authors/georoc-by-authors.component';
 import { GeorocByLocationsComponent } from './data-processing/georoc/georoc-by-locations/georoc-by-locations.component';
+import { GeorocByPolygonComponent } from './data-processing/georoc/georoc-by-polygon/georoc-by-polygon.component';
 
 
 @NgModule({
@@ -97,6 +98,7 @@ import { GeorocByLocationsComponent } from './data-processing/georoc/georoc-by-l
     NewAdministratorComponent,
     GeorocByAuthorsComponent,
     GeorocByLocationsComponent,
+    GeorocByPolygonComponent,
   ],
   imports: [
     BrowserModule,

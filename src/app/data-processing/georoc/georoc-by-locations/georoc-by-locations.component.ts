@@ -180,9 +180,10 @@ export class GeorocByLocationsComponent implements OnInit {
           bodyText: 'Found ' + res.length + ' items related to ' + this.selection.location + '.'
             + ' Please confirm data import.'
         };
-        ref.componentInstance.emitter.subscribe(
+        let sub2 = ref.componentInstance.emitter.subscribe(
           (response: string) => {
             ref.close();
+            sub2.unsubscribe();
             if (response === CONFIRM) {
               this.sampleIndex = 0;
               

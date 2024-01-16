@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, EventEmitter, Input, Output } from '@angular/core';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
@@ -15,6 +15,17 @@ import { DecimalPipe } from '@angular/common';
 import { epsg3857to4326, GeoGoordinates } from 'src/app/shared/tools';
 import { StoreService } from 'src/app/services/common/store.service';
 import { QueryFilter, FILTER_KEY } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+
+export interface GeoParams {
+  view?: {
+    center: Array<number>;
+    zoom: number; 
+    projection: string;
+  };
+  window?: {
+    onlyMap: boolean;
+  }
+}
 
 @Component({
   selector: 'app-geo',
@@ -35,6 +46,9 @@ export class GeoComponent implements OnInit, AfterViewInit {
   private collection = new Collection<Feature<Geometry>>();
   @ViewChild('extent') extent: any;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
+  @Input() params: GeoParams | undefined;
+  public onlyMap: boolean = false;
+  public drawEnd = false;
 
   constructor(private decimalPipe: DecimalPipe,
     private storeService: StoreService) { }
@@ -48,28 +62,53 @@ export class GeoComponent implements OnInit, AfterViewInit {
       ],
     });
 
-    this.map = new Map({
-      controls: defaultControls().extend([overviewMapControl]),
-      view: new View({
-        center: [0, 0],
-        zoom: 0,
-        projection: 'EPSG:3857',
-        // projection: 'EPSG:4326',
-      }),
-      layers: [
-        new TileLayer({
-          source: this.sourceOSM,
-        }),
-        new VectorLayer({
-          source: this.sourceVector,
-        })
-      ],
-      target: 'ol-map'
+    let defaultView: View = new View({
+      center: [0, 0],
+      zoom: 0,
+      projection: 'EPSG:3857',
+      // projection: 'EPSG:4326',
     });
 
+    let currentView: View = defaultView;
+
+    if (!!this.params) {
+      if (!!this.params.view) {
+        currentView = new View({
+          center: [this.params.view.center[0], this.params.view.center[1]],
+          zoom: this.params.view.zoom,
+          projection: this.params.view.projection
+        })
+      }
+      if (!!this.params.window) {
+        this.onlyMap = this.params.window.onlyMap;
+      }
+    }
+
+    setTimeout(() => {
+      this.map = new Map({
+        controls: defaultControls().extend([overviewMapControl]),
+        // view: new View({
+        //   center: [0, 0],
+        //   zoom: 0,
+        //   projection: 'EPSG:3857',
+        //   // projection: 'EPSG:4326',
+        // }),
+        view: currentView,
+        layers: [
+          new TileLayer({
+            source: this.sourceOSM,
+          }),
+          new VectorLayer({
+            source: this.sourceVector,
+          })
+        ],
+        target: 'ol-map'
+      });
+      this.initDraw();
+    }, 500);
   }
 
-  ngAfterViewInit(): void {
+  private initDraw(): void {
     this.draw = new Draw(
       {
         source: this.sourceVector,
@@ -80,10 +119,11 @@ export class GeoComponent implements OnInit, AfterViewInit {
     );
 
     this.draw.on('drawstart', (e: any) => {
-      this.collection.getLength;
-      let feature = this.collection.item(this.collection.getLength() - 1);
-      this.sourceVector.removeFeature(feature);
-      this.collection.pop();
+      // this.collection.getLength;
+      // let feature = this.collection.item(this.collection.getLength() - 1);
+      // this.sourceVector.removeFeature(feature);
+      // this.collection.pop();
+      this.resetSelection();
     });
 
     this.draw.addEventListener('drawend', (event) => {
@@ -93,6 +133,10 @@ export class GeoComponent implements OnInit, AfterViewInit {
     });
 
     this.map?.addInteraction(this.draw);
+    this.drawEnd = true;
+  }
+
+  ngAfterViewInit(): void {
   }
 
   private remapCoordinates() {
@@ -144,7 +188,16 @@ export class GeoComponent implements OnInit, AfterViewInit {
     }
   }
 
+  private resetSelection(): void {
+    this.collection.getLength;
+    let feature = this.collection.item(this.collection.getLength() - 1);
+    this.sourceVector.removeFeature(feature);
+    this.collection.pop();
+    this.coordinates.length = 0;
+  }
+
   public cancel() {
+    this.resetSelection();
     this.emitter.emit(CANCEL);
   }
 

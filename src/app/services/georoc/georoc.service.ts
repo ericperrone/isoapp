@@ -4,7 +4,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthorName } from 'src/app/models/author';
 
 export const GEOROC_URL = 'https://api-test.georoc.eu/api/v1/';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -25,25 +24,27 @@ export class GeorocService {
     );    
   }
 
+  public getSampleByPolygon(polygon: Array<Array<number>>): Observable<any> {
+    let endpoint = GEOROC_URL + 'queries/samples?polygon=['
+    for (let a of polygon) {
+      endpoint += '[' + a[0] + ',' + a[1] + '],'; 
+    }
+    endpoint = endpoint.substring(0, endpoint.length - 1);
+    endpoint += ']';
+    return this.getSamples(endpoint);
+  }
+
   public getSamplesByLocation(location: string): Observable<any> {
     let endpoint = GEOROC_URL + 'queries/samples?location1=eq:' + location;
-    return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
-      (res: any) => {
-        let data = new Array<number>();
-        if (!!res) {
-          for (let r of res.data) {
-            data.push(r.sampleID);
-          }
-        }
-        return data;
-      }
-    ),
-      catchError(this.handleError)
-    );    
+    return this.getSamples(endpoint);
   }
 
   public getSamplesByAuthor(lastName: string, firstName: string): Observable<any> {
     let endpoint = GEOROC_URL + 'queries/samples?lastname=eq:' + lastName + '&firstname=eq:' + firstName;
+    return this.getSamples(endpoint);
+  }
+
+  private getSamples(endpoint: string): Observable<any> {
     return this.http.get(endpoint, { headers: { 'DIGIS-API-ACCESSKEY' : 'SVRJTkVSSVM6U1ZSSlRrVlNTVk5mUkVsSFNWTmZRVkJKWHpFMk9EZzJOREV5TnpjPQ==' } }).pipe(map(
       (res: any) => {
         let data = new Array<number>();
