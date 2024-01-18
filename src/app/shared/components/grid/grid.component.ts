@@ -304,13 +304,13 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   private selectItem(h: GridItem): void {
     this.tableOn = false;
-    this.screenRows.length = 0;
 
     let j = 0;
     let localCache = new Array<Array<GridItem>>();
     for (let i = 0; i < this.gridCacheRows.length; i++) {
-      console.log('[' + this.table[i][h.col] + ']');
-      if (this.table[i][h.col] && this.table[i][h.col].trim().length > 0) {
+      // console.log('[' + this.table[i][h.col] + ']');
+      // if (this.table[i][h.col] && this.table[i][h.col].trim().length > 0) {
+      if (this.gridCacheRows[i][h.col].content.length > 0) {  
         localCache[j] = this.gridCacheRows[i];
         j++;
       }
@@ -323,7 +323,11 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
     console.log('this.gridCacheRows[]: ' + this.gridCacheRows.length);
 
-    let length = this.gridCacheRows.length > this.limit ? this.limit : this.gridCacheRows.length;
+    let length =  this.limit; 
+    if (this.gridCacheRows.length <= this.limit) {
+      length = this.gridCacheRows.length;
+      this.downOk = false;
+    }
 
     this.screenRows.length = 0;
     for (let i = 0; i < length; i++) {

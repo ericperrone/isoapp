@@ -24,7 +24,7 @@
     </table>
   </div>
   <div class="w95 centered text-right mt-2">
-    <div class="float-left" *ngIf="table && table.length > 0">found {{ table.length }} records. {{ screenRows.length }} displayed.</div>
+    <div class="float-left" *ngIf="table && table.length > 0">found {{ gridCacheRows.length }} records. {{ screenRows.length }} displayed.</div>
     <button class="btn btn-primary m-1" [disabled]="index <= 0" (click)="up()"><i class="fa-regular fa-circle-up"></i></button>
     <button class="btn btn-primary m-1" [disabled]="downOk === false" (click)="down()"><i class="fa-regular fa-circle-down"></i></button>
     <button class="btn btn-primary m-1" [disabled]="selectedRowsIndex.length <= 0" (click)="use()">Use selected
