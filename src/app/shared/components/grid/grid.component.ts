@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectBoxComponent } from '../../modals/select-box/select-box.component';
 import { ModalParams } from '../../modals/modal-params';
@@ -20,6 +20,7 @@ export interface GridItem {
 }
 
 export const EXPORT = '_EXPORT_';
+const GRID_LOOP = '_GRID_LOOP_';
 
 @Component({
   selector: 'app-grid',
@@ -41,13 +42,22 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   // public selectedRows = new Array<Array<GridItem>>(); 
   public gridCols = new Array<Array<GridItem>>();
   public gridRows = new Array<Array<GridItem>>();
+  public screenRows = new Array<Array<GridItem>>();
+  // public gridCacheCols = new Array<Array<GridItem>>();
+  public gridCacheRows = new Array<Array<GridItem>>();
   public tableOn = false;
   public deleteFlag = false;
   private sub: Subscription | any;
   private subClose: Subscription | any;
   private ref: any;
+  @ViewChild('maingrid') authlist: ElementRef | undefined;
+  public limit = 60;
+  public index = 0;
+  public table = new Array<Array<string>>();
+  public downOk = true;
 
   constructor(private modalService: NgbModal,
+    private renderer: Renderer2,
     private eventGeneratorService: EventGeneratorService,
     private geoModelService: GeoModelService) { }
 
@@ -80,6 +90,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   public ngOnChanges(changes: SimpleChanges): void {
     // console.log(changes);
+    this.downOk = true;
     this.dataset = changes['gridContent'].currentValue;
     this.build(changes['gridContent'].currentValue);
   }
@@ -89,7 +100,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
     this.tableOn = false;
-
+    this.index = 0;
     this.reset();
 
     // let header = [ "", ...gridContent[0]];
@@ -102,15 +113,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
 
-    let table = gridContent.slice(1);
-    // for (let r = 0; r < table.length; r++) {
-    //   table[r] = ["", ...table[r]];
-    // }
-
-    // let gridItem: GridItem = { header: true, visible: true, selected: false, row: 0, col: 0, content: header[0], check: true };
-    // this.gridHeader.push(gridItem);
+    this.table = gridContent.slice(1);
     this.gridCols[0] = new Array<GridItem>();
-    // this.gridCols[0][0] = gridItem;
+
+    let initialSize = this.limit > this.table.length ? this.table.length : this.limit;
 
     for (let i = 0; i < header.length; i++) {
       let type = this.originalHeader[i].charAt(0);
@@ -120,19 +126,59 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       this.gridCols[i][0] = gridItem;
     }
 
-    for (let r = 0; r < table.length; r++) {
+    for (let r = 0; r < initialSize; r++) {
       this.gridRows[r] = new Array<GridItem>();
-      // let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: 0, content: "", check: true };
-      // this.gridCols[0][r] = gridItem;
-      // this.gridRows[r][0] = gridItem;
-      for (let c = 0; c < table[r].length; c++) {
+      this.screenRows[r] = new Array<GridItem>();
+      for (let c = 0; c < this.table[r].length; c++) {
         let type = this.originalHeader[c].charAt(0);
-        let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: c, content: table[r][c], check: false, type: type };
+        let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: c, content: this.table[r][c], check: false, type: type };
+        this.gridCols[c][r] = gridItem;
+        this.gridRows[r][c] = gridItem;
+        this.screenRows[r][c] = gridItem;
+      }
+    }
+
+    for (let r = initialSize; r < this.table.length; r++) {
+      this.gridRows[r] = new Array<GridItem>();
+      for (let c = 0; c < this.table[r].length; c++) {
+        let type = this.originalHeader[c].charAt(0);
+        let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: c, content: this.table[r][c], check: false, type: type };
         this.gridCols[c][r] = gridItem;
         this.gridRows[r][c] = gridItem;
       }
     }
 
+    this.gridCacheRows = [...this.gridRows];
+    this.tableOn = true;
+  }
+
+  public up(): void {
+    this.tableOn = false;
+    this.downOk = true;
+    this.index -= this.limit;
+    if (this.index < 0) {
+      this.index = 0;
+    }
+    let size = this.index + this.limit;
+    this.screenRows.length = 0;
+    for (let r = this.index; r < size; r++) {
+      this.screenRows[r - this.index] = this.gridCacheRows[r];
+    }
+    this.tableOn = true;
+  }
+
+  public down(): void {
+    this.tableOn = false;
+    this.index += this.limit;
+    let size = this.index + this.limit;
+    if (size > this.gridCacheRows.length) {
+      size = this.gridCacheRows.length;
+      this.downOk = false;
+    }
+    this.screenRows.length = 0;    
+    for (let r = this.index; r < size; r++) {
+      this.screenRows[r - this.index] = this.gridCacheRows[r];
+    }
     this.tableOn = true;
   }
 
@@ -173,9 +219,11 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public displayMenu(h: GridItem, event: any) {
     let params: ModalParams = {
       choices: [
-        { text: 'Select', value: 0 },
-        { text: 'Unselect', value: 1 },
-        { text: 'Delete', value: 2 },
+        { text: 'Select row', value: 0 },
+        { text: 'Deselect row', value: 1 },
+        { text: 'Hide', value: 2 },
+        { text: 'Select element', value: 4 },
+        { text: 'Reset element selection', value: 5 },
       ]
     };
 
@@ -211,6 +259,12 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
           case 3:
             this.restoreAll();
             break;
+          case 4:
+            this.selectItem(h);
+            break;
+          case 5:
+            this.deselectItem();
+            break;
           default:
             break;
         }
@@ -228,6 +282,16 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  private deselectItem(): void {
+    this.gridCacheRows = [...this.gridRows];
+    this.tableOn = false;
+    this.screenRows.length = 0;
+    for (let i = 0; i < this.limit; i++) {
+      this.screenRows[i] = this.gridCacheRows[i];
+    }
+    this.tableOn = true;
+  }
+
   private selectCol(h: GridItem): void {
     this.tableOn = false;
     this.gridHeader[h.col].selected = true;
@@ -236,6 +300,37 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.tableOn = true;
     this.selectedCols.push(h.col);
+  }
+
+  private selectItem(h: GridItem): void {
+    this.tableOn = false;
+    this.screenRows.length = 0;
+
+    let j = 0;
+    let localCache = new Array<Array<GridItem>>();
+    for (let i = 0; i < this.gridCacheRows.length; i++) {
+      console.log('[' + this.table[i][h.col] + ']');
+      if (this.table[i][h.col] && this.table[i][h.col].trim().length > 0) {
+        localCache[j] = this.gridCacheRows[i];
+        j++;
+      }
+    }
+
+    this.gridCacheRows.length = 0;
+    for (let i = 0; i < localCache.length; i++) {
+      this.gridCacheRows[i] = localCache[i];
+    }
+
+    console.log('this.gridCacheRows[]: ' + this.gridCacheRows.length);
+
+    let length = this.gridCacheRows.length > this.limit ? this.limit : this.gridCacheRows.length;
+
+    this.screenRows.length = 0;
+    for (let i = 0; i < length; i++) {
+      this.screenRows[i] = this.gridCacheRows[i];
+    }
+
+    this.tableOn = true;
   }
 
   private unselectCol(h: GridItem): void {

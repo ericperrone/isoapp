@@ -28,7 +28,7 @@ export class DatasetService extends Rest {
       (res: any) => {
         let links = new Array<string>();
         if (!!res) {
-          console.log(res);
+          // console.log(res);
           for (let r of res) {
             links.push(r);
           }
@@ -43,7 +43,7 @@ export class DatasetService extends Rest {
   }
 
   public getLinksFromCache(link?: string): Observable<any> {
-    console.log('CACHE');
+    // console.log('CACHE');
     let linkList = this.storeService.get(CACHE_LINKS);
     let outList = new Array<any>();
     if (!!link) {
@@ -61,7 +61,7 @@ export class DatasetService extends Rest {
       (res: any) => {
         let datasetList = new Array<Dataset>();
         if (!!res) {
-          console.log(res);
+          // console.log(res);
           for (let r of res) {
             datasetList.push(r);
           }
