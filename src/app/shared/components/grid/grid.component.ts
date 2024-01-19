@@ -149,6 +149,9 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     this.gridCacheRows = [...this.gridRows];
+    if (this.gridRows.length <= this.limit) {
+      this.downOk = false;
+    }
     this.tableOn = true;
   }
 
@@ -188,6 +191,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridRows = new Array<Array<GridItem>>();
     this.selectedCols = new Array<number>();
     this.selectedRowsIndex = new Array<number>();
+    this.gridCacheRows = new Array<Array<GridItem>>();
+    this.screenRows = new Array<Array<GridItem>>();
   }
 
   public onCheck(gi: GridItem) {
