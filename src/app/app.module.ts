@@ -53,6 +53,7 @@ import { NewAdministratorComponent } from './admin/new-administrator/new-adminis
 import { GeorocByAuthorsComponent } from './data-processing/georoc/georoc-by-authors/georoc-by-authors.component';
 import { GeorocByLocationsComponent } from './data-processing/georoc/georoc-by-locations/georoc-by-locations.component';
 import { GeorocByPolygonComponent } from './data-processing/georoc/georoc-by-polygon/georoc-by-polygon.component';
+import { DataPlottingSeriesComponent } from './shared/modals/data-plotting-series/data-plotting-series.component';
 
 
 @NgModule({
@@ -99,6 +100,7 @@ import { GeorocByPolygonComponent } from './data-processing/georoc/georoc-by-pol
     GeorocByAuthorsComponent,
     GeorocByLocationsComponent,
     GeorocByPolygonComponent,
+    DataPlottingSeriesComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectBoxComponent } from '../../modals/select-box/select-box.component';
-import { ModalParams } from '../../modals/modal-params';
+import { CANCEL, DataListItem, ModalParams } from '../../modals/modal-params';
 import { saveCsvFile } from '../../tools';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { Subscription } from 'rxjs';
 import { GeoModelService, GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+import { DataPlottingSeriesComponent } from '../../modals/data-plotting-series/data-plotting-series.component';
+import { DataSeries, DATA_SERIES, DataSeriesSet } from 'src/app/models/series';
 
 export interface GridItem {
   header: boolean;
@@ -55,6 +57,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public index = 0;
   public table = new Array<Array<string>>();
   public downOk = true;
+  private firstSelection = 0;
+  private nClick = 0;
 
   constructor(private modalService: NgbModal,
     private renderer: Renderer2,
@@ -152,6 +156,19 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     if (this.gridRows.length <= this.limit) {
       this.downOk = false;
     }
+
+    if (this.screenRows.length < this.limit) {
+      let lgt = this.screenRows.length;
+      for (let r = lgt; r < this.limit; r++) {
+        this.screenRows[r] = new Array<GridItem>();
+        for (let c = 0; c < this.originalHeader.length; c++) {
+          let type = this.originalHeader[c].charAt(0);
+          let gridItem: GridItem = { header: false, visible: true, selected: false, row: r, col: c, content: '', check: false, type: type };
+          this.screenRows[r][c] = gridItem;
+        }
+      }
+    }
+
     this.tableOn = true;
   }
 
@@ -178,7 +195,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       size = this.gridCacheRows.length;
       this.downOk = false;
     }
-    this.screenRows.length = 0;    
+    this.screenRows.length = 0;
     for (let r = this.index; r < size; r++) {
       this.screenRows[r - this.index] = this.gridCacheRows[r];
     }
@@ -195,8 +212,55 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.screenRows = new Array<Array<GridItem>>();
   }
 
-  public onCheck(gi: GridItem) {
+  public onRightClick(event: any) {
+    event.preventDefault();
+    console.log(event);
+  }
 
+  public onCheck(gi: GridItem, event: any) {
+    event.preventDefault();
+    console.log(event);
+    if (!event.altKey) {
+      this.checkSelection(gi);
+    } else {
+      this.checkShiftSelection(gi);
+    }
+  }
+
+  private checkShiftSelection(gi: GridItem) {
+    this.tableOn = false;
+    this.nClick++;
+    switch (this.nClick) {
+      case 1:
+        this.selectedRowsIndex.push(gi.row);
+        this.firstSelection = gi.row;
+        for (let j = 0; j < this.gridRows[gi.row].length; j++) {
+          this.gridRows[gi.row][j].selected = true;
+        }
+        break;
+      case 2:
+        this.nClick = 0;
+        if (gi.row > this.firstSelection) {
+          for (let i = this.firstSelection + 1; i <= gi.row; i++) {
+            this.selectedRowsIndex.push(i);
+            for (let j = 0; j < this.gridRows[i].length; j++) {
+              this.gridRows[i][j].selected = true;
+            }
+          }
+        } else {
+          for (let i = this.firstSelection - 1; i >= gi.row; i--) {
+            this.selectedRowsIndex.push(i);
+            for (let j = 0; j < this.gridRows[i].length; j++) {
+              this.gridRows[i][j].selected = true;
+            }
+          }
+        }
+        break;
+    }
+    this.tableOn = true;
+  }
+
+  private checkSelection(gi: GridItem) {
     let found = -1;
 
     for (let i = 0; i < this.selectedRowsIndex.length; i++) {
@@ -221,63 +285,6 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.tableOn = true;
   }
 
-  public displayMenu(h: GridItem, event: any) {
-    let params: ModalParams = {
-      choices: [
-        { text: 'Select row', value: 0 },
-        { text: 'Deselect row', value: 1 },
-        { text: 'Hide', value: 2 },
-        { text: 'Select element', value: 4 },
-        { text: 'Reset element selection', value: 5 },
-      ]
-    };
-
-    let selected = false;
-
-    for (let n of this.selectedCols) {
-      if (n === h.col) {
-        params.choices?.splice(0, 1);
-        selected = true;
-        break;
-      }
-    }
-
-    if (selected === false) {
-      params.choices?.splice(1, 1);
-    }
-
-    let ref = this.modalService.open(SelectBoxComponent, { centered: true, size: 'sm', scrollable: true });
-    ref.componentInstance.params = params;
-    ref.componentInstance.emitter.subscribe(
-      (response: number) => {
-        ref.close();
-        switch (response) {
-          case 0:
-            this.selectCol(h);
-            break;
-          case 1:
-            this.unselectCol(h);
-            break;
-          case 2:
-            this.deleteCol(h);
-            break;
-          case 3:
-            this.restoreAll();
-            break;
-          case 4:
-            this.selectItem(h);
-            break;
-          case 5:
-            this.deselectItem();
-            break;
-          default:
-            break;
-        }
-        ref.componentInstance.emitter.unsubscribe();
-      }
-    );
-  }
-
   public restoreAll(): void {
     if (!!this.dataset) {
       this.tableOn = false;
@@ -287,7 +294,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private deselectItem(): void {
+  public deselectItem(): void {
     this.gridCacheRows = [...this.gridRows];
     this.tableOn = false;
     this.screenRows.length = 0;
@@ -297,7 +304,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.tableOn = true;
   }
 
-  private selectCol(h: GridItem): void {
+  public selectCol(h: GridItem): void {
     this.tableOn = false;
     this.gridHeader[h.col].selected = true;
     for (let e of this.gridCols[h.col]) {
@@ -307,15 +314,13 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedCols.push(h.col);
   }
 
-  private selectItem(h: GridItem): void {
+  public selectItem(h: GridItem): void {
     this.tableOn = false;
 
     let j = 0;
     let localCache = new Array<Array<GridItem>>();
     for (let i = 0; i < this.gridCacheRows.length; i++) {
-      // console.log('[' + this.table[i][h.col] + ']');
-      // if (this.table[i][h.col] && this.table[i][h.col].trim().length > 0) {
-      if (this.gridCacheRows[i][h.col].content.length > 0) {  
+      if (this.gridCacheRows[i][h.col].content.length > 0) {
         localCache[j] = this.gridCacheRows[i];
         j++;
       }
@@ -326,9 +331,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       this.gridCacheRows[i] = localCache[i];
     }
 
-    console.log('this.gridCacheRows[]: ' + this.gridCacheRows.length);
-
-    let length =  this.limit; 
+    let length = this.limit;
     if (this.gridCacheRows.length <= this.limit) {
       length = this.gridCacheRows.length;
       this.downOk = false;
@@ -342,7 +345,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.tableOn = true;
   }
 
-  private unselectCol(h: GridItem): void {
+  public unselectCol(h: GridItem): void {
     this.tableOn = false;
     this.gridHeader[h.col].selected = false;
     for (let e of this.gridCols[h.col]) {
@@ -358,7 +361,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedCols = helper;
   }
 
-  private deleteCol(h: GridItem): void {
+  public hideCol(h: GridItem): void {
     this.tableOn = false;
     this.gridHeader[h.col].visible = false;
     for (let e of this.gridCols[h.col]) {
@@ -402,6 +405,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
     let params: ModalParams = {
       choices: [
+        { text: 'Plot data', value: 3, icon: 'fa-solid fa-chart-line' },
         { text: 'Mixing model', value: 0, icon: 'fa-solid fa-flask' },
         { text: 'Crystallization mass balance', value: 1, icon: 'fa-brands fa-codepen' },
         { text: 'Melting', value: 2, icon: 'fa-solid fa-dice-d20' },
@@ -423,6 +427,32 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
           case 2:
             break;
           case 3:
+            let list = new Array<DataListItem>();
+            let params: ModalParams = {
+              headerText: 'Manage plotting series',
+              bodyText: 'Choose an already defined series or create a new series',
+              list: list
+            }
+
+            for (let h of this.gridHeader) {
+              if (h.type !== 'F')
+                list.push({ key: h.content, value: h.content });
+            }
+            let reff = this.modalService.open(DataPlottingSeriesComponent, { centered: true, size: 'lg', scrollable: true });
+            reff.componentInstance.params = params;
+            let rr = reff.componentInstance.emitter.subscribe(
+              (response: any) => {
+                if (response === CANCEL) {
+                  reff.close();
+                  rr.unsubscribe();
+                } else {
+                  console.log(response);
+                  this.addToDataSeries(response);
+                  reff.close();
+                  rr.unsubscribe();
+                }
+              }
+            );
             break;
           default:
             break;
@@ -431,4 +461,30 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       }
     );
   }
+
+  public addToDataSeries(series: DataSeries): void {
+    let hx = -1;
+    let hy = -1
+    for (let h of this.gridHeader) {
+      if (h.content === series.xAxis) {
+        hx = h.col;
+      } else if (h.content === series.yAxis) {
+        hy = h.col;
+      }
+    }
+
+    let d: DataSeriesSet = { x: new Array<number>, y: new Array<number> };
+    for (let col of this.gridCols[hx]) {
+      if (col.content.length > 0)
+        d.x.push(parseFloat(col.content));
+    }
+    for (let col of this.gridCols[hy]) {
+      if (col.content.length > 0)
+        d.y.push(parseFloat(col.content));
+    }
+    series.data.push(d);
+    console.log(series);
+  }
+
+
 }
