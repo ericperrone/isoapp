@@ -1,10 +1,14 @@
-export interface DataSeries {
+export interface Series {
     xAxis: string;
     yAxis: string;
+    series: Array<DataSeries>;
+}
+
+export interface DataSeries {
     selected: boolean;
     data: Array<DataSeriesSet>;
-    shape?: DataSeriesShape;
-    name?: string;
+    shape: DataSeriesShape;
+    name: string;
 }
 
 export interface DataSeriesSet {

@@ -2,10 +2,13 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MixingComponent } from 'src/app/geo-modelling/mixing/mixing.component';
 import { StoreService } from './store.service';
+import { DataSeries } from 'src/app/models/series';
+import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
 // import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 
 export enum ModelList {
   Mixing = 0,
+  Plotting,
   MassBalance,
   Melting
 }
@@ -19,7 +22,8 @@ export interface EndMemberItem {
 
 export interface GeoModel {
   selectedModel: number;
-  endMembers: Array<Array<EndMemberItem>>;
+  series?: DataSeries;
+  endMembers?: Array<Array<EndMemberItem>>;
   modalRef?: any;
 }
 
@@ -46,6 +50,11 @@ export class GeoModelService {
           ref.componentInstance.params = this.model;
           return ref;
           break;
+        case ModelList.Plotting:
+          let ref1 = this.modalService.open(PlottingComponent,  { fullscreen: true, windowClass: 'background-white' }); 
+          this.model.modalRef = ref1;
+          ref1.componentInstance.params = this.model;
+          return ref1;
         default:
           break;  
       }

@@ -37,3 +37,16 @@ td, th {
     padding: 0px !important;
     display: inline-block;
 }
+
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.scrollable-container {
+    overflow-y: auto;
+    overflow-x: auto;
+    display: flex;
+    flex-direction: column;
+  }

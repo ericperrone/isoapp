@@ -2,39 +2,111 @@
     <h4 class="modal-title" id="modal-basic-title">{{ (!!params && !!params.headerText) ? params.headerText : '' }}</h4>
 </div>
 <div class="modal-body">
-    <div *ngIf="!!params?.bodyText">{{ params?.bodyText }}</div>
-    <div class="row">
-        <div class="col-5"><input type="string" class="form-control" [(ngModel)]="name" placeholder="name"></div>
-        <div class="col-3">
+
+    <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
+        <div class="task">Choose X axis and Y axis, then click the button.</div>
+        <div class="row" *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
+            <div class="col-5">
+                X:
+                <select class="form-select" [(ngModel)]="xSelected" aria-placeholder="x axis">
+                    <option *ngFor="let x of xAxis">{{ x }}</option>
+                </select>
+            </div>
+            <div class="col-5">
+                Y:
+                <select class="form-select" [(ngModel)]="ySelected" aria-placeholder="x axis">
+                    <option *ngFor="let y of yAxis">{{ y }}</option>
+                </select>
+            </div>
+            <div class="col-2">
+                <button (click)="newSeries()" class="btn btn-primary" type="button"
+                    [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
+                        class="fa-regular fa-square-plus"></i></button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0">
+        <div class="task">Click the button to reset all data.</div>
+        <div class="row" *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0">
+            <div class="col-5">
+                X axis: <strong>{{ dataSeries.xAxis }}</strong>
+            </div>
+            <div class="col-5">
+                Y axis: <strong>{{ dataSeries.yAxis }}</strong>
+            </div>
+            <div class="col-2">
+                <button (click)="resetSeries()" class="btn btn-primary" type="button"
+                    [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
+                        class="fa-regular fa-circle-xmark"></i></button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="task mt-2">Data definition <span class="float-right"><button type="button" class="btn btn-secondary"
+                    (click)="addDataSeries()"><i class="fa-regular fa-plus"></i></button></span></div>
+        <div *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0 && dataSeries.series.length > 0">
+            <table class="table table-bordered table-hover w95 centered">
+                <tr>
+                    <th>Name</th>
+                    <th>Color</th>
+                    <th>#Points</th>
+                </tr>
+                <tr *ngFor="let ds of dataSeries.series, index as i" [style.background]="ds.selected ? 'orange' : 'white'" (click)="select(ds)">
+                    <td><input class="table-input" type="text" [value]="ds.name? ds.name : ''"
+                            [(ngModel)]="dataSeries.series[i].name"
+                            (ngModelChange)="addDataToSeries(dataSeries.series[i])"> </td>
+                    <td><input class="table-input-color" type="color" value="#ff0000"
+                            [(ngModel)]="dataSeries.series[i].shape.color"> </td>
+                    <td>{{ dataSeries.series[i].data.length }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+<!-- <div class="col-5">
+        </div>
+        <div class="col-3" *ngIf="dataSeries.xAxis.length === 0">
             <select class="form-select" [(ngModel)]="xSelected" aria-placeholder="x axis">
                 <option *ngFor="let x of xAxis">{{ x }}</option>
             </select>
         </div>
-        <div class="col-3">
+        <div class="col-3" *ngIf="dataSeries.yAxis.length === 0">
             <select class="form-select" [(ngModel)]="ySelected" aria-placeholder="y axis">
                 <option *ngFor="let y of yAxis">{{ y }}</option>
             </select>
         </div>
+        <div class="col-3" *ngIf="dataSeries.xAxis.length > 0">
+            <input type="string" class="form-control" [(ngModel)]="xSelected" [disabled]="true">
+        </div>
+        <div class="col-3" *ngIf="dataSeries.yAxis.length > 0">
+            <input type="string" class="form-control" [(ngModel)]="ySelected" [disabled]="true">
+        </div>
         <div class="col-1">
-            <button (click)="addSeries()" class="btn btn-primary" type="button" [disabled]="name.length === 0 || xSelected.length === 0 || ySelected.length === 0"><i class="fa-regular fa-square-plus"></i></button>
+            <button (click)="addSeries()" class="btn btn-primary" type="button"
+                [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
+                    class="fa-regular fa-square-plus"></i></button>
         </div>
     </div>
-</div>
-<div>
-    <table class="table table-bordered table-hover w95 centered">
-        <tr>
-            <th>Name</th>
-            <th>X axis</th>
-            <th>Y axis</th>
-        </tr>
-        <tr *ngFor="let ds of dataSeries" class="clickable" [style.background]="ds.selected ? 'orange' : 'white'">
-            <td (click)="select(ds)">{{ ds.name? ds.name : ds.xAxis + '/' + ds.yAxis }} </td>
-            <td (click)="select(ds)">{{ ds.xAxis }} </td>
-            <td (click)="select(ds)">{{ ds.yAxis }} </td>
-        </tr>
-    </table>
-</div>
+    <div class="task mt-2">Dataset definition</div>
+    <div>
+        <table class="table table-bordered table-hover w95 centered">
+            <tr>
+                <th>Name</th>
+                <th>X axis</th>
+                <th>Y axis</th>
+            </tr>
+            <tr *ngFor="let ds of dataSeries.series" class="clickable"
+                [style.background]="ds.selected ? 'orange' : 'white'">
+                <td (click)="select(ds)">{{ ds.name? ds.name : dataSeries.xAxis + ':' + dataSeries.yAxis }} </td>
+                <td (click)="select(ds)">{{ dataSeries.xAxis }} </td>
+                <td (click)="select(ds)">{{ dataSeries.yAxis }} </td>
+            </tr>
+        </table>
+    </div> -->
+
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
-    <button type="button" class="btn btn-primary" (click)="set()" [disabled]="!selectedDataSeries">Confirm</button>
+    <button type="button" class="btn btn-primary" (click)="set()"
+        [disabled]="dataSeries.series.length <= 0">Confirm</button>
 </div>

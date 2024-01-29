@@ -3,6 +3,7 @@ export interface ModalParams {
     bodyText?: string;
     list?: Array<DataListItem>;
     choices?: Array<ExclusiveChoice>;
+    anyParams?: any;
 }
 
 export interface DataListItem {

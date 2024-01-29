@@ -54,6 +54,7 @@ import { GeorocByAuthorsComponent } from './data-processing/georoc/georoc-by-aut
 import { GeorocByLocationsComponent } from './data-processing/georoc/georoc-by-locations/georoc-by-locations.component';
 import { GeorocByPolygonComponent } from './data-processing/georoc/georoc-by-polygon/georoc-by-polygon.component';
 import { DataPlottingSeriesComponent } from './shared/modals/data-plotting-series/data-plotting-series.component';
+import { PlottingComponent } from './geo-modelling/plotting/plotting.component';
 
 
 @NgModule({
@@ -101,6 +102,7 @@ import { DataPlottingSeriesComponent } from './shared/modals/data-plotting-serie
     GeorocByLocationsComponent,
     GeorocByPolygonComponent,
     DataPlottingSeriesComponent,
+    PlottingComponent,
   ],
   imports: [
     BrowserModule,

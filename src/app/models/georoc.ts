@@ -10,9 +10,9 @@ export interface GeorocFullData {
 }
 
 export interface GeorocAuthor {
-    personfirstname?: string;
-    personlastname?: string;
-    personid?: number;
+    personFirstName?: string;
+    personLastName?: string;
+    personID?: number;
 }
 
 export interface GeorocRef {
@@ -28,7 +28,13 @@ export interface GeorocRef {
 export interface GeorocReference {
     samplingfeatureid: number;
     authors: Array<GeorocAuthor>;
-    reference: GeorocRef;
+    // reference: GeorocRef;
+    doi?: string;
+    journal?: string;
+    pages?: string;
+    ref_num?: number;
+    title?: string;
+    publicationYear: number;
 }
 
 export interface GeorocData {
@@ -115,13 +121,13 @@ function getDataset(data: GeorocData[]): Dataset {
     let d = data[0];
     if (!!d.references) {
         for (let ref of d.references) {
-            dataset.ref = ref.reference.doi ? ref.reference.doi : '';
-            dataset.year = ref.reference.year;
+            dataset.ref = ref.doi ? ref.doi : '';
+            dataset.year = ref.publicationYear;
             for (let a of ref.authors) {
-                dataset.authors += a.personlastname + ',' + a.personfirstname + ';';
+                dataset.authors += a.personLastName + ',' + a.personFirstName + ';';
             }
             dataset.authors = dataset.authors.substring(0, dataset.authors.length - 1);
-            let meta = ref.reference.title?.toUpperCase().split(' ');
+            let meta = ref.title?.toUpperCase().split(' ');
             if (!!meta) {
                 for (let m of meta) {
                     if (m !== 'THE' && m !== 'OF' && m !== 'A' && m !== 'AN' && m !== 'FROM' && m !== 'TO'
@@ -144,8 +150,8 @@ function getAuthors(data: GeorocData[]): Array<Author> {
         for (let r of d.references) {
             for (let a of r.authors) {
                 let author: Author = { surname: '', name: '' };
-                author.surname = a.personlastname ? a.personlastname : '';
-                author.name = a.personfirstname ? a.personfirstname : '';
+                author.surname = a.personLastName ? a.personLastName : '';
+                author.name = a.personFirstName ? a.personFirstName : '';
                 if (author.surname.length > 0 && author.name.length > 0) {
                     authors.push(author);
                 }

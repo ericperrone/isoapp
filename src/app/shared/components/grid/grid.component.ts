@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectBoxComponent } from '../../modals/select-box/select-box.component';
 import { CANCEL, DataListItem, ModalParams } from '../../modals/modal-params';
@@ -9,6 +9,7 @@ import { GeoModelService, GeoModel, EndMemberItem } from 'src/app/services/commo
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { DataPlottingSeriesComponent } from '../../modals/data-plotting-series/data-plotting-series.component';
 import { DataSeries, DATA_SERIES, DataSeriesSet } from 'src/app/models/series';
+import { StoreService } from 'src/app/services/common/store.service';
 
 export interface GridItem {
   header: boolean;
@@ -61,7 +62,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   private nClick = 0;
 
   constructor(private modalService: NgbModal,
-    private renderer: Renderer2,
+    private storeService: StoreService,
     private eventGeneratorService: EventGeneratorService,
     private geoModelService: GeoModelService) { }
 
@@ -430,14 +431,21 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             let list = new Array<DataListItem>();
             let params: ModalParams = {
               headerText: 'Manage plotting series',
-              bodyText: 'Choose an already defined series or create a new series',
-              list: list
+              // bodyText: 'Choose an already defined series or create a new series',
+              list: list,
             }
 
             for (let h of this.gridHeader) {
               if (h.type !== 'F')
                 list.push({ key: h.content, value: h.content });
             }
+
+            let selcetedRowsData = new Array<Array<GridItem>>();
+            for (let n of this.selectedRowsIndex) {
+              selcetedRowsData.push(this.gridRows[n]);
+            }
+            params.anyParams = { selection: selcetedRowsData, headers: this.gridHeader };
+
             let reff = this.modalService.open(DataPlottingSeriesComponent, { centered: true, size: 'lg', scrollable: true });
             reff.componentInstance.params = params;
             let rr = reff.componentInstance.emitter.subscribe(
@@ -447,9 +455,11 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
                   rr.unsubscribe();
                 } else {
                   console.log(response);
-                  this.addToDataSeries(response);
+                  // this.addToDataSeries(response);
                   reff.close();
                   rr.unsubscribe();
+                  // this.geoModelService.setModel({ selectedModel: 1, series: this.storeService.get(DATA_SERIES) });
+                  // this.ref = this.geoModelService.execute();
                 }
               }
             );
@@ -462,29 +472,28 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
-  public addToDataSeries(series: DataSeries): void {
-    let hx = -1;
-    let hy = -1
-    for (let h of this.gridHeader) {
-      if (h.content === series.xAxis) {
-        hx = h.col;
-      } else if (h.content === series.yAxis) {
-        hy = h.col;
-      }
-    }
+  // public addToDataSeries(series: DataSeries): void {
+  //   let hx = -1;
+  //   let hy = -1
+  //   for (let h of this.gridHeader) {
+  //     if (h.content === series.xAxis) {
+  //       hx = h.col;
+  //     } else if (h.content === series.yAxis) {
+  //       hy = h.col;
+  //     }
+  //   }
 
-    let d: DataSeriesSet = { x: new Array<number>, y: new Array<number> };
-    for (let col of this.gridCols[hx]) {
-      if (col.content.length > 0)
-        d.x.push(parseFloat(col.content));
-    }
-    for (let col of this.gridCols[hy]) {
-      if (col.content.length > 0)
-        d.y.push(parseFloat(col.content));
-    }
-    series.data.push(d);
-    console.log(series);
-  }
+  //   let d: DataSeriesSet = { x: new Array<number>, y: new Array<number> };
+  //   for (let i = 0; i < this.gridCols[hx].length; i++) {
+  //     if (this.gridCols[hx][i].content.length > 0 && this.gridCols[hy][i].content.length > 0) {
+  //       d.x.push(parseFloat(this.gridCols[hx][i].content));
+  //       d.y.push(parseFloat(this.gridCols[hy][i].content));
+  //     }
+  //   }
+  //   series.data.push(d);
+  //   console.log(series);
+  //   this.storeService.push({key: DATA_SERIES, data: series});
+  // }
 
 
 }
