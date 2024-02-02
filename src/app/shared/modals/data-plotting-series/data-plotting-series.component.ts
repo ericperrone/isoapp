@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Series, DataSeries, DATA_SERIES, DataSeriesSet } from 'src/app/models/series';
+import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 import { StoreService } from 'src/app/services/common/store.service';
 import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
 
 export const RGBColors = [
   '#00ffff', '#000000', '#0000ff', '#ff00ff', '#808080', '#008000', '#00ff00', '#800000', '#000080', '#808000', '#800080', '#ff0000', '#008080', '#ffff00', '#ffa500'
@@ -13,6 +15,7 @@ export const RGBColors = [
   styleUrls: ['./data-plotting-series.component.scss']
 })
 export class DataPlottingSeriesComponent implements OnInit {
+  public pointButtonEnabled = false;
   public color = '';
   public name = '';
   public dataSeries: Series = { xAxis: '', yAxis: '', series: [] };
@@ -26,7 +29,8 @@ export class DataPlottingSeriesComponent implements OnInit {
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
-  constructor(private storeService: StoreService) { }
+  constructor(private storeService: StoreService,
+    private modalService: NgbModal) { }
 
   ngOnInit(): void {
     let ds = this.storeService.get(DATA_SERIES);
@@ -37,6 +41,7 @@ export class DataPlottingSeriesComponent implements OnInit {
       console.log(ds);
     }
     if (!!this.params && !!this.params.list) {
+      console.log(this.params);
       for (let item of this.params.list) {
         this.xAxis.push(item.value);
         this.yAxis.push(item.value);
@@ -51,7 +56,17 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
-  public addDataToSeries(activeDataSeries: DataSeries): void {
+  public addDataToSeries(): void {
+    let activeDataSeries;
+    if (!!this.dataSeries) {
+      for (let ds of this.dataSeries.series) {
+        if (ds.selected) {
+          activeDataSeries = ds;
+          break;
+        }
+      }
+    }
+
     if (!!this.params && !!this.params.anyParams) {
       let hx = -1;
       let hy = -1
@@ -65,26 +80,29 @@ export class DataPlottingSeriesComponent implements OnInit {
 
       for (let s of this.params.anyParams.selection) {
         console.log(s);
-        let d: DataSeriesSet = { x: new Array<number>, y: new Array<number> };
         let x = '';
         let y = '';
         for (let i = 0; i < s.length; i++) {
           if (s[i].col === hx && s[i].content.length > 0) {
-            x = s[i].content.length;
+            x = s[i].content;
           }
           if (s[i].col === hy && s[i].content.length > 0) {
-            y = s[i].content.length;
+            y = s[i].content;
           }
         }
         if (x.length > 0 && y.length > 0) {
-          d.x.push(parseFloat(x));
-          d.y.push(parseFloat(y));
+          activeDataSeries?.data.push({ x: parseFloat(x), y: parseFloat(y) });
         }
-        activeDataSeries?.data.push(d);
       }
 
       console.log(this.dataSeries);
     }
+  }
+
+  public plot(): void {
+    this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
+    console.log(this.dataSeries);
+    this.modalService.open(PlottingComponent);
   }
 
   public newSeries() {
@@ -115,12 +133,14 @@ export class DataPlottingSeriesComponent implements OnInit {
     if (!!ds.selected) {
       this.selectedDataSeries = undefined;
       ds.selected = false;
+      this.pointButtonEnabled = false;
     } else {
       for (let d of this.dataSeries.series) {
         d.selected = false;
       }
       this.selectedDataSeries = ds;
       ds.selected = true;
+      this.pointButtonEnabled = true;
     }
   }
 

@@ -6,14 +6,14 @@ export interface Series {
 
 export interface DataSeries {
     selected: boolean;
-    data: Array<DataSeriesSet>;
+    data: Array<DataSeriesPoint>;
     shape: DataSeriesShape;
     name: string;
 }
 
-export interface DataSeriesSet {
-    x: Array<number>;
-    y: Array<number>;
+export interface DataSeriesPoint {
+    x: number;
+    y: number;
 }
 
 export interface DataSeriesShape {

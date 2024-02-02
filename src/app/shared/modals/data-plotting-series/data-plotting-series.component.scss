@@ -23,6 +23,10 @@ select {
     height: 40px !important;
 }
 
-td {
+.table-ctrl {
+    border: solid 1px;
+}
+
+td, th {
     padding: 5px;
 }

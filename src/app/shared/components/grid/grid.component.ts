@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { GeoModelService, GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { DataPlottingSeriesComponent } from '../../modals/data-plotting-series/data-plotting-series.component';
-import { DataSeries, DATA_SERIES, DataSeriesSet } from 'src/app/models/series';
+// import { DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 import { StoreService } from 'src/app/services/common/store.service';
 
 export interface GridItem {
@@ -58,6 +58,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public index = 0;
   public table = new Array<Array<string>>();
   public downOk = true;
+  public spinSelect = false;
+  public spinDeselect = false;
   private firstSelection = 0;
   private nClick = 0;
 
@@ -284,8 +286,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
     this.tableOn = true;
+    console.log(this.selectedRowsIndex);
   }
 
+ 
   public restoreAll(): void {
     if (!!this.dataset) {
       this.tableOn = false;
@@ -302,6 +306,44 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     for (let i = 0; i < this.limit; i++) {
       this.screenRows[i] = this.gridCacheRows[i];
     }
+    this.tableOn = true;
+  }
+
+  public selectAll(): void {
+    this.tableOn = false;
+    this.spinSelect = true;
+    this.gridCacheRows = [...this.gridRows];
+    this.selectedRowsIndex.length = 0;
+    for (let r of this.gridCacheRows) {
+      for (let c of r) {
+        c.selected = true;        
+      }
+      this.selectedRowsIndex.push(r[0].row);
+    }
+    this.screenRows.length = 0;
+    for (let i = 0; i < this.limit; i++) {
+      this.screenRows[i] = this.gridCacheRows[i];
+    }
+    this.spinSelect = false;
+    this.tableOn = true;
+    console.log(this.selectedRowsIndex);
+  }
+
+  public deselectAll(): void {
+    this.tableOn = false;
+    this.spinDeselect = true;
+    this.gridCacheRows = [...this.gridRows];
+    for (let r of this.gridCacheRows) {
+      for (let c of r) {
+        c.selected = false;
+      }
+    }
+    this.selectedRowsIndex.length = 0;
+    this.screenRows.length = 0;
+    for (let i = 0; i < this.limit; i++) {
+      this.screenRows[i] = this.gridCacheRows[i];
+    }
+    this.spinDeselect = false;
     this.tableOn = true;
   }
 
@@ -431,7 +473,6 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             let list = new Array<DataListItem>();
             let params: ModalParams = {
               headerText: 'Manage plotting series',
-              // bodyText: 'Choose an already defined series or create a new series',
               list: list,
             }
 
