@@ -50,9 +50,9 @@
                 <tr>
                     <th>Name</th>
                     <th>Color</th>
-                    <th>#Points</th>
                     <th><button type="button" class="btn btn-outline-dark table-ctrl" [disabled]="!pointButtonEnabled"
                             (click)="addDataToSeries()">Add points to selection</button></th>
+                    <th>#Points</th>
                 </tr>
                 <tr *ngFor="let ds of dataSeries.series, index as i"
                     [style.background]="ds.selected ? 'orange' : 'white'" (click)="select(ds)" class="clickable">
@@ -60,8 +60,13 @@
                             [(ngModel)]="dataSeries.series[i].name"> </td>
                     <td><input class="table-input-color" type="color" value="#ff0000"
                             [(ngModel)]="dataSeries.series[i].shape.color"> </td>
+                    <td>
+                        <select class="form-select" [(ngModel)]="dataSeries.series[i].shape.shape">
+                            <option *ngFor="let shape of ChartShapes">{{
+                                shape }}</option>
+                        </select>
+                    </td>
                     <td>{{ dataSeries.series[i].data.length }}</td>
-                    <td></td>
                 </tr>
             </table>
         </div>

@@ -1,3 +1,7 @@
-<div class="centered">
-    <canvasjs-chart [options]="chartOptions" [styles]="{width: '95%', height:'95%'}" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
+<div class="application-frame centered">
+    <!-- <div class="centered">
+        <canvasjs-chart [options]="chartOptions" [styles]="{width: '95%', height:'95%'}"
+            (chartInstance)="getChartInstance($event)"></canvasjs-chart>
+    </div> -->
+    <canvasjs-chart [options]="chartOptions" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
 </div>

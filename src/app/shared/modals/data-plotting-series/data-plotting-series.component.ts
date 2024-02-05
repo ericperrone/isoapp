@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
+import { Series, DataSeries, DATA_SERIES, ChartShapes } from 'src/app/models/series';
 import { StoreService } from 'src/app/services/common/store.service';
 import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
 
 export const RGBColors = [
-  '#00ffff', '#000000', '#0000ff', '#ff00ff', '#808080', '#008000', '#00ff00', '#800000', '#000080', '#808000', '#800080', '#ff0000', '#008080', '#ffff00', '#ffa500'
+  // '#00ffff', '#000000', '#0000ff', '#ff00ff', '#808080', '#008000', '#00ff00', '#800000', '#000080', '#808000', '#800080', '#ff0000', '#008080', '#ffff00', '#ffa500'
+  '#4F81BC', '#C0504E', '#9BBB58', '#23BFAA', '#8064A1', '#4AACC5', '#F79647', '#7F6084', '#77A033', '#33558B', '#E59566', '#FFA500'
 ];
 
 @Component({
@@ -15,6 +16,7 @@ export const RGBColors = [
   styleUrls: ['./data-plotting-series.component.scss']
 })
 export class DataPlottingSeriesComponent implements OnInit {
+  public ChartShapes = ChartShapes;
   public pointButtonEnabled = false;
   public color = '';
   public name = '';
@@ -25,6 +27,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   public yData = new Array<number>();
   public xSelected = '';
   public ySelected = '';
+  public shape = 'circle';
   public selectedDataSeries: DataSeries | undefined;
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
@@ -102,14 +105,13 @@ export class DataPlottingSeriesComponent implements OnInit {
   public plot(): void {
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     console.log(this.dataSeries);
-    this.modalService.open(PlottingComponent);
+    this.modalService.open(PlottingComponent, { size: 'xl' });
   }
 
   public newSeries() {
     this.dataSeries.xAxis = this.xSelected;
     this.dataSeries.yAxis = this.ySelected;
     this.dataSeries.series = [];
-    // this.dataSeries.series.push({ name: this.name, data: [], selected: false, shape: { color: this.color, shape: '' } });
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
   }
 
@@ -120,16 +122,7 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.storeService.clean(DATA_SERIES);
   }
 
-  // public addSeries() {
-  //   this.dataSeries.xAxis = this.xSelected;
-  //   this.dataSeries.yAxis = this.ySelected;
-  //   this.dataSeries.series.push({ name: this.name, data: [], selected: false,  });
-  //   this.name = '';
-  //   this.xSelected = '';
-  //   this.ySelected = '';
-  // }
-
-  public select(ds: DataSeries) {
+   public select(ds: DataSeries) {
     if (!!ds.selected) {
       this.selectedDataSeries = undefined;
       ds.selected = false;
@@ -146,7 +139,7 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public set() {
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
-    this.emitter.emit(this.selectedDataSeries);
+    // this.emitter.emit(this.selectedDataSeries);
   }
 
   public close() {

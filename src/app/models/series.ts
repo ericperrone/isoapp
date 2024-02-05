@@ -1,3 +1,10 @@
+export const ChartShapes = [
+    'circle',
+    'cross',
+    'square',
+    'triangle'
+];
+
 export interface Series {
     xAxis: string;
     yAxis: string;

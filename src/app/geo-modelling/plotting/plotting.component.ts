@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 
+
 @Component({
   selector: 'app-plotting',
   templateUrl: './plotting.component.html',
@@ -16,6 +17,7 @@ export class PlottingComponent implements OnInit {
 
   ngOnInit(): void {
     this.series = this.storeService.get(DATA_SERIES);
+    this.drawChart();
   }
 
   getChartInstance(chart: object) {
@@ -23,10 +25,27 @@ export class PlottingComponent implements OnInit {
     console.log(this.charts);
   }
 
+  private createChart(): void {
+
+  }
+
   private drawChart(): void {
     if (!this.series) {
       return;
     }
+
+    let series = [];
+    for (let s of this.series.series) {
+      series.push({
+        type: 'scatter',
+        name: s.name,
+        showInLegend: true,
+        color: '' + s.shape.color,
+        dataPoints: s.data,
+        markerType: s.shape.shape ? '' + s.shape.shape : 'circle'
+      });
+    }
+
     this.chartOptions = {
       animationEnabled: true,
       theme: "light2",
@@ -42,6 +61,15 @@ export class PlottingComponent implements OnInit {
       toolTip: {
         shared: true
       },
+      options: {
+        elements: {
+          point: {
+            
+            pointStyle: 'star',
+            radius: 10
+          }
+        }
+      },
       legend: {
         cursor: "pointer",
         itemclick: function (e: any) {
@@ -53,7 +81,7 @@ export class PlottingComponent implements OnInit {
           e.chart.render();
         }
       },
-      data: []
+      data: series
     }
   }
 
