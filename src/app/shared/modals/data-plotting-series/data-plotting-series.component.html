@@ -4,30 +4,83 @@
 <div class="modal-body">
 
     <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
-        <div class="task">Choose X axis and Y axis, then click the button.</div>
-        <div class="row" *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
-            <div class="col-5">
-                X:
-                <select class="form-select" [(ngModel)]="xSelected" aria-placeholder="x axis">
-                    <option *ngFor="let x of xAxis">{{ x }}</option>
-                </select>
-            </div>
-            <div class="col-5">
-                Y:
-                <select class="form-select" [(ngModel)]="ySelected" aria-placeholder="x axis">
-                    <option *ngFor="let y of yAxis">{{ y }}</option>
-                </select>
-            </div>
-            <div class="col-2">
-                <button (click)="newSeries()" class="btn btn-primary" type="button"
+        <div class="task">Choose X axis and Y axis, then click the button.
+            <div class="float-right">
+                <button (click)="newSeries()" class="btn btn-secondary" type="button"
                     [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
-                        class="fa-regular fa-square-plus"></i></button>
+                        class="fa-regular fa-plus"></i></button>
             </div>
         </div>
+        <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
+            <div class="row">
+                <div class="col-2">Operator</div>
+                <div class="col-4">X Axis</div>
+                <div class="col-2">Operator</div>
+                <div class="col-4">Y Axis</div>
+            </div>
+            <div class="row" >
+                <div class="col-2">
+                    <select class="form-select" [(ngModel)]="xOperator" (ngModelChange)="xOperatorChange()">
+                        <option value="0"></option>
+                        <option value="1">1/x</option>
+                        <option value="2">x/y</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <select class="form-select" [(ngModel)]="xSelected" (ngModelChange)="xSelectedChange()">
+                        <option *ngFor="let x of xAxis">{{ x }}</option>
+                    </select>
+                </div>
+                <div class="col-2">                
+                    <select class="form-select" [(ngModel)]="yOperator" (ngModelChange)="yOperatorChange()">
+                        <option value="0"></option>
+                        <option value="1">1/x</option>
+                        <option value="2">x/y</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <select class="form-select" [(ngModel)]="ySelected" (ngModelChange)="ySelectedChange()">
+                        <option *ngFor="let y of yAxis">{{ y }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" *ngIf="'2' === xOperator || '2' === yOperator">
+                <div class="col-2"></div>
+                <div class="col-4">
+                    <select class="form-select" [(ngModel)]="xSelected2" *ngIf="'2' === xOperator" (ngModelChange)="xSelected2Change()">
+                        <option *ngFor="let x of xAxis">{{ x }}</option>
+                    </select>
+                </div>
+                <div class="col-2"></div>
+                <div class="col-4">
+                    <select class="form-select" [(ngModel)]="ySelected2" *ngIf="'2' === yOperator" (ngModelChange)="ySelected2Change()">
+                        <option *ngFor="let y of yAxis">{{ y }}</option>
+                    </select>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4">X range</div>
+                <div class="col-4"><input type="number" class="form-control" placeholder="xAxis min." [(ngModel)]="xRange.min"></div>
+                <div class="col-4"><input type="number" class="form-control" placeholder="xAxis max." [(ngModel)]="xRange.max"></div>
+            </div>            
+            <div class="row">
+                <div class="col-4">Y range</div>
+                <div class="col-4"><input type="number" class="form-control" placeholder="yAxis min." [(ngModel)]="yRange.min"></div>
+                <div class="col-4"><input type="number" class="form-control" placeholder="yAxis max." [(ngModel)]="yRange.max"></div>
+            </div>            
+        </div>
     </div>
+
     <div *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0">
-        <div class="task">Click the button to reset all data.</div>
-        <div class="row" *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0">
+        <div class="task">Click the button to reset all.
+            <div class="float-right">
+                <button (click)="resetSeries()" class="btn btn-secondary" type="button"
+                    [disabled]="xSelected.length === 0 || ySelected.length === 0">
+                    <i class="fa-regular fa-xmark"></i></button>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-5">
                 X axis: <strong>{{ dataSeries.xAxis }}</strong>
             </div>
@@ -35,9 +88,6 @@
                 Y axis: <strong>{{ dataSeries.yAxis }}</strong>
             </div>
             <div class="col-2">
-                <button (click)="resetSeries()" class="btn btn-primary" type="button"
-                    [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
-                        class="fa-regular fa-circle-xmark"></i></button>
             </div>
         </div>
     </div>

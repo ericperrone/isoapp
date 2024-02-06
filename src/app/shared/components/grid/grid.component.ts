@@ -245,6 +245,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
         this.nClick = 0;
         if (gi.row > this.firstSelection) {
           for (let i = this.firstSelection + 1; i <= gi.row; i++) {
+            if (!this.gridRows[i][0].visible)
+              continue;
             this.selectedRowsIndex.push(i);
             for (let j = 0; j < this.gridRows[i].length; j++) {
               this.gridRows[i][j].selected = true;
@@ -252,6 +254,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
           }
         } else {
           for (let i = this.firstSelection - 1; i >= gi.row; i--) {
+            if (!this.gridRows[i][0].visible)
+              continue;
             this.selectedRowsIndex.push(i);
             for (let j = 0; j < this.gridRows[i].length; j++) {
               this.gridRows[i][j].selected = true;
@@ -289,7 +293,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     console.log(this.selectedRowsIndex);
   }
 
- 
+
   public restoreAll(): void {
     if (!!this.dataset) {
       this.tableOn = false;
@@ -316,7 +320,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.selectedRowsIndex.length = 0;
     for (let r of this.gridCacheRows) {
       for (let c of r) {
-        c.selected = true;        
+        c.selected = true;
       }
       this.selectedRowsIndex.push(r[0].row);
     }
@@ -496,11 +500,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
                   rr.unsubscribe();
                 } else {
                   console.log(response);
-                  // this.addToDataSeries(response);
                   reff.close();
                   rr.unsubscribe();
-                  // this.geoModelService.setModel({ selectedModel: 1, series: this.storeService.get(DATA_SERIES) });
-                  // this.ref = this.geoModelService.execute();
                 }
               }
             );
@@ -512,29 +513,5 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       }
     );
   }
-
-  // public addToDataSeries(series: DataSeries): void {
-  //   let hx = -1;
-  //   let hy = -1
-  //   for (let h of this.gridHeader) {
-  //     if (h.content === series.xAxis) {
-  //       hx = h.col;
-  //     } else if (h.content === series.yAxis) {
-  //       hy = h.col;
-  //     }
-  //   }
-
-  //   let d: DataSeriesSet = { x: new Array<number>, y: new Array<number> };
-  //   for (let i = 0; i < this.gridCols[hx].length; i++) {
-  //     if (this.gridCols[hx][i].content.length > 0 && this.gridCols[hy][i].content.length > 0) {
-  //       d.x.push(parseFloat(this.gridCols[hx][i].content));
-  //       d.y.push(parseFloat(this.gridCols[hy][i].content));
-  //     }
-  //   }
-  //   series.data.push(d);
-  //   console.log(series);
-  //   this.storeService.push({key: DATA_SERIES, data: series});
-  // }
-
 
 }

@@ -5,6 +5,11 @@ import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
 
+export interface Range {
+  min: number;
+  max: number;
+}
+
 export const RGBColors = [
   // '#00ffff', '#000000', '#0000ff', '#ff00ff', '#808080', '#008000', '#00ff00', '#800000', '#000080', '#808000', '#800080', '#ff0000', '#008080', '#ffff00', '#ffa500'
   '#4F81BC', '#C0504E', '#9BBB58', '#23BFAA', '#8064A1', '#4AACC5', '#F79647', '#7F6084', '#77A033', '#33558B', '#E59566', '#FFA500'
@@ -16,6 +21,8 @@ export const RGBColors = [
   styleUrls: ['./data-plotting-series.component.scss']
 })
 export class DataPlottingSeriesComponent implements OnInit {
+  public xOperator = '0';
+  public yOperator = '0';
   public ChartShapes = ChartShapes;
   public pointButtonEnabled = false;
   public color = '';
@@ -27,7 +34,11 @@ export class DataPlottingSeriesComponent implements OnInit {
   public yData = new Array<number>();
   public xSelected = '';
   public ySelected = '';
+  public xSelected2 = '';
+  public ySelected2 = '';
   public shape = 'circle';
+  public xRange: Range = { min: -10000, max: 10000 };
+  public yRange: Range = { min: -10000, max: 10000 };
   public selectedDataSeries: DataSeries | undefined;
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
@@ -50,6 +61,112 @@ export class DataPlottingSeriesComponent implements OnInit {
         this.yAxis.push(item.value);
       }
     }
+  }
+
+  public xOperatorChange(): void {
+    // console.log(this.xOperator);
+    if (this.xOperator === '1' || this.xOperator === '0') {
+      this.xSelectedChange();
+    }
+  }
+
+  public yOperatorChange(): void {
+    // console.log(this.yOperator);
+    if (this.yOperator === '1' || this.yOperator === '0') {
+      this.ySelectedChange();
+    }
+  }
+
+  public xSelectedChange(): void {
+    this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+    console.log(this.xRange);
+  }
+
+  public ySelectedChange(): void {
+    this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+    console.log(this.yRange);
+  }
+  
+  public xSelected2Change(): void {
+    this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+    console.log(this.xRange);
+  }
+
+  public ySelected2Change(): void {
+    this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+    console.log(this.yRange);
+  }
+
+  private computeRange(selected1: string, operator: string, range: Range, selected2?: string) {
+    switch (operator) {
+      case '0':
+      default:
+        return this.computeNormalRange(selected1, range);
+      case '1':
+        return this.computeInverseRange(selected1, range);
+      case '2':
+        return this.computeRatioRange(selected1, range, selected2);
+    }
+  }
+
+  private computeNormalRange(selected: string, range: Range) {
+    let values: number[] = this.getFloatValues(selected, false);
+    let ordered = values.sort((x, y) => x - y);
+    range.min = ordered[0];
+    range.max = ordered[ordered.length - 1];
+  }
+
+  private computeInverseRange(selected: string, range: Range) {
+    let values: number[] = this.getFloatValues(selected, true);
+    let ordered = values.sort((x, y) => x - y);
+    range.min = ordered[0];
+    range.max = ordered[ordered.length - 1];
+  }
+
+  private computeRatioRange(selected1: string, range: Range, selected2?: string) {
+    if (!!selected2) {
+      let valuesN: number[] = this.getFloatValues(selected1, false);
+      let valuesD: number[] = this.getFloatValues(selected2, false);
+      let values = new Array<number>();
+      for (let i = 0; i < valuesN.length; i++) {
+        values.push(valuesN[i] / valuesD[i]);
+      }
+    }
+  }
+
+  private getColumn(name: string): string[] {
+    let column = new Array<string>();
+    if (!!this.params && !!this.params.anyParams) {
+      let hx = -1;
+      for (let h of this.params.anyParams.headers) {
+        if (h.content === name) {
+          hx = h.col;
+        }
+      }
+
+      if (hx > 0) {
+        for (let x of this.params.anyParams.selection) {
+          if (x[hx].content.length > 0)
+            column.push(x[hx].content);
+        }
+      }
+
+    }
+    return column;
+  }
+
+  private getFloatValues(headerName: string, inverse: boolean): number[] {
+    let data: string[] = this.getColumn(headerName);
+    let values = new Array<number>();
+    for (let d of data) {
+      if (!inverse)
+        values.push(parseFloat(d));
+      else {
+        let x = parseFloat(d);
+        values.push(1 / x);
+      }
+    }
+    return values;
   }
 
   public addDataSeries(): void {
@@ -82,7 +199,7 @@ export class DataPlottingSeriesComponent implements OnInit {
       }
 
       for (let s of this.params.anyParams.selection) {
-        console.log(s);
+        // console.log(s);
         let x = '';
         let y = '';
         for (let i = 0; i < s.length; i++) {
@@ -98,9 +215,11 @@ export class DataPlottingSeriesComponent implements OnInit {
         }
       }
 
-      console.log(this.dataSeries);
+      // console.log(this.dataSeries);
     }
   }
+
+
 
   public plot(): void {
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
@@ -122,7 +241,7 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.storeService.clean(DATA_SERIES);
   }
 
-   public select(ds: DataSeries) {
+  public select(ds: DataSeries) {
     if (!!ds.selected) {
       this.selectedDataSeries = undefined;
       ds.selected = false;

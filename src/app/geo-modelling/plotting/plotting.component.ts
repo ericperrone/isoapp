@@ -49,6 +49,8 @@ export class PlottingComponent implements OnInit {
     this.chartOptions = {
       animationEnabled: true,
       theme: "light2",
+      exportEnabled: true,
+      zoomEnabled: true,
       title: {
         text: "Data plot"
       },
@@ -60,15 +62,6 @@ export class PlottingComponent implements OnInit {
       },
       toolTip: {
         shared: true
-      },
-      options: {
-        elements: {
-          point: {
-            
-            pointStyle: 'star',
-            radius: 10
-          }
-        }
       },
       legend: {
         cursor: "pointer",
