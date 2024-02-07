@@ -79,22 +79,18 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public xSelectedChange(): void {
     this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
-    console.log(this.xRange);
   }
 
   public ySelectedChange(): void {
     this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
-    console.log(this.yRange);
   }
-  
+
   public xSelected2Change(): void {
     this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
-    console.log(this.xRange);
   }
 
   public ySelected2Change(): void {
     this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
-    console.log(this.yRange);
   }
 
   private computeRange(selected1: string, operator: string, range: Range, selected2?: string) {
@@ -227,9 +223,41 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.modalService.open(PlottingComponent, { size: 'xl' });
   }
 
+  private setAxisNames(): void {
+    let xAxisText = '';
+    let yAxisText = '';
+    switch (this.xOperator) {
+      case '0':
+      default:
+        xAxisText = this.xSelected;
+        break;
+      case '1':
+        xAxisText = '1 / ' + this.xSelected
+        break;
+      case '2':
+        xAxisText = this.xSelected + ' / ' + this.xSelected2;
+        break;
+    }
+
+    switch (this.yOperator) {
+      case '0':
+      default:
+        yAxisText = this.ySelected;
+        break;
+      case '1':
+        yAxisText = '1 / ' + this.ySelected
+        break;
+      case '2':
+        yAxisText = this.ySelected + ' / ' + this.ySelected2;
+        break;
+    }
+
+    this.dataSeries.xAxis = xAxisText;
+    this.dataSeries.yAxis = yAxisText;
+  }
+
   public newSeries() {
-    this.dataSeries.xAxis = this.xSelected;
-    this.dataSeries.yAxis = this.ySelected;
+    this.setAxisNames();
     this.dataSeries.series = [];
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
   }
@@ -237,6 +265,10 @@ export class DataPlottingSeriesComponent implements OnInit {
   public resetSeries() {
     this.xSelected = '';
     this.ySelected = '';
+    this.xRange = { min: -10000, max: 10000 };
+    this.yRange = { min: -10000, max: 10000 };
+    this.xOperator = '0';
+    this.yOperator = '0';
     this.dataSeries = { xAxis: '', yAxis: '', series: [] };
     this.storeService.clean(DATA_SERIES);
   }

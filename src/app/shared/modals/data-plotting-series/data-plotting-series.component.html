@@ -8,7 +8,7 @@
             <div class="float-right">
                 <button (click)="newSeries()" class="btn btn-secondary" type="button"
                     [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
-                        class="fa-regular fa-plus"></i></button>
+                        class="fa-solid fa-check"></i></button>
             </div>
         </div>
         <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
@@ -77,7 +77,7 @@
             <div class="float-right">
                 <button (click)="resetSeries()" class="btn btn-secondary" type="button"
                     [disabled]="xSelected.length === 0 || ySelected.length === 0">
-                    <i class="fa-regular fa-xmark"></i></button>
+                    <i class="fa-solid fa-xmark"></i></button>
             </div>
         </div>
         <div class="row">
