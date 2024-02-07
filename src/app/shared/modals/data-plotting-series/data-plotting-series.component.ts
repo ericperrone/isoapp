@@ -21,13 +21,15 @@ export const RGBColors = [
   styleUrls: ['./data-plotting-series.component.scss']
 })
 export class DataPlottingSeriesComponent implements OnInit {
+  public chartWidth: number = 1400;
+  public chartHeight: number = 850;
   public xOperator = '0';
   public yOperator = '0';
   public ChartShapes = ChartShapes;
   public pointButtonEnabled = false;
   public color = '';
   public name = '';
-  public dataSeries: Series = { xAxis: '', yAxis: '', series: [] };
+  public dataSeries: Series = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartHeight, series: [] };
   public xAxis = new Array<string>();
   public yAxis = new Array<string>();
   public xData = new Array<number>();
@@ -63,6 +65,14 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
+  public chartSizeChange(): void {
+    if (this.dataSeries) {
+      this.dataSeries.height = this.chartHeight;
+      this.dataSeries.width = this.chartWidth;
+      this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
+    }
+  }
+
   public xOperatorChange(): void {
     // console.log(this.xOperator);
     if (this.xOperator === '1' || this.xOperator === '0') {
@@ -78,7 +88,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public xSelectedChange(): void {
-    this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);    
+    this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
   }
 
   public ySelectedChange(): void {
@@ -109,8 +119,8 @@ export class DataPlottingSeriesComponent implements OnInit {
     let values: number[] = this.getFloatValues(selected, false);
     let ordered = values.sort((x, y) => x - y);
     range.min = ordered[0];
-    range.max = ordered[ordered.length - 1];  
-    return values;  
+    range.max = ordered[ordered.length - 1];
+    return values;
   }
 
   private computeInverseRange(selected: string, range: Range): number[] {
@@ -188,46 +198,25 @@ export class DataPlottingSeriesComponent implements OnInit {
         }
       }
 
+      if (this.xData.length <= 0) {
+        this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, this.xSelected2.length > 0 ? this.xSelected2 : undefined);
+        this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, this.ySelected2.length > 0 ? this.ySelected2 : undefined);
+      }
+
       for (let i = 0; i < this.xData.length; i++) {
-        activeDataSeries?.data.push({ x: this.xData[i], y: this.yData[i]});
+        if ((this.xRange.min <= this.xData[i] && this.xData[i] <= this.xRange.max) &&
+          (this.yRange.min <= this.yData[i] && this.yData[i] <= this.yRange.max))
+          activeDataSeries?.data.push({ x: this.xData[i], y: this.yData[i] });
       }
     }
-
-    // if (!!this.params && !!this.params.anyParams) {
-    //   let hx = -1;
-    //   let hy = -1
-    //   for (let h of this.params.anyParams.headers) {
-    //     if (h.content === this.dataSeries.xAxis) {
-    //       hx = h.col;
-    //     } else if (h.content === this.dataSeries.yAxis) {
-    //       hy = h.col;
-    //     }
-    //   }
-
-    //   for (let s of this.params.anyParams.selection) {
-    //     // console.log(s);
-    //     let x = '';
-    //     let y = '';
-    //     for (let i = 0; i < s.length; i++) {
-    //       if (s[i].col === hx && s[i].content.length > 0) {
-    //         x = s[i].content;
-    //       }
-    //       if (s[i].col === hy && s[i].content.length > 0) {
-    //         y = s[i].content;
-    //       }
-    //     }
-    //     if (x.length > 0 && y.length > 0) {
-    //       activeDataSeries?.data.push({ x: parseFloat(x), y: parseFloat(y) });
-    //     }
-    //   }
-    // }
   }
 
 
   public plot(): void {
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     console.log(this.dataSeries);
-    this.modalService.open(PlottingComponent, { size: 'xl' });
+    let modalRef = this.modalService.open(PlottingComponent, { fullscreen: true });
+    modalRef.componentInstance.params = { ref: modalRef };
   }
 
   private setAxisNames(): void {
@@ -276,7 +265,7 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.yRange = { min: -10000, max: 10000 };
     this.xOperator = '0';
     this.yOperator = '0';
-    this.dataSeries = { xAxis: '', yAxis: '', series: [] };
+    this.dataSeries = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartWidth, series: [] };
     this.storeService.clean(DATA_SERIES);
   }
 
@@ -297,7 +286,6 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public set() {
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
-    // this.emitter.emit(this.selectedDataSeries);
   }
 
   public close() {

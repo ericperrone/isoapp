@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 
@@ -9,13 +9,20 @@ import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models
   styleUrls: ['./plotting.component.scss']
 })
 export class PlottingComponent implements OnInit {
-  public series: Series = { xAxis: '', yAxis: '', series: [] };
+  @Input() params: any;
+  public series: Series = { xAxis: '', yAxis: '', width: 500, height: 400, series: [] };
   public chartOptions: any;
   public charts: any;
+  public fontSize = 16;
+  public legendFontSize = 20;
+  public ref: any;
 
   constructor(private storeService: StoreService) { }
 
   ngOnInit(): void {
+    if (!!this.params) {
+      this.ref = this.params.ref;
+    }
     this.series = this.storeService.get(DATA_SERIES);
     this.drawChart();
   }
@@ -23,10 +30,6 @@ export class PlottingComponent implements OnInit {
   getChartInstance(chart: object) {
     this.charts = chart;
     console.log(this.charts);
-  }
-
-  private createChart(): void {
-
   }
 
   private drawChart(): void {
@@ -51,20 +54,29 @@ export class PlottingComponent implements OnInit {
       theme: "light2",
       exportEnabled: true,
       zoomEnabled: true,
-      title: {
-        text: "Data plot"
-      },
+      width: this.series.width,
+      height: this.series.height,
+      // width: this.series.width > window.screenX ? window.screenX : this.series.width,
+      // height: this.series.height > window.screenY ? window.screenY : this.series.height,
+      // title: {
+      //   text: "Data plot"
+      // },
       axisX: {
         title: '' + this.series.xAxis,
+        titleFontSize: this.fontSize,
+        labelFontSize: this.fontSize
       },
       axisY: {
         title: '' + this.series.yAxis,
+        titleFontSize: this.fontSize,
+        labelFontSize: this.fontSize
       },
       toolTip: {
         shared: true
       },
       legend: {
         cursor: "pointer",
+        fontSize: this.legendFontSize,
         itemclick: function (e: any) {
           if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
             e.dataSeries.visible = false;
@@ -76,6 +88,8 @@ export class PlottingComponent implements OnInit {
       },
       data: series
     }
+
+    console.log(this.chartOptions);
   }
 
 }

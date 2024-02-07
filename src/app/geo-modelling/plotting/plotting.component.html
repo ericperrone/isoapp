@@ -1,8 +1,11 @@
-<div class="application-frame centered">
-    <!-- <div class="centered">
-        <canvasjs-chart [options]="chartOptions" [styles]="{width: '95%', height:'95%'}"
+<div class="application-frame centered h-90">
+    <div class="header text-right">
+        <button class="btn btn-outline-dark" type="button" (click)="ref ? ref.close() : undefined">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div class="centered">
+        <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" class="centered"
             (chartInstance)="getChartInstance($event)"></canvasjs-chart>
-    </div> -->
-    <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
-
+    </div>
 </div>

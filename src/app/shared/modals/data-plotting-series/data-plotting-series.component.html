@@ -18,7 +18,7 @@
                 <div class="col-2">Operator</div>
                 <div class="col-4">Y Axis</div>
             </div>
-            <div class="row" >
+            <div class="row">
                 <div class="col-2">
                     <select class="form-select" [(ngModel)]="xOperator" (ngModelChange)="xOperatorChange()">
                         <option value="0"></option>
@@ -31,7 +31,7 @@
                         <option *ngFor="let x of xAxis">{{ x }}</option>
                     </select>
                 </div>
-                <div class="col-2">                
+                <div class="col-2">
                     <select class="form-select" [(ngModel)]="yOperator" (ngModelChange)="yOperatorChange()">
                         <option value="0"></option>
                         <option value="1">1/x</option>
@@ -47,28 +47,34 @@
             <div class="row" *ngIf="'2' === xOperator || '2' === yOperator">
                 <div class="col-2"></div>
                 <div class="col-4">
-                    <select class="form-select" [(ngModel)]="xSelected2" *ngIf="'2' === xOperator" (ngModelChange)="xSelected2Change()">
+                    <select class="form-select" [(ngModel)]="xSelected2" *ngIf="'2' === xOperator"
+                        (ngModelChange)="xSelected2Change()">
                         <option *ngFor="let x of xAxis">{{ x }}</option>
                     </select>
                 </div>
                 <div class="col-2"></div>
                 <div class="col-4">
-                    <select class="form-select" [(ngModel)]="ySelected2" *ngIf="'2' === yOperator" (ngModelChange)="ySelected2Change()">
+                    <select class="form-select" [(ngModel)]="ySelected2" *ngIf="'2' === yOperator"
+                        (ngModelChange)="ySelected2Change()">
                         <option *ngFor="let y of yAxis">{{ y }}</option>
                     </select>
 
                 </div>
             </div>
             <div class="row">
-                <div class="col-4">X range</div>
-                <div class="col-4"><input type="number" class="form-control" placeholder="xAxis min." [(ngModel)]="xRange.min"></div>
-                <div class="col-4"><input type="number" class="form-control" placeholder="xAxis max." [(ngModel)]="xRange.max"></div>
-            </div>            
+                <div class="col-2">X range: </div>
+                <div class="col-5"><input type="number" class="form-control" placeholder="xAxis min."
+                        [(ngModel)]="xRange.min"></div>
+                <div class="col-5"><input type="number" class="form-control" placeholder="xAxis max."
+                        [(ngModel)]="xRange.max"></div>
+            </div>
             <div class="row">
-                <div class="col-4">Y range</div>
-                <div class="col-4"><input type="number" class="form-control" placeholder="yAxis min." [(ngModel)]="yRange.min"></div>
-                <div class="col-4"><input type="number" class="form-control" placeholder="yAxis max." [(ngModel)]="yRange.max"></div>
-            </div>            
+                <div class="col-2">Y range: </div>
+                <div class="col-5"><input type="number" class="form-control" placeholder="yAxis min."
+                        [(ngModel)]="yRange.min"></div>
+                <div class="col-5"><input type="number" class="form-control" placeholder="yAxis max."
+                        [(ngModel)]="yRange.max"></div>
+            </div>
         </div>
     </div>
 
@@ -91,6 +97,21 @@
             </div>
         </div>
     </div>
+
+    <div>
+        <div class="task mt-2">Chart options</div>
+        <div class="row">
+            <div class="col-3">Width:</div>
+            <div class="col-3">
+                <input type="number" class="form-control" [(ngModel)]="chartWidth" (ngModelChange)="chartSizeChange()">
+            </div>
+            <div class="col-3">Height:</div>
+            <div class="col-3">
+                <input type="number" class="form-control" [(ngModel)]="chartHeight" (ngModelChange)="chartSizeChange()">
+            </div>
+        </div>
+    </div>
+
     <div>
         <div class="task mt-2">Data definition: {{ params?.anyParams.selection.length }} points to assign <span
                 class="float-right"><button type="button" class="btn btn-secondary" (click)="addDataSeries()"><i

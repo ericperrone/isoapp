@@ -8,6 +8,8 @@ export const ChartShapes = [
 export interface Series {
     xAxis: string;
     yAxis: string;
+    width: number;
+    height: number;
     series: Array<DataSeries>;
 }
 
