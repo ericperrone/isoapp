@@ -78,22 +78,22 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public xSelectedChange(): void {
-    this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+    this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);    
   }
 
   public ySelectedChange(): void {
-    this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+    this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
   }
 
   public xSelected2Change(): void {
-    this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+    this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
   }
 
   public ySelected2Change(): void {
-    this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+    this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
   }
 
-  private computeRange(selected1: string, operator: string, range: Range, selected2?: string) {
+  private computeRange(selected1: string, operator: string, range: Range, selected2?: string): number[] {
     switch (operator) {
       case '0':
       default:
@@ -105,29 +105,35 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
-  private computeNormalRange(selected: string, range: Range) {
+  private computeNormalRange(selected: string, range: Range): number[] {
     let values: number[] = this.getFloatValues(selected, false);
     let ordered = values.sort((x, y) => x - y);
     range.min = ordered[0];
-    range.max = ordered[ordered.length - 1];
+    range.max = ordered[ordered.length - 1];  
+    return values;  
   }
 
-  private computeInverseRange(selected: string, range: Range) {
+  private computeInverseRange(selected: string, range: Range): number[] {
     let values: number[] = this.getFloatValues(selected, true);
     let ordered = values.sort((x, y) => x - y);
     range.min = ordered[0];
     range.max = ordered[ordered.length - 1];
+    return values;
   }
 
-  private computeRatioRange(selected1: string, range: Range, selected2?: string) {
+  private computeRatioRange(selected1: string, range: Range, selected2?: string): number[] {
+    let values = new Array<number>();
     if (!!selected2) {
       let valuesN: number[] = this.getFloatValues(selected1, false);
       let valuesD: number[] = this.getFloatValues(selected2, false);
-      let values = new Array<number>();
       for (let i = 0; i < valuesN.length; i++) {
         values.push(valuesN[i] / valuesD[i]);
       }
+      let ordered = values.sort((x, y) => x - y);
+      range.min = ordered[0];
+      range.max = ordered[ordered.length - 1];
     }
+    return values;
   }
 
   private getColumn(name: string): string[] {
@@ -181,40 +187,41 @@ export class DataPlottingSeriesComponent implements OnInit {
           break;
         }
       }
+
+      for (let i = 0; i < this.xData.length; i++) {
+        activeDataSeries?.data.push({ x: this.xData[i], y: this.yData[i]});
+      }
     }
 
-    if (!!this.params && !!this.params.anyParams) {
-      let hx = -1;
-      let hy = -1
-      for (let h of this.params.anyParams.headers) {
-        if (h.content === this.dataSeries.xAxis) {
-          hx = h.col;
-        } else if (h.content === this.dataSeries.yAxis) {
-          hy = h.col;
-        }
-      }
+    // if (!!this.params && !!this.params.anyParams) {
+    //   let hx = -1;
+    //   let hy = -1
+    //   for (let h of this.params.anyParams.headers) {
+    //     if (h.content === this.dataSeries.xAxis) {
+    //       hx = h.col;
+    //     } else if (h.content === this.dataSeries.yAxis) {
+    //       hy = h.col;
+    //     }
+    //   }
 
-      for (let s of this.params.anyParams.selection) {
-        // console.log(s);
-        let x = '';
-        let y = '';
-        for (let i = 0; i < s.length; i++) {
-          if (s[i].col === hx && s[i].content.length > 0) {
-            x = s[i].content;
-          }
-          if (s[i].col === hy && s[i].content.length > 0) {
-            y = s[i].content;
-          }
-        }
-        if (x.length > 0 && y.length > 0) {
-          activeDataSeries?.data.push({ x: parseFloat(x), y: parseFloat(y) });
-        }
-      }
-
-      // console.log(this.dataSeries);
-    }
+    //   for (let s of this.params.anyParams.selection) {
+    //     // console.log(s);
+    //     let x = '';
+    //     let y = '';
+    //     for (let i = 0; i < s.length; i++) {
+    //       if (s[i].col === hx && s[i].content.length > 0) {
+    //         x = s[i].content;
+    //       }
+    //       if (s[i].col === hy && s[i].content.length > 0) {
+    //         y = s[i].content;
+    //       }
+    //     }
+    //     if (x.length > 0 && y.length > 0) {
+    //       activeDataSeries?.data.push({ x: parseFloat(x), y: parseFloat(y) });
+    //     }
+    //   }
+    // }
   }
-
 
 
   public plot(): void {
