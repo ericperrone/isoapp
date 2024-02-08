@@ -115,6 +115,7 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
+ 
   private computeNormalRange(selected: string, range: Range): number[] {
     let values: number[] = this.getFloatValues(selected, false);
     let ordered = values.sort((x, y) => x - y);
@@ -137,7 +138,8 @@ export class DataPlottingSeriesComponent implements OnInit {
       let valuesN: number[] = this.getFloatValues(selected1, false);
       let valuesD: number[] = this.getFloatValues(selected2, false);
       for (let i = 0; i < valuesN.length; i++) {
-        values.push(valuesN[i] / valuesD[i]);
+        if (valuesD[i] !== 0)
+          values.push(valuesN[i] / valuesD[i]);
       }
       let ordered = values.sort((x, y) => x - y);
       range.min = ordered[0];
@@ -153,13 +155,14 @@ export class DataPlottingSeriesComponent implements OnInit {
       for (let h of this.params.anyParams.headers) {
         if (h.content === name) {
           hx = h.col;
+          break;
         }
       }
 
       if (hx > 0) {
         for (let x of this.params.anyParams.selection) {
-          if (x[hx].content.length > 0)
-            column.push(x[hx].content);
+          // if (x[hx].content.length > 0)
+          column.push(x[hx].content);
         }
       }
 
@@ -171,11 +174,15 @@ export class DataPlottingSeriesComponent implements OnInit {
     let data: string[] = this.getColumn(headerName);
     let values = new Array<number>();
     for (let d of data) {
-      if (!inverse)
-        values.push(parseFloat(d));
-      else {
-        let x = parseFloat(d);
-        values.push(1 / x);
+      if (d.length === 0) {
+        values.push(0);
+      } else {
+        if (!inverse)
+          values.push(parseFloat(d));
+        else {
+          let x = parseFloat(d);
+          values.push(1 / x);
+        }
       }
     }
     return values;
@@ -199,11 +206,14 @@ export class DataPlottingSeriesComponent implements OnInit {
       }
 
       if (this.xData.length <= 0) {
-        this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, this.xSelected2.length > 0 ? this.xSelected2 : undefined);
-        this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, this.ySelected2.length > 0 ? this.ySelected2 : undefined);
+        this.xData = this.computeRange(this.xSelected, this.xOperator, { min: 0, max: 0 }, this.xSelected2.length > 0 ? this.xSelected2 : undefined);
+        this.yData = this.computeRange(this.ySelected, this.yOperator, { min: 0, max: 0 }, this.ySelected2.length > 0 ? this.ySelected2 : undefined);
       }
 
       for (let i = 0; i < this.xData.length; i++) {
+        if (this.xData[i] === 0 || this.yData[i] === 0) {
+          continue;
+        }
         if ((this.xRange.min <= this.xData[i] && this.xData[i] <= this.xRange.max) &&
           (this.yRange.min <= this.yData[i] && this.yData[i] <= this.yRange.max))
           activeDataSeries?.data.push({ x: this.xData[i], y: this.yData[i] });

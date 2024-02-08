@@ -56,11 +56,6 @@ export class PlottingComponent implements OnInit {
       zoomEnabled: true,
       width: this.series.width,
       height: this.series.height,
-      // width: this.series.width > window.screenX ? window.screenX : this.series.width,
-      // height: this.series.height > window.screenY ? window.screenY : this.series.height,
-      // title: {
-      //   text: "Data plot"
-      // },
       axisX: {
         title: '' + this.series.xAxis,
         titleFontSize: this.fontSize,
