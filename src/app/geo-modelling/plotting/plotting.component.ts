@@ -16,6 +16,9 @@ export class PlottingComponent implements OnInit {
   public fontSize = 16;
   public legendFontSize = 20;
   public ref: any;
+  public chartWidth: number = 0;
+  public chartHeight: number = 0;
+  public changeSize = false;
 
   constructor(private storeService: StoreService) { }
 
@@ -24,12 +27,19 @@ export class PlottingComponent implements OnInit {
       this.ref = this.params.ref;
     }
     this.series = this.storeService.get(DATA_SERIES);
+    this.chartWidth = this.series.width;
+    this.chartHeight = this.series.height;
     this.drawChart();
   }
 
-  getChartInstance(chart: object) {
+  public getChartInstance(chart: object) {
     this.charts = chart;
     console.log(this.charts);
+  }
+
+  public chartSizeChange() {
+    this.changeSize = false;
+    this.drawChart();
   }
 
   private drawChart(): void {
@@ -54,8 +64,8 @@ export class PlottingComponent implements OnInit {
       theme: "light2",
       exportEnabled: true,
       zoomEnabled: true,
-      width: this.series.width,
-      height: this.series.height,
+      width: this.chartWidth,
+      height: this.chartHeight,
       axisX: {
         title: '' + this.series.xAxis,
         titleFontSize: this.fontSize,
