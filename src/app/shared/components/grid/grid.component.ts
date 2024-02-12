@@ -475,9 +475,25 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             break;
           case 3:
             let list = new Array<DataListItem>();
+            let idList = new Array<string>();
             let params: ModalParams = {
               headerText: 'Manage plotting series',
               list: list,
+              idList: idList
+            }
+
+            let ids = new Array<GridItem>();
+            for (let h of this.gridHeader) {
+              if (h.content === 'ITINERIS_ID') {
+                ids = this.gridCols[h.col];
+                break;
+              }
+            }
+
+            console.log(ids);
+            for (let id of ids) {
+              if (id.selected)
+                params.idList?.push(id.content);
             }
 
             for (let h of this.gridHeader) {

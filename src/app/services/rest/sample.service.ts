@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Rest, corsOptions } from './rest';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable } from 'rxjs';
-import { Sample } from 'src/app/models/sample';
+import { ChemComponent, Sample, SampleElement } from 'src/app/models/sample';
 import { QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { StoreService, UserInfo } from '../common/store.service';
+import { ChemElements } from 'src/app/shared/const';
 
 
 @Injectable({
@@ -13,6 +14,26 @@ import { StoreService, UserInfo } from '../common/store.service';
 export class SampleService extends Rest {
 
   constructor(private http: HttpClient, private storeService: StoreService) { super(); }
+
+  public getSamplesById(ids: Array<number>): Observable<any> {
+    return this.http.get(this.serviceUrl + 'query-samples-by-id').pipe(map(
+      (res: any) => {
+        let samples = new Array<Sample>();
+        if (!!res) {
+          for (let r of res) {
+            let sample = { id: r.id, fields: new Array<SampleElement>(), components: new Array<ChemComponent> };
+            for (let c of r.components) {
+              let chem = { component: c.component, value: '' + c.value, isIsotope: c.isIsotope };
+              sample.components.push(chem);
+            } 
+          }
+        }
+        return samples;
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
 
   public insertFullData(fullData: any): Observable<any> {
     let payload = {

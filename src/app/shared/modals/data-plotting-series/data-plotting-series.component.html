@@ -96,6 +96,9 @@
     <div *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0">
         <div class="task">Click the button to reset all.
             <div class="float-right">
+                <button style="margin-right: 3px;" class="btn btn-secondary" type="button" [disabled]="dataSeries.series.length === 0">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
                 <button (click)="resetSeries()" class="btn btn-secondary" type="button"
                     [disabled]="xSelected.length === 0 || ySelected.length === 0">
                     <i class="fa-solid fa-xmark"></i></button>
