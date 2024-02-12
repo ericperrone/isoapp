@@ -62,6 +62,21 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-6">
+                    <input type="checkbox" class="form-check-input p-1" id="xlog" [(ngModel)]="xLog" (ngModelChange)="xLogHandler()">
+                    <label class="form-check-label ml-1" for="xlog">
+                        Apply LOG to X axis
+                    </label>
+                </div>
+                <div class="col-6">
+                    <input type="checkbox" class="form-check-input p-1" id="ylog" [(ngModel)]="yLog" (ngModelChange)="yLogHandler()">
+                    <label class="form-check-label ml-1" for="ylog">
+                        Apply LOG to Y axis
+                    </label>
+                </div>
+            </div>
+    
+            <div class="row">
                 <div class="col-2">X range: </div>
                 <div class="col-5"><input type="number" class="form-control" placeholder="xAxis min."
                         [(ngModel)]="xRange.min"></div>
@@ -74,7 +89,7 @@
                         [(ngModel)]="yRange.min"></div>
                 <div class="col-5"><input type="number" class="form-control" placeholder="yAxis max."
                         [(ngModel)]="yRange.max"></div>
-            </div>
+            </div>            
         </div>
     </div>
 
@@ -96,20 +111,7 @@
             <div class="col-2">
             </div>
         </div>
-    </div>
 
-    <div>
-        <div class="task mt-2">Chart options</div>
-        <div class="row">
-            <div class="col-3">Width:</div>
-            <div class="col-3">
-                <input type="number" class="form-control" [(ngModel)]="chartWidth" (ngModelChange)="chartSizeChange()">
-            </div>
-            <div class="col-3">Height:</div>
-            <div class="col-3">
-                <input type="number" class="form-control" [(ngModel)]="chartHeight" (ngModelChange)="chartSizeChange()">
-            </div>
-        </div>
     </div>
 
     <div>

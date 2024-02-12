@@ -19,6 +19,7 @@ export class PlottingComponent implements OnInit {
   public chartWidth: number = 0;
   public chartHeight: number = 0;
   public changeSize = false;
+  public draw = true;
 
   constructor(private storeService: StoreService) { }
 
@@ -39,7 +40,13 @@ export class PlottingComponent implements OnInit {
 
   public chartSizeChange() {
     this.changeSize = false;
+    // this.chartOptions = {};
+    this.draw = false;
     this.drawChart();
+    setTimeout(() => {
+      this.draw = true;
+      this.drawChart();
+    }, 50);
   }
 
   private drawChart(): void {

@@ -11,7 +11,6 @@ export interface Range {
 }
 
 export const RGBColors = [
-  // '#00ffff', '#000000', '#0000ff', '#ff00ff', '#808080', '#008000', '#00ff00', '#800000', '#000080', '#808000', '#800080', '#ff0000', '#008080', '#ffff00', '#ffa500'
   '#4F81BC', '#C0504E', '#9BBB58', '#23BFAA', '#8064A1', '#4AACC5', '#F79647', '#7F6084', '#77A033', '#33558B', '#E59566', '#FFA500'
 ];
 
@@ -41,6 +40,10 @@ export class DataPlottingSeriesComponent implements OnInit {
   public shape = 'circle';
   public xRange: Range = { min: -10000, max: 10000 };
   public yRange: Range = { min: -10000, max: 10000 };
+  private xRangeBak: Range = { min: -10000, max: 10000 };
+  private yRangeBak: Range = { min: -10000, max: 10000 };
+  public xLog = false;
+  public yLog = false;
   public selectedDataSeries: DataSeries | undefined;
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
@@ -65,25 +68,44 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
-  public chartSizeChange(): void {
-    if (this.dataSeries) {
-      this.dataSeries.height = this.chartHeight;
-      this.dataSeries.width = this.chartWidth;
-      this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
-    }
-  }
-
   public xOperatorChange(): void {
-    // console.log(this.xOperator);
     if (this.xOperator === '1' || this.xOperator === '0') {
       this.xSelectedChange();
     }
   }
 
   public yOperatorChange(): void {
-    // console.log(this.yOperator);
     if (this.yOperator === '1' || this.yOperator === '0') {
       this.ySelectedChange();
+    }
+  }
+
+  public xLogHandler(): void {
+    if (!!this.xLog) {
+      this.xRangeBak = {...this.xRange};
+      if (this.xRange.min != 0) {
+        this.xRange.min = Math.log10(this.xRange.min);
+      }
+      if (this.xRange.max != 0) {
+        this.xRange.max = Math.log10(this.xRange.max);
+      }
+    } else {
+      this.xRange = {...this.xRangeBak};
+    }
+    this.setAxisNames();
+  }
+
+  public yLogHandler(): void {
+    if (!!this.yLog) {
+      this.yRangeBak = {...this.yRange};
+      if (this.yRange.min != 0) {
+        this.yRange.min = Math.log10(this.yRange.min);
+      }
+      if (this.yRange.max != 0) {
+        this.yRange.max = Math.log10(this.yRange.max);
+      }
+    } else {
+      this.yRange = {...this.yRangeBak};
     }
   }
 
@@ -115,10 +137,14 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
- 
+  private sort(x: number[]): number[] {
+    let ordered = [...x];
+    return ordered.sort((x, y) => x - y);
+  }
+
   private computeNormalRange(selected: string, range: Range): number[] {
     let values: number[] = this.getFloatValues(selected, false);
-    let ordered = values.sort((x, y) => x - y);
+    let ordered = this.sort(values);
     range.min = ordered[0];
     range.max = ordered[ordered.length - 1];
     return values;
@@ -126,7 +152,7 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   private computeInverseRange(selected: string, range: Range): number[] {
     let values: number[] = this.getFloatValues(selected, true);
-    let ordered = values.sort((x, y) => x - y);
+    let ordered = this.sort(values);
     range.min = ordered[0];
     range.max = ordered[ordered.length - 1];
     return values;
@@ -141,7 +167,7 @@ export class DataPlottingSeriesComponent implements OnInit {
         if (valuesD[i] !== 0)
           values.push(valuesN[i] / valuesD[i]);
       }
-      let ordered = values.sort((x, y) => x - y);
+      let ordered = this.sort(values);
       range.min = ordered[0];
       range.max = ordered[ordered.length - 1];
     }
@@ -210,6 +236,18 @@ export class DataPlottingSeriesComponent implements OnInit {
         this.yData = this.computeRange(this.ySelected, this.yOperator, { min: 0, max: 0 }, this.ySelected2.length > 0 ? this.ySelected2 : undefined);
       }
 
+      if (this.xLog) {
+        for (let i = 0; i < this.xData.length; i++) {
+          this.xData[i] = this.xData[i] > 0 ? this.xData[i] = Math.log10(this.xData[i]) : this.xData[i];
+        }
+      }
+
+      if (this.yLog) {
+        for (let i = 0; i < this.yData.length; i++) {
+          this.yData[i] > 0 ? this.yData[i] = Math.log10(this.yData[i]) : this.yData[i];
+        }
+      }
+
       for (let i = 0; i < this.xData.length; i++) {
         if (this.xData[i] === 0 || this.yData[i] === 0) {
           continue;
@@ -245,6 +283,10 @@ export class DataPlottingSeriesComponent implements OnInit {
         break;
     }
 
+    if (this.xLog) {
+      xAxisText = 'Log ( ' + xAxisText + ' )';
+    }
+
     switch (this.yOperator) {
       case '0':
       default:
@@ -258,6 +300,10 @@ export class DataPlottingSeriesComponent implements OnInit {
         break;
     }
 
+    if (this.yLog) {
+      yAxisText = 'Log ( ' + yAxisText + ' )';
+    }
+
     this.dataSeries.xAxis = xAxisText;
     this.dataSeries.yAxis = yAxisText;
   }
@@ -269,6 +315,8 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public resetSeries() {
+    this.xLog = false;
+    this.yLog = false;
     this.xSelected = '';
     this.ySelected = '';
     this.xRange = { min: -10000, max: 10000 };
