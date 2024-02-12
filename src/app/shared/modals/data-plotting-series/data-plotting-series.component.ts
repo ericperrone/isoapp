@@ -216,7 +216,7 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public addDataSeries(): void {
     if (!!this.dataSeries) {
-      this.dataSeries.series.push({ name: this.name, data: [], selected: false, shape: { color: RGBColors[this.dataSeries.series.length], shape: '' } });
+      this.dataSeries.series.push({ name: this.name, samples: [], data: [], selected: false, shape: { color: RGBColors[this.dataSeries.series.length], shape: '' } });
       this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     }
   }

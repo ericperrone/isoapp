@@ -14,6 +14,7 @@ export interface Series {
 }
 
 export interface DataSeries {
+    samples: Array<number>;
     selected: boolean;
     data: Array<DataSeriesPoint>;
     shape: DataSeriesShape;
