@@ -16,7 +16,12 @@ export class SampleService extends Rest {
   constructor(private http: HttpClient, private storeService: StoreService) { super(); }
 
   public getSamplesById(ids: Array<number>): Observable<any> {
-    return this.http.get(this.serviceUrl + 'query-samples-by-id').pipe(map(
+    let params = '';
+    for (let id of ids) {
+      params += id + ',';
+    }
+    params = params.substring(0, params.length - 2);
+    return this.http.get(this.serviceUrl + 'query-samples-by-id?ids=' + params).pipe(map(
       (res: any) => {
         let samples = new Array<Sample>();
         if (!!res) {
