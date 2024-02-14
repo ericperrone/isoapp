@@ -3,7 +3,8 @@
 </div>
 <div class="modal-body">
 
-    <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
+    <!-- <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0"> -->
+    <div *ngIf="xyEdit === true">
         <div class="task">Choose X axis and Y axis, then click the button.
             <div class="float-right">
                 <button (click)="newSeries()" class="btn btn-secondary" type="button"
@@ -11,7 +12,7 @@
                         class="fa-solid fa-check"></i></button>
             </div>
         </div>
-        <div *ngIf="dataSeries.xAxis.length === 0 || dataSeries.yAxis.length === 0">
+        <div *ngIf="xyEdit === true">
             <div class="row">
                 <div class="col-2">Operator</div>
                 <div class="col-4">X Axis</div>
@@ -63,19 +64,21 @@
             </div>
             <div class="row">
                 <div class="col-6">
-                    <input type="checkbox" class="form-check-input p-1" id="xlog" [(ngModel)]="xLog" (ngModelChange)="xLogHandler()">
+                    <input type="checkbox" class="form-check-input p-1" id="xlog" [(ngModel)]="xLog"
+                        (ngModelChange)="xLogHandler()">
                     <label class="form-check-label ml-1" for="xlog">
                         Apply LOG to X axis
                     </label>
                 </div>
                 <div class="col-6">
-                    <input type="checkbox" class="form-check-input p-1" id="ylog" [(ngModel)]="yLog" (ngModelChange)="yLogHandler()">
+                    <input type="checkbox" class="form-check-input p-1" id="ylog" [(ngModel)]="yLog"
+                        (ngModelChange)="yLogHandler()">
                     <label class="form-check-label ml-1" for="ylog">
                         Apply LOG to Y axis
                     </label>
                 </div>
             </div>
-    
+
             <div class="row">
                 <div class="col-2">X range: </div>
                 <div class="col-5"><input type="number" class="form-control" placeholder="xAxis min."
@@ -89,14 +92,15 @@
                         [(ngModel)]="yRange.min"></div>
                 <div class="col-5"><input type="number" class="form-control" placeholder="yAxis max."
                         [(ngModel)]="yRange.max"></div>
-            </div>            
+            </div>
         </div>
     </div>
 
-    <div *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0">
+    <div *ngIf="xyEdit === false">
         <div class="task">Click the button to reset all.
             <div class="float-right">
-                <button style="margin-right: 3px;" class="btn btn-secondary" type="button" [disabled]="dataSeries.series.length === 0">
+                <button style="margin-right: 3px;" class="btn btn-secondary" type="button"
+                    [disabled]="dataSeries.series.length === 0" (click)="xyEdit = true">
                     <i class="fa-solid fa-pen"></i>
                 </button>
                 <button (click)="resetSeries()" class="btn btn-secondary" type="button"
@@ -114,7 +118,6 @@
             <div class="col-2">
             </div>
         </div>
-
     </div>
 
     <div>
@@ -151,8 +154,8 @@
 
 <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
-    <button type="button" class="btn btn-success" (click)="set()"
-        [disabled]="dataSeries.series.length <= 0">Save</button>
+    <!-- <button type="button" class="btn btn-success" (click)="set()"
+        [disabled]="dataSeries.series.length <= 0">Save</button> -->
     <button type="button" class="btn btn-primary" (click)="plot()"
         [disabled]="dataSeries.series.length <= 0">PLOT!</button>
 </div>

@@ -4,6 +4,7 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
+import { GridItem } from '../../components/grid/grid.component';
 
 export interface Range {
   min: number;
@@ -20,6 +21,8 @@ export const RGBColors = [
   styleUrls: ['./data-plotting-series.component.scss']
 })
 export class DataPlottingSeriesComponent implements OnInit {
+  private grid: Array<Array<GridItem>> = new Array<Array<GridItem>>();
+  public xyEdit: boolean = true;
   public chartWidth: number = 1400;
   public chartHeight: number = 850;
   public xOperator = '0';
@@ -55,8 +58,11 @@ export class DataPlottingSeriesComponent implements OnInit {
     let ds = this.storeService.get(DATA_SERIES);
     if (!!ds) {
       this.dataSeries = ds;
-      this.xSelected = this.dataSeries.xAxis;
-      this.ySelected = this.dataSeries.yAxis;
+      if (this.dataSeries.xAxis && this.dataSeries.xAxis.length > 0 && this.dataSeries.yAxis && this.dataSeries.yAxis.length > 0) {
+        this.xSelected = this.dataSeries.xAxis;
+        this.ySelected = this.dataSeries.yAxis;
+        this.xyEdit = false;
+      }
       console.log(ds);
     }
     if (!!this.params && !!this.params.list) {
@@ -82,7 +88,7 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public xLogHandler(): void {
     if (!!this.xLog) {
-      this.xRangeBak = {...this.xRange};
+      this.xRangeBak = { ...this.xRange };
       if (this.xRange.min != 0) {
         this.xRange.min = Math.log10(this.xRange.min);
       }
@@ -90,14 +96,14 @@ export class DataPlottingSeriesComponent implements OnInit {
         this.xRange.max = Math.log10(this.xRange.max);
       }
     } else {
-      this.xRange = {...this.xRangeBak};
+      this.xRange = { ...this.xRangeBak };
     }
     this.setAxisNames();
   }
 
   public yLogHandler(): void {
     if (!!this.yLog) {
-      this.yRangeBak = {...this.yRange};
+      this.yRangeBak = { ...this.yRange };
       if (this.yRange.min != 0) {
         this.yRange.min = Math.log10(this.yRange.min);
       }
@@ -105,7 +111,7 @@ export class DataPlottingSeriesComponent implements OnInit {
         this.yRange.max = Math.log10(this.yRange.max);
       }
     } else {
-      this.yRange = {...this.yRangeBak};
+      this.yRange = { ...this.yRangeBak };
     }
   }
 
@@ -309,6 +315,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public newSeries() {
+    this.xyEdit = false;
     this.setAxisNames();
     this.dataSeries.series = [];
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
@@ -348,5 +355,9 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public close() {
     this.emitter.emit(CANCEL);
+  }
+
+  private buildGrid(): void {
+
   }
 }
