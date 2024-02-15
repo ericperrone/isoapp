@@ -5,6 +5,9 @@ import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
 import { GridItem } from '../../components/grid/grid.component';
+import { SampleService } from 'src/app/services/rest/sample.service';
+import { DataGrid } from 'src/app/models/datagrid';
+import { ConfirmComponent } from '../confirm/confirm.component';
 
 export interface Range {
   min: number;
@@ -50,8 +53,10 @@ export class DataPlottingSeriesComponent implements OnInit {
   public selectedDataSeries: DataSeries | undefined;
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
+  public dataGrid: DataGrid = new DataGrid(this.storeService);
 
   constructor(private storeService: StoreService,
+    private sampleService: SampleService,
     private modalService: NgbModal) { }
 
   ngOnInit(): void {
@@ -67,9 +72,12 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
     if (!!this.params && !!this.params.list) {
       console.log(this.params);
-      for (let item of this.params.list) {
-        this.xAxis.push(item.value);
-        this.yAxis.push(item.value);
+      this.dataGrid.add(this.params.anyParams.headers, this.params.anyParams.selection);
+      this.dataGrid.persist();
+      let list = this.dataGrid.getElementList();
+      for (let item of list) {
+        this.xAxis.push(item);
+        this.yAxis.push(item);
       }
     }
   }
@@ -116,6 +124,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public xSelectedChange(): void {
+    // this.getDataByIds();
     this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
   }
 
@@ -317,8 +326,27 @@ export class DataPlottingSeriesComponent implements OnInit {
   public newSeries() {
     this.xyEdit = false;
     this.setAxisNames();
-    this.dataSeries.series = [];
-    this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
+    if (this.dataSeries.series.length === 0) {
+      this.dataSeries.series = [];
+      this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });  
+    }
+  }
+
+  public reset(): void {
+    let ref = this.modalService.open(ConfirmComponent, { centered: true });
+    ref.componentInstance.params = {
+      headerText: 'Confirm',
+      bodyText: 'This operation will reset all stored information for the data plotting. Please, confirm'
+    };
+    let sub2 = ref.componentInstance.emitter.subscribe(
+      (response: string) => {
+        ref.close();
+        sub2.unsubscribe();
+        if (response === CONFIRM) {
+          this.resetSeries();
+        }
+      }
+    );
   }
 
   public resetSeries() {
@@ -332,6 +360,10 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.yOperator = '0';
     this.dataSeries = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartWidth, series: [] };
     this.storeService.clean(DATA_SERIES);
+    if (!!this.dataGrid) {
+      this.dataGrid.reset();
+    }
+    this.xyEdit = true;
   }
 
   public select(ds: DataSeries) {
@@ -355,6 +387,23 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public close() {
     this.emitter.emit(CANCEL);
+  }
+
+  private getDataByIds(): void {
+    if (this.dataSeries && this.dataSeries.series.length > 0) {
+      for (let s of this.dataSeries.series) {
+        let sampleList = s.samples;
+        if (!!sampleList && sampleList.length > 0) {
+          let r = this.sampleService.getSamplesById(sampleList).subscribe(
+            (res: any) => {
+              console.log(res);
+              r.unsubscribe();
+            }
+          );
+        }
+
+      }
+    }
   }
 
   private buildGrid(): void {

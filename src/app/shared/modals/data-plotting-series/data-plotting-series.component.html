@@ -7,7 +7,7 @@
     <div *ngIf="xyEdit === true">
         <div class="task">Choose X axis and Y axis, then click the button.
             <div class="float-right">
-                <button (click)="newSeries()" class="btn btn-secondary" type="button"
+                <button (click)="newSeries()" class="btn btn-success" type="button"
                     [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
                         class="fa-solid fa-check"></i></button>
             </div>
@@ -97,13 +97,13 @@
     </div>
 
     <div *ngIf="xyEdit === false">
-        <div class="task">Click the button to reset all.
+        <div class="task">Use buttons to edit series or to RESET all.
             <div class="float-right">
                 <button style="margin-right: 3px;" class="btn btn-secondary" type="button"
                     [disabled]="dataSeries.series.length === 0" (click)="xyEdit = true">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button (click)="resetSeries()" class="btn btn-secondary" type="button"
+                <button (click)="reset()" class="btn btn-danger" type="button"
                     [disabled]="xSelected.length === 0 || ySelected.length === 0">
                     <i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -121,15 +121,15 @@
     </div>
 
     <div>
-        <div class="task mt-2">Data definition: {{ params?.anyParams.selection.length }} points to assign <span
-                class="float-right"><button type="button" class="btn btn-secondary" (click)="addDataSeries()"><i
+        <div class="task mt-2">Data definition: {{ params?.anyParams.selection.length }} points to assign. Use button to add a new data series. <span
+                class="float-right"><button type="button" class="btn btn-secondary" (click)="addDataSeries()" [disabled]="!!xyEdit"><i
                         class="fa-regular fa-plus"></i></button></span></div>
         <div *ngIf="dataSeries.xAxis.length > 0 && dataSeries.yAxis.length > 0 && dataSeries.series.length > 0">
             <table class="table table-bordered table-hover w95 centered">
                 <tr>
                     <th>Name</th>
                     <th>Color</th>
-                    <th><button type="button" class="btn btn-outline-dark table-ctrl" [disabled]="!pointButtonEnabled"
+                    <th><button type="button" class="btn btn-outline-dark table-ctrl" [disabled]="!!xyEdit"
                             (click)="addDataToSeries()">Add points to selection</button></th>
                     <th>#Points</th>
                 </tr>
