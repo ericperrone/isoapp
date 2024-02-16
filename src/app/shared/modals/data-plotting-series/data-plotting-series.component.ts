@@ -191,6 +191,13 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   private getColumn(name: string): string[] {
     let column = new Array<string>();
+    if (!!this.dataGrid && this.dataGrid) {
+      let headers = this.dataGrid.getHeader();
+      let rows = this.dataGrid.getRows();
+      console.log(headers);
+      console.log(rows);
+    }
+
     if (!!this.params && !!this.params.anyParams) {
       let hx = -1;
       for (let h of this.params.anyParams.headers) {

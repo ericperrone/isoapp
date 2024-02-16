@@ -9,7 +9,9 @@ export class DataGrid {
     private headers: Array<GridItem> | undefined;
     private originalHeaders: Array<GridItem> | undefined;
     private rows: Array<Array<GridItem>> | undefined;
-
+    private selectedRows = new Array<number>();
+    private selectedIds = new Array<number>();
+    
     constructor(private storeService: StoreService) { }
 
     public init() {
@@ -17,6 +19,26 @@ export class DataGrid {
         if (!this.grid) {
             this.grid = new Array<Array<GridItem>>();
         }
+    }
+
+    public getGrid() {
+        return this.grid;
+    }
+
+    public getHeader() {
+        return this.headers;
+    }
+
+    public getRows() {
+        return this.rows;
+    }
+
+    public getSelectedRows() {
+        return this.selectedRows;
+    }
+
+    public getSelectedIds() {
+        return this.selectedIds;
     }
 
     public persist(): void {
@@ -61,8 +83,7 @@ export class DataGrid {
             this.buildHeader(h);
         }
         this.buildRows(dataSet);
-        console.log(this.headers);
-        console.log(this.rows);
+        this.setSelectedRows(headers, dataSet);
     }
 
     private buildHeader(header: GridItem): void {
@@ -104,6 +125,40 @@ export class DataGrid {
 
             this.rows = this.grid.slice(1);
         }
+    }
+
+    private setSelectedRows(headers: Array<GridItem>, dataSet: Array<Array<GridItem>>): void {
+        if (!!this.grid) {
+            this.selectedRows.length = 0;
+            this.selectedIds.length = 0;
+            let idCol = 0;
+            for (let h of headers) {
+                if (h.content === ITINERIS_ID) {
+                    idCol = h.col;
+                    break;
+                }
+            }
+         
+            for (let i = 0; i < dataSet.length; i++) {
+                this.selectedIds.push(parseInt(dataSet[i][idCol].content));            
+            }
+         
+            let gridIdCol = 0;
+            for (let i = 0; i < this.grid[0].length; i++) {
+                if (this.grid[0][i].content === ITINERIS_ID) {
+                    gridIdCol = this.grid[0][i].col;
+                }
+            }
+
+            for (let i = this.grid.length - 1; i > 0; i--) {
+                for (let s of this.selectedIds) {
+                    if ( s === parseInt(this.grid[i][gridIdCol].content) ) {
+                        this.selectedRows.push(i);
+                        break;
+                    }
+                }                
+            }
+        }        
     }
 
     private adjustExistingRowws(): void {
