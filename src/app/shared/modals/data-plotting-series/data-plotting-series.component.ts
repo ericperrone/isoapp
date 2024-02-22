@@ -97,32 +97,13 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public xLogHandler(): void {
-    if (!!this.xLog) {
-      this.xRangeBak = { ...this.xRange };
-      if (this.xRange.min != 0) {
-        this.xRange.min = Math.log10(this.xRange.min);
-      }
-      if (this.xRange.max != 0) {
-        this.xRange.max = Math.log10(this.xRange.max);
-      }
-    } else {
-      this.xRange = { ...this.xRangeBak };
-    }
-    this.setAxisNames();
+    this.getXYAxis();
+    this.reassignPointsToSeries();
   }
 
   public yLogHandler(): void {
-    if (!!this.yLog) {
-      this.yRangeBak = { ...this.yRange };
-      if (this.yRange.min != 0) {
-        this.yRange.min = Math.log10(this.yRange.min);
-      }
-      if (this.yRange.max != 0) {
-        this.yRange.max = Math.log10(this.yRange.max);
-      }
-    } else {
-      this.yRange = { ...this.yRangeBak };
-    }
+    this.getXYAxis();
+    this.reassignPointsToSeries();
   }
 
   public selectedChange(): void {
@@ -130,67 +111,6 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.reassignPointsToSeries();
   }
 
-  // public xSelectedChange(): void {
-  //   this.getXYAxis();
-  //   this.reassignPointsToSeries();
-  //   // this.getDataByIds();
-  //   // this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
-  //   // this.reassignPointsToSeries();
-  // }
-
-  // public ySelectedChange(): void {
-  //   this.getXYAxis();
-  //   this.reassignPointsToSeries();
-  //   // this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
-  //   // this.reassignPointsToSeries();
-  // }
-
-  // public xSelected2Change(): void {
-  //   this.getXYAxis();
-  //   this.reassignPointsToSeries();
-  //   // this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
-  //   // this.reassignPointsToSeries();
-  // }
-
-  // public ySelected2Change(): void {
-  //   this.getXYAxis();
-  //   this.reassignPointsToSeries();
-  //   // this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
-  //   // this.reassignPointsToSeries();
-  // }
-
-  // private computeRange(selected1: string, operator: string, range: Range, selected2?: string): number[] {
-  //   switch (operator) {
-  //     case '0':
-  //     default:
-  //       // return this.computeNormalRange(selected1, range);
-  //     case '1':
-  //       // return this.computeInverseRange(selected1, range);
-  //     case '2':
-  //       // return this.computeRatioRange(selected1, range, selected2);
-  //   }
-  // }
-
-  // --------------------------------------------------------
-  // IDEA: modificare la logica del pannello: PRIMA si assegnano
-  // le righe alla serie (eventualmente appena creata), POI
-  // si selezionano X e Y.
-  // --------------------------------------------------------
-
-  // --------------------------------------------------------
-  // Si usa per assegnare le RIGHE provenienti dalla query
-  // ad una serie.
-  // --------------------------------------------------------
-  public addRowsToCurrentSeries(): void {
-
-  }
-
-  // --------------------------------------------------------
-  // Si deve agire su tutte le righe selezionate per le serie
-  // e sulle colonne selezionate dalle select.
-  // Il metodo viene richiamato quando si assegnano dei dati
-  // alle serie.
-  // --------------------------------------------------------
 
   private getFloatDataFromGrid(dataSeries: DataSeries): Array<DataSeriesPoint> {
     let points = new Array<DataSeriesPoint>();
@@ -228,18 +148,23 @@ export class DataPlottingSeriesComponent implements OnInit {
       case '0':
         col = this.dataGrid.getHeaderCol(select1);
         value = parseFloat(row[col].content);
+        if (isNaN(value)) value = 0;
         break;
       case '1':
         col = this.dataGrid.getHeaderCol(select1);
         value = parseFloat(row[col].content);
-        value = 1 / value;
+        if (isNaN(value)) value = 0;
+        if (value != 0)
+          value = 1 / value;
         break;
       case '2':
         if (select2.length > 0) {
           col = this.dataGrid.getHeaderCol(select1);
           value = parseFloat(row[col].content);
+          if (isNaN(value)) value = 0;
           let x2Col = this.dataGrid.getHeaderCol(select2);
           let x2Value = parseFloat(row[x2Col].content);
+          if (isNaN(x2Value)) x2Value = 0;
           if (x2Value !== 0)
             value = value / x2Value;
         }
@@ -271,6 +196,12 @@ export class DataPlottingSeriesComponent implements OnInit {
         case '2':
           this.dataSeries.yAxis = this.ySelected + ' / ' + this.ySelected2;
       }
+      if (this.xLog === true) {
+        this.dataSeries.xAxis = 'Log ' + this.dataSeries.xAxis;
+      }
+      if (this.yLog === true) {
+        this.dataSeries.yAxis = 'Log ' + this.dataSeries.yAxis;
+      }
       console.log(this.dataSeries);
     }
   }
@@ -284,40 +215,6 @@ export class DataPlottingSeriesComponent implements OnInit {
       }
     }
   }
-
-  private getColumn(name: string): string[] {
-    let column = new Array<string>();
-    this.grid = this.dataGrid.getGrid();
-    if (!!this.dataGrid && !!this.grid) {
-      let headers = this.dataGrid.getHeader();
-      let selection = new Array<Array<GridItem>>();
-      let selectedRows = this.dataGrid.getSelectedRows();
-
-      for (let sel of selectedRows) {
-        selection.push(this.grid[sel]);
-      }
-      console.log(selection);
-
-      if (!!headers) {
-        let hx = -1;
-        for (let h of headers) {
-          if (h.content === name) {
-            hx = h.col;
-            break;
-          }
-        }
-
-        if (hx > 0) {
-          for (let x of selection) {
-            column.push(x[hx].content);
-          }
-        }
-      }
-    }
-
-    return column;
-  }
-
 
   public addDataSeries(): void {
     if (!!this.dataSeries) {
