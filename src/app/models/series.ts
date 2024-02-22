@@ -1,3 +1,5 @@
+import { List } from "../shared/list";
+
 export const ChartShapes = [
     'circle',
     'cross',
@@ -14,9 +16,9 @@ export interface Series {
 }
 
 export interface DataSeries {
-    samples: Array<number>;
+    samples: List<number>;
     selected: boolean;
-    data: Array<DataSeriesPoint>;
+    data: List<DataSeriesPoint>;
     shape: DataSeriesShape;
     name: string;
 }

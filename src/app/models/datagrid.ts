@@ -11,7 +11,7 @@ export class DataGrid {
     private rows: Array<Array<GridItem>> | undefined;
     private selectedRows = new Array<number>();
     private selectedIds = new Array<number>();
-    
+
     constructor(private storeService: StoreService) { }
 
     public init() {
@@ -94,7 +94,7 @@ export class DataGrid {
             if (!this.headers) {
                 let h = new Array<GridItem>();
                 let nheader = { ...header };
-                nheader.col = 0;                
+                nheader.col = 0;
                 h.push(nheader)
                 this.grid.push(h);
                 this.headers = this.grid[0];
@@ -127,6 +127,66 @@ export class DataGrid {
         }
     }
 
+    private getItinerisCol(): number {
+        if (!!this.grid) {
+            let headers = this.grid[0];
+            let idCol = 0;
+            for (let h of headers) {
+                if (h.content === ITINERIS_ID) {
+                    idCol = h.col;
+                    break;
+                }
+            }
+            return idCol;
+        }
+        return -1;
+    }
+
+    public getHeaderCol(name: string): number {
+        let col = -1;
+        if (!this.headers)
+            return col;
+        for (let h of this.headers) {
+            if (h.content === name) {
+                col = h.col;
+                break;
+            }
+        }
+        return col;
+    }
+
+    public getGridRowById(id: number): Array<GridItem> | undefined {
+        if (!!this.grid) {
+            let idCol = this.getItinerisCol();
+            for (let r of this.grid) {
+                if (r[idCol].content === '' + id)
+                    return r;
+            }
+        }
+        return undefined;
+    }
+
+    // public selectRowsByIds(ids: Array<number>): void {
+    //     if (!!this.grid) {
+    //         this.selectedRows.length = 0;
+    //         this.selectedIds.length = 0;
+    //         let idCol = this.getItinerisCol();
+    //         if (idCol < 0)
+    //             return;
+
+    //         for (let id of ids) {
+    //             this.selectedIds.push(id);
+    //             for (let i = 1; i < this.grid.length; i++) {
+    //                 if (this.grid[i][idCol].content === '' + id) {
+    //                     this.selectedRows.push(i);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     console.log(this.selectedIds);
+    //     console.log(this.selectedRows);
+    // }
+
     private setSelectedRows(headers: Array<GridItem>, dataSet: Array<Array<GridItem>>): void {
         if (!!this.grid) {
             this.selectedRows.length = 0;
@@ -138,27 +198,28 @@ export class DataGrid {
                     break;
                 }
             }
-         
+
             for (let i = 0; i < dataSet.length; i++) {
-                this.selectedIds.push(parseInt(dataSet[i][idCol].content));            
+                this.selectedIds.push(parseInt(dataSet[i][idCol].content));
             }
-         
+
             let gridIdCol = 0;
             for (let i = 0; i < this.grid[0].length; i++) {
                 if (this.grid[0][i].content === ITINERIS_ID) {
                     gridIdCol = this.grid[0][i].col;
+                    break;
                 }
             }
 
             for (let i = this.grid.length - 1; i > 0; i--) {
                 for (let s of this.selectedIds) {
-                    if ( s === parseInt(this.grid[i][gridIdCol].content) ) {
+                    if (s === parseInt(this.grid[i][gridIdCol].content)) {
                         this.selectedRows.push(i);
                         break;
                     }
-                }                
+                }
             }
-        }        
+        }
     }
 
     private adjustExistingRowws(): void {
@@ -170,7 +231,7 @@ export class DataGrid {
                     if (!row[j]) {
                         row.push({ header: false, visible: false, selected: false, row: i, col: this.headers[j].col, content: '', check: false, type: this.headers[j].type });
                     }
-                }    
+                }
             }
         }
     }

@@ -35,7 +35,7 @@ export class PlottingComponent implements OnInit {
 
   public getChartInstance(chart: object) {
     this.charts = chart;
-    console.log(this.charts);
+    // console.log(this.charts);
   }
 
   public chartSizeChange() {
@@ -101,7 +101,7 @@ export class PlottingComponent implements OnInit {
       data: series
     }
 
-    console.log(this.chartOptions);
+    // console.log(this.chartOptions);
   }
 
 }

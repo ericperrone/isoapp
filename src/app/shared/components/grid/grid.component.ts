@@ -217,12 +217,12 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   public onRightClick(event: any) {
     event.preventDefault();
-    console.log(event);
+    // console.log(event);
   }
 
   public onCheck(gi: GridItem, event: any) {
     event.preventDefault();
-    console.log(event);
+    // console.log(event);
     if (!event.altKey) {
       this.checkSelection(gi);
     } else {
@@ -290,7 +290,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
     this.tableOn = true;
-    console.log(this.selectedRowsIndex);
+    // console.log(this.selectedRowsIndex);
   }
 
 

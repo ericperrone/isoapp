@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Series, DataSeries, DATA_SERIES, ChartShapes } from 'src/app/models/series';
+import { Series, DataSeries, DATA_SERIES, ChartShapes, DataSeriesPoint } from 'src/app/models/series';
 import { StoreService } from 'src/app/services/common/store.service';
 import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -8,6 +8,7 @@ import { GridItem } from '../../components/grid/grid.component';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { DataGrid } from 'src/app/models/datagrid';
 import { ConfirmComponent } from '../confirm/confirm.component';
+import { List } from '../../list';
 
 export interface Range {
   min: number;
@@ -24,7 +25,7 @@ export const RGBColors = [
   styleUrls: ['./data-plotting-series.component.scss']
 })
 export class DataPlottingSeriesComponent implements OnInit {
-  private grid: Array<Array<GridItem>> = new Array<Array<GridItem>>();
+  private grid: Array<Array<GridItem>> | undefined;
   public xyEdit: boolean = true;
   public chartWidth: number = 1400;
   public chartHeight: number = 850;
@@ -66,9 +67,10 @@ export class DataPlottingSeriesComponent implements OnInit {
       if (this.dataSeries.xAxis && this.dataSeries.xAxis.length > 0 && this.dataSeries.yAxis && this.dataSeries.yAxis.length > 0) {
         this.xSelected = this.dataSeries.xAxis;
         this.ySelected = this.dataSeries.yAxis;
-        this.xyEdit = false;
+        this.xyEdit = true;
       }
-      console.log(ds);
+    } else {
+      this.addDataSeries();
     }
     if (!!this.params && !!this.params.list) {
       console.log(this.params);
@@ -84,13 +86,13 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public xOperatorChange(): void {
     if (this.xOperator === '1' || this.xOperator === '0') {
-      this.xSelectedChange();
+      this.selectedChange();
     }
   }
 
   public yOperatorChange(): void {
     if (this.yOperator === '1' || this.yOperator === '0') {
-      this.ySelectedChange();
+      this.selectedChange();
     }
   }
 
@@ -123,164 +125,234 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
-  public xSelectedChange(): void {
-    // this.getDataByIds();
-    this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+  public selectedChange(): void {
+    this.getXYAxis();
+    this.reassignPointsToSeries();
   }
 
-  public ySelectedChange(): void {
-    this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+  // public xSelectedChange(): void {
+  //   this.getXYAxis();
+  //   this.reassignPointsToSeries();
+  //   // this.getDataByIds();
+  //   // this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+  //   // this.reassignPointsToSeries();
+  // }
+
+  // public ySelectedChange(): void {
+  //   this.getXYAxis();
+  //   this.reassignPointsToSeries();
+  //   // this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+  //   // this.reassignPointsToSeries();
+  // }
+
+  // public xSelected2Change(): void {
+  //   this.getXYAxis();
+  //   this.reassignPointsToSeries();
+  //   // this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
+  //   // this.reassignPointsToSeries();
+  // }
+
+  // public ySelected2Change(): void {
+  //   this.getXYAxis();
+  //   this.reassignPointsToSeries();
+  //   // this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
+  //   // this.reassignPointsToSeries();
+  // }
+
+  // private computeRange(selected1: string, operator: string, range: Range, selected2?: string): number[] {
+  //   switch (operator) {
+  //     case '0':
+  //     default:
+  //       // return this.computeNormalRange(selected1, range);
+  //     case '1':
+  //       // return this.computeInverseRange(selected1, range);
+  //     case '2':
+  //       // return this.computeRatioRange(selected1, range, selected2);
+  //   }
+  // }
+
+  // --------------------------------------------------------
+  // IDEA: modificare la logica del pannello: PRIMA si assegnano
+  // le righe alla serie (eventualmente appena creata), POI
+  // si selezionano X e Y.
+  // --------------------------------------------------------
+
+  // --------------------------------------------------------
+  // Si usa per assegnare le RIGHE provenienti dalla query
+  // ad una serie.
+  // --------------------------------------------------------
+  public addRowsToCurrentSeries(): void {
+
   }
 
-  public xSelected2Change(): void {
-    this.xData = this.computeRange(this.xSelected, this.xOperator, this.xRange, (this.xOperator === '2' && this.xSelected2) ? this.xSelected2 : undefined);
-  }
+  // --------------------------------------------------------
+  // Si deve agire su tutte le righe selezionate per le serie
+  // e sulle colonne selezionate dalle select.
+  // Il metodo viene richiamato quando si assegnano dei dati
+  // alle serie.
+  // --------------------------------------------------------
 
-  public ySelected2Change(): void {
-    this.yData = this.computeRange(this.ySelected, this.yOperator, this.yRange, (this.yOperator === '2' && this.ySelected2) ? this.ySelected2 : undefined);
-  }
-
-  private computeRange(selected1: string, operator: string, range: Range, selected2?: string): number[] {
-    switch (operator) {
-      case '0':
-      default:
-        return this.computeNormalRange(selected1, range);
-      case '1':
-        return this.computeInverseRange(selected1, range);
-      case '2':
-        return this.computeRatioRange(selected1, range, selected2);
-    }
-  }
-
-  private sort(x: number[]): number[] {
-    let ordered = [...x];
-    return ordered.sort((x, y) => x - y);
-  }
-
-  private computeNormalRange(selected: string, range: Range): number[] {
-    let values: number[] = this.getFloatValues(selected, false);
-    let ordered = this.sort(values);
-    range.min = ordered[0];
-    range.max = ordered[ordered.length - 1];
-    return values;
-  }
-
-  private computeInverseRange(selected: string, range: Range): number[] {
-    let values: number[] = this.getFloatValues(selected, true);
-    let ordered = this.sort(values);
-    range.min = ordered[0];
-    range.max = ordered[ordered.length - 1];
-    return values;
-  }
-
-  private computeRatioRange(selected1: string, range: Range, selected2?: string): number[] {
-    let values = new Array<number>();
-    if (!!selected2) {
-      let valuesN: number[] = this.getFloatValues(selected1, false);
-      let valuesD: number[] = this.getFloatValues(selected2, false);
-      for (let i = 0; i < valuesN.length; i++) {
-        if (valuesD[i] !== 0)
-          values.push(valuesN[i] / valuesD[i]);
+  private getFloatDataFromGrid(dataSeries: DataSeries): Array<DataSeriesPoint> {
+    let points = new Array<DataSeriesPoint>();
+    if (!!this.dataGrid && this.xSelected.length > 0 && this.ySelected.length > 0 && !!this.dataGrid.getGrid()) {
+      this.grid = this.dataGrid.getGrid();
+      let header = this.dataGrid.getHeader();
+      for (let s of dataSeries.samples) {
+        let row = this.dataGrid.getGridRowById(s);
+        if (row) {
+          let xCol = 0;
+          let xValue = 0;
+          let yValue = 0;
+          xValue = this.getFloatValue(row, this.xSelected, this.xSelected2, this.xOperator);
+          yValue = this.getFloatValue(row, this.ySelected, this.ySelected2, this.yOperator);
+          if (xValue != 0 && yValue != 0) {
+            if (this.xLog && xValue > 0) {
+              xValue = Math.log10(xValue);
+            }
+            if (this.yLog && yValue > 0) {
+              yValue = Math.log10(yValue);
+            }
+            points.push({ x: xValue, y: yValue });
+          }
+        }
       }
-      let ordered = this.sort(values);
-      range.min = ordered[0];
-      range.max = ordered[ordered.length - 1];
     }
-    return values;
+    return points;
+  }
+
+  private getFloatValue(row: Array<GridItem>, select1: string, select2: string, operator: string): number {
+    let col = 0;
+    let value = 0;
+    switch (operator) {
+      default:
+      case '0':
+        col = this.dataGrid.getHeaderCol(select1);
+        value = parseFloat(row[col].content);
+        break;
+      case '1':
+        col = this.dataGrid.getHeaderCol(select1);
+        value = parseFloat(row[col].content);
+        value = 1 / value;
+        break;
+      case '2':
+        if (select2.length > 0) {
+          col = this.dataGrid.getHeaderCol(select1);
+          value = parseFloat(row[col].content);
+          let x2Col = this.dataGrid.getHeaderCol(select2);
+          let x2Value = parseFloat(row[x2Col].content);
+          if (x2Value !== 0)
+            value = value / x2Value;
+        }
+    }
+    return value;
+  }
+
+  private getXYAxis(): void {
+    if (!!this.dataSeries && this.xSelected.length > 0 && this.ySelected.length > 0) {
+      switch (this.xOperator) {
+        default:
+        case '0':
+          this.dataSeries.xAxis = this.xSelected;
+          break;
+        case '1':
+          this.dataSeries.xAxis = '1 / ' + this.xSelected;
+          break;
+        case '2':
+          this.dataSeries.xAxis = this.xSelected + ' / ' + this.xSelected2;
+      }
+      switch (this.yOperator) {
+        default:
+        case '0':
+          this.dataSeries.yAxis = this.ySelected;
+          break;
+        case '1':
+          this.dataSeries.yAxis = '1 / ' + this.ySelected;
+          break;
+        case '2':
+          this.dataSeries.yAxis = this.ySelected + ' / ' + this.ySelected2;
+      }
+      console.log(this.dataSeries);
+    }
+  }
+
+  private reassignPointsToSeries(): void {
+    for (let ds of this.dataSeries.series) {
+      ds.data = new List<DataSeriesPoint>();
+      let points = this.getFloatDataFromGrid(ds);
+      for (let p of points) {
+        ds.data.only1Push(p);
+      }
+    }
   }
 
   private getColumn(name: string): string[] {
     let column = new Array<string>();
-    if (!!this.dataGrid && this.dataGrid) {
+    this.grid = this.dataGrid.getGrid();
+    if (!!this.dataGrid && !!this.grid) {
       let headers = this.dataGrid.getHeader();
-      let rows = this.dataGrid.getRows();
-      console.log(headers);
-      console.log(rows);
-    }
+      let selection = new Array<Array<GridItem>>();
+      let selectedRows = this.dataGrid.getSelectedRows();
 
-    if (!!this.params && !!this.params.anyParams) {
-      let hx = -1;
-      for (let h of this.params.anyParams.headers) {
-        if (h.content === name) {
-          hx = h.col;
-          break;
+      for (let sel of selectedRows) {
+        selection.push(this.grid[sel]);
+      }
+      console.log(selection);
+
+      if (!!headers) {
+        let hx = -1;
+        for (let h of headers) {
+          if (h.content === name) {
+            hx = h.col;
+            break;
+          }
+        }
+
+        if (hx > 0) {
+          for (let x of selection) {
+            column.push(x[hx].content);
+          }
         }
       }
-
-      if (hx > 0) {
-        for (let x of this.params.anyParams.selection) {
-          // if (x[hx].content.length > 0)
-          column.push(x[hx].content);
-        }
-      }
-
     }
+
     return column;
   }
 
-  private getFloatValues(headerName: string, inverse: boolean): number[] {
-    let data: string[] = this.getColumn(headerName);
-    let values = new Array<number>();
-    for (let d of data) {
-      if (d.length === 0) {
-        values.push(0);
-      } else {
-        if (!inverse)
-          values.push(parseFloat(d));
-        else {
-          let x = parseFloat(d);
-          values.push(1 / x);
-        }
-      }
-    }
-    return values;
-  }
 
   public addDataSeries(): void {
     if (!!this.dataSeries) {
-      this.dataSeries.series.push({ name: this.name, samples: [], data: [], selected: false, shape: { color: RGBColors[this.dataSeries.series.length], shape: '' } });
+      this.dataSeries.series.push({ name: this.name, samples: new List(), data: new List<DataSeriesPoint>(), selected: true, shape: { color: RGBColors[this.dataSeries.series.length], shape: '' } });
       this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     }
   }
 
+  private addDataToThisSeries(activeDataSeries: DataSeries): void {
+    let ids = this.dataGrid.getSelectedIds();
+    if (!!ids) {
+      for (let id of ids) {
+        activeDataSeries?.samples.only1Push(id);
+      }
+      if (!activeDataSeries.data) {
+        activeDataSeries.data = new List<DataSeriesPoint>();
+      }
+      let points = this.getFloatDataFromGrid(activeDataSeries);
+      for (let p of points) {
+        activeDataSeries.data.only1Push(p);
+      }
+    }
+    console.log(this.dataSeries);
+  }
+
   public addDataToSeries(): void {
-    let activeDataSeries;
     if (!!this.dataSeries) {
       for (let ds of this.dataSeries.series) {
         if (ds.selected) {
-          activeDataSeries = ds;
+          this.addDataToThisSeries(ds);
           break;
         }
       }
-
-      if (this.xData.length <= 0) {
-        this.xData = this.computeRange(this.xSelected, this.xOperator, { min: 0, max: 0 }, this.xSelected2.length > 0 ? this.xSelected2 : undefined);
-        this.yData = this.computeRange(this.ySelected, this.yOperator, { min: 0, max: 0 }, this.ySelected2.length > 0 ? this.ySelected2 : undefined);
-      }
-
-      if (this.xLog) {
-        for (let i = 0; i < this.xData.length; i++) {
-          this.xData[i] = this.xData[i] > 0 ? this.xData[i] = Math.log10(this.xData[i]) : this.xData[i];
-        }
-      }
-
-      if (this.yLog) {
-        for (let i = 0; i < this.yData.length; i++) {
-          this.yData[i] > 0 ? this.yData[i] = Math.log10(this.yData[i]) : this.yData[i];
-        }
-      }
-
-      for (let i = 0; i < this.xData.length; i++) {
-        if (this.xData[i] === 0 || this.yData[i] === 0) {
-          continue;
-        }
-        if ((this.xRange.min <= this.xData[i] && this.xData[i] <= this.xRange.max) &&
-          (this.yRange.min <= this.yData[i] && this.yData[i] <= this.yRange.max))
-          activeDataSeries?.data.push({ x: this.xData[i], y: this.yData[i] });
-      }
     }
   }
-
 
   public plot(): void {
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
@@ -331,11 +403,11 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public newSeries() {
-    this.xyEdit = false;
+    this.xyEdit = true;
     this.setAxisNames();
     if (this.dataSeries.series.length === 0) {
       this.dataSeries.series = [];
-      this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });  
+      this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     }
   }
 
@@ -413,7 +485,4 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
-  private buildGrid(): void {
-
-  }
 }
