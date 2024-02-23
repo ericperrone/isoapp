@@ -85,32 +85,59 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public xOperatorChange(): void {
-    if (this.xOperator === '1' || this.xOperator === '0') {
-      this.selectedChange();
-    }
+    this.selectedChange();
+    // if (this.xOperator === '1' || this.xOperator === '0') {
+    //   this.selectedChange();
+    // }
   }
 
   public yOperatorChange(): void {
-    if (this.yOperator === '1' || this.yOperator === '0') {
-      this.selectedChange();
-    }
+    this.selectedChange();
+    // if (this.yOperator === '1' || this.yOperator === '0') {
+    //   this.selectedChange();
+    // }
   }
 
   public xLogHandler(): void {
     this.getXYAxis();
     this.reassignPointsToSeries();
+    this.setRange();
   }
 
   public yLogHandler(): void {
     this.getXYAxis();
     this.reassignPointsToSeries();
+    this.setRange();
   }
 
   public selectedChange(): void {
     this.getXYAxis();
     this.reassignPointsToSeries();
+    this.setRange();
   }
 
+  private setRange(): void {
+    let x = new Array<number>();
+    let y = new Array<number>();
+    this.xRange = { min: -10000, max: 10000 };
+    this.yRange = { min: -10000, max: 10000 };
+    if (!!this.dataSeries) {
+      for (let s of this.dataSeries.series) {
+        for (let d of s.data) {
+          x.push(d.x);
+          y.push(d.y);
+        }
+      }
+      if (x.length > 0 && y.length > 0) {
+        x = x.sort((a, b) => a - b);
+        y = y.sort((a, b) => a - b);
+        this.xRange = { min: x[0], max: x[x.length - 1] };
+        this.yRange = { min: y[0], max: y[y.length - 1] };
+      }
+    }
+    console.log(this.xRange);
+    console.log(this.yRange);
+  }
 
   private getFloatDataFromGrid(dataSeries: DataSeries): Array<DataSeriesPoint> {
     let points = new Array<DataSeriesPoint>();
@@ -248,6 +275,7 @@ export class DataPlottingSeriesComponent implements OnInit {
           break;
         }
       }
+      this.setRange();
     }
   }
 
