@@ -38,10 +38,17 @@ export interface GeorocReference {
     publicationYear: number;
 }
 
+export interface GeorocResult {
+    itemName: string;
+    value: number;
+    unit: string;
+}
+
 export interface GeorocData {
     sampleNum?: number;
-    sampleId?: number;
+    sampleID?: number;
     sampleName: string;
+    results?: Array<GeorocResult>;
     uniqueID?: string;
     batches?: Array<number>;
     references?: Array<GeorocReference>;
@@ -81,7 +88,7 @@ export interface GeorocNative {
 }
 
 export function toGeorocFullData(gData: GeorocData): GeorocFullData {
-    let fullData: GeorocFullData = {};
+    let fullData: GeorocFullData = {};    
     if (!isEmpty(gData)) {
         fullData.authors = getAuthors(gData);
         fullData.dataset = getDataset(gData);
@@ -98,20 +105,20 @@ export function toGeorocFullData(gData: GeorocData): GeorocFullData {
 function buildSample(data: GeorocData): Sample {
     let sample: Sample = { fields: new Array<SampleElement>, components: new Array<ChemComponent>() };
     let d = data;
-    if (!!d && !!d.itemName && !!d.values && !!d.units) {
-        for (let i = 0; i < d.itemName?.length; i++) {
+    if (!!d && !!d.results) {
+        for (let i = 0; i < d.results?.length; i++) {
             let cc: ChemComponent = {
-                component: d.itemName[i] + (!!d.units[i] ? ' (' + d.units[i] + ')' : ''),
-                value: '' + d.values[i],
-                isIsotope: checkIsotope(d.itemName[i]),
-                um: d.units[i]
+                component: d.results[i].itemName + (!!d.results[i].unit ? ' (' + d.results[i].unit + ')' : ''),
+                value: '' + d.results[i].value,
+                isIsotope: checkIsotope(d.results[i].itemName),
+                um: d.results[i].unit
             };
             sample.components.push(cc);
         }
         sample.fields.push({ field: 'SAMPLE NAME', value: d.sampleName });
         sample.fields.push({ field: 'LATITUDE', value: '' + d.latitude });
         sample.fields.push({ field: 'LONGITUDE', value: '' + d.longitude });
-        sample.fields.push({ field: 'GEOROC_ID', value: '' + d.sampleId });
+        sample.fields.push({ field: 'GEOROC_ID', value: '' + d.sampleID });
         let loc = '';
         if (!!d.locationNames)            
             for (let i = 0; i < d.locationNames.length; i++) {
