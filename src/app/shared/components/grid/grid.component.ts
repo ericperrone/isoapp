@@ -429,6 +429,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
     for (let r of this.gridRows) {
       for (let item of r) {
+        // console.log(this.gridHeader[item.col].content + ": " + item.content);
         if (item.visible === true) {
           csv += item.content + ';';
         }

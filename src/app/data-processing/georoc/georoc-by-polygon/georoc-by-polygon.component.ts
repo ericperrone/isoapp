@@ -6,7 +6,7 @@ import { CANCEL, CONFIRM, DataListItem, ModalParams } from 'src/app/shared/modal
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { GeorocService } from 'src/app/services/georoc/georoc.service';
-import { GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
+import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { Subscription } from 'rxjs';
@@ -177,7 +177,7 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
       return;
     }
     let sampleData = this.georocService.getSampleFullData(this.sampleList[this.sampleIndex]).subscribe(
-      (res: GeorocNative) => {
+      (res: GeorocData) => {
         console.log(res);
         let fullData: GeorocFullData = toGeorocFullData(res);
         console.log(fullData);

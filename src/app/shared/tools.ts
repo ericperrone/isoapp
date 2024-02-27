@@ -50,3 +50,8 @@ export function saveCsvFile(csv: string): void {
     const universalBOM = "\uFEFF";
     window.open("data:text/csv;charset=utf-16," + encodeURIComponent(universalBOM + csv));
 }
+
+export function isEmpty(object: any): boolean {
+    let obj = '' + JSON.stringify(object);
+    return obj === '{}' || obj === 'undefined' || obj === 'null' ;
+}

@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
-import { GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
+import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeorocService } from 'src/app/services/georoc/georoc.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
@@ -206,7 +206,7 @@ export class GeorocByLocationsComponent implements OnInit {
       return;
     }
     let sampleData = this.geoRocService.getSampleFullData(this.sampleList[this.sampleIndex]).subscribe(
-      (res: GeorocNative) => {
+      (res: GeorocData) => {
         console.log(res);
         let fullData: GeorocFullData = toGeorocFullData(res);
         console.log(fullData);

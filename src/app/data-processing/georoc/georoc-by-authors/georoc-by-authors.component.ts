@@ -11,6 +11,7 @@ import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
+import { isEmpty } from 'src/app/shared/tools';
 
 export const FULL_DATA_LOOP = '_FULL_DATA_LOOP_';
 
@@ -42,7 +43,7 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
   public filteredAuthors: any;
   public waitingSpinner = false;
   public selection: any;
-  public finalReport: FinalReport = {author: '', items: 0, inserted: 0, rejected: 0};
+  public finalReport: FinalReport = { author: '', items: 0, inserted: 0, rejected: 0 };
   private previousSelection: any;
   private sampleList = new Array<number>();
   private sampleIndex = 0;
@@ -59,20 +60,20 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAuthors();
-    
+
     this.loop = this.eventGeneratorService.on(FULL_DATA_LOOP).subscribe(
       () => {
         this.sampleIndex++;
         if (this.sampleIndex >= this.sampleList.length) {
           this.progress.close();
           // console.log(this.finalReport);
- 
+
           let listInfo = new Array<DataListItem>();
           listInfo.push({ key: 'Author', value: '' + this.finalReport.author });
           listInfo.push({ key: 'Processed', value: '' + this.finalReport.items });
           listInfo.push({ key: 'Inserted', value: '' + this.finalReport.inserted });
           listInfo.push({ key: 'Rejected', value: '' + this.finalReport.rejected + ' (already in database)' });
-        
+
           let params: ModalParams = {
             headerText: 'Final report',
             list: listInfo
@@ -80,7 +81,7 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
 
           let ref = this.modalService.open(AlertComponent, { centered: true });
           ref.componentInstance.params = params;
-          ref.componentInstance.emitter.subscribe(() => { this.finalReport = {author: '', items: 0, inserted: 0, rejected: 0}; ref.close(); });
+          ref.componentInstance.emitter.subscribe(() => { this.finalReport = { author: '', items: 0, inserted: 0, rejected: 0 }; ref.close(); });
         } else {
           this.eventGeneratorService.emit({
             key: PROGRESS_TEXT,
@@ -243,7 +244,7 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
             ref.close();
             if (response === CONFIRM) {
               this.sampleIndex = 0;
-              
+
               this.progress = this.modalService.open(ProgressComponent, { centered: true });
               ref.componentInstance.params = {
                 bodyText: 'Processed ' + this.sampleIndex + ' items of ' + this.sampleList.length
@@ -253,7 +254,7 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
           }
         );
         sub.unsubscribe();
-      }     
+      }
     );
   }
 
@@ -263,24 +264,26 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
       return;
     }
     let sampleData = this.geoRocService.getSampleFullData(this.sampleList[this.sampleIndex]).subscribe(
-      (res: GeorocNative) => {
+      (res: GeorocData) => {
         console.log(res);
         let fullData: GeorocFullData = toGeorocFullData(res);
         console.log(fullData);
-        let s = this.sampleService.insertFullData(fullData).subscribe(
-          (res: any) => {
-            console.log(res);
-            let r = parseInt(res.result);
-            if (r === 1) {
-              this.finalReport.inserted ++;
-            } else {
-              this.finalReport.rejected ++;
+        if (!isEmpty(fullData)) {
+          let s = this.sampleService.insertFullData(fullData).subscribe(
+            (res: any) => {
+              console.log(res);
+              let r = parseInt(res.result);
+              if (r === 1) {
+                this.finalReport.inserted++;
+              } else {
+                this.finalReport.rejected++;
+              }
+              s.unsubscribe();
+              this.eventGeneratorService.emit({ key: FULL_DATA_LOOP });
             }
-            s.unsubscribe();
-            this.eventGeneratorService.emit({key: FULL_DATA_LOOP});
-          }
-        );
-        sampleData.unsubscribe();
+          );
+          sampleData.unsubscribe();
+        }
       }
     );
   }

@@ -1,3 +1,4 @@
+import { isEmpty } from "../shared/tools";
 import { Author } from "./author";
 import { Dataset } from "./dataset";
 import { Sample, SampleElement, ChemComponent } from "./sample";
@@ -38,7 +39,8 @@ export interface GeorocReference {
 }
 
 export interface GeorocData {
-    sampleNum: number;
+    sampleNum?: number;
+    sampleId?: number;
     sampleName: string;
     uniqueID?: string;
     batches?: Array<number>;
@@ -78,19 +80,24 @@ export interface GeorocNative {
     data?: Array<GeorocData>;
 }
 
-export function toGeorocFullData(gData: GeorocNative): GeorocFullData {
+export function toGeorocFullData(gData: GeorocData): GeorocFullData {
     let fullData: GeorocFullData = {};
-    if (!!gData.data && gData.data.length > 0) {
-        fullData.authors = getAuthors(gData.data);
-        fullData.dataset = getDataset(gData.data);
-        fullData.sample = buildSample(gData.data);
+    if (!isEmpty(gData)) {
+        fullData.authors = getAuthors(gData);
+        fullData.dataset = getDataset(gData);
+        fullData.sample = buildSample(gData);
     }
+    // if (!!gData.data && gData.data.length > 0) {
+    //     fullData.authors = getAuthors(gData.data);
+    //     fullData.dataset = getDataset(gData.data);
+    //     fullData.sample = buildSample(gData.data);
+    // }
     return fullData;
 }
 
-function buildSample(data: GeorocData[]): Sample {
+function buildSample(data: GeorocData): Sample {
     let sample: Sample = { fields: new Array<SampleElement>, components: new Array<ChemComponent>() };
-    let d = data[0];
+    let d = data;
     if (!!d && !!d.itemName && !!d.values && !!d.units) {
         for (let i = 0; i < d.itemName?.length; i++) {
             let cc: ChemComponent = {
@@ -104,21 +111,21 @@ function buildSample(data: GeorocData[]): Sample {
         sample.fields.push({ field: 'SAMPLE NAME', value: d.sampleName });
         sample.fields.push({ field: 'LATITUDE', value: '' + d.latitude });
         sample.fields.push({ field: 'LONGITUDE', value: '' + d.longitude });
-        sample.fields.push({ field: 'GEOROC_ID', value: '' + d.sampleNum });
+        sample.fields.push({ field: 'GEOROC_ID', value: '' + d.sampleId });
         let loc = '';
         if (!!d.locationNames)            
             for (let i = 0; i < d.locationNames.length; i++) {
                 // sample.fields.push({ field: 'LOCATION ' + (i + 1), value: d.locationNames[i] });
-                loc += d.locationNames[i] + ';;';
+                loc += d.locationNames[i] + '::';
             }
             sample.fields.push({ field: 'LOCATIONS', value: loc });
     }
     return sample;
 }
 
-function getDataset(data: GeorocData[]): Dataset {
+function getDataset(data: GeorocData): Dataset {
     let dataset: Dataset = { fileName: '_GEOROC_', metadata: '', ref: '', authors: '', year: 0, processed: true };
-    let d = data[0];
+    let d = data;
     if (!!d.references) {
         for (let ref of d.references) {
             dataset.ref = ref.doi ? ref.doi : '';
@@ -143,9 +150,9 @@ function getDataset(data: GeorocData[]): Dataset {
     return dataset;
 }
 
-function getAuthors(data: GeorocData[]): Array<Author> {
+function getAuthors(data: GeorocData): Array<Author> {
     let authors = new Array<Author>();
-    let d = data[0];
+    let d = data;
     if (!!d.references) {
         for (let r of d.references) {
             for (let a of r.authors) {
