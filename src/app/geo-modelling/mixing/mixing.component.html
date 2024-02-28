@@ -1,4 +1,4 @@
-<div class="application-frame">
+<div class="application-frame" style="background-color: white;">
     <div *ngIf="!chartView">
         <div>
             <app-end-member [members]="params?.endMembers" (outMember)="getAnalyzedMembers($event)"
@@ -83,13 +83,42 @@
         </div>
     </div>
     <div *ngIf="!!chartView">
-        <div class="w95 centered mt-2 text-right">
+        <!-- <div class="w95 centered mt-2 text-right">
             <button class="btn btn-primary m-1" (click)="plot(geoData, geoModelsService)"><i class="fa-solid fa-asterisk"></i> Plot</button>
             <button class="btn btn-primary m-1" (click)="chartView = false"><i class="fa-solid fa-circle-left"></i>
                 Back to data</button>
-        </div>
-        <div class="centered">
-            <canvasjs-chart [options]="chartOptions" [styles]="{width: '95%', height:'95%'}" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
+        </div> -->
+
+        <div class="row header pt-1 pb-1" style="background-color: white;">
+            <div class="col-1 text-right">
+                Width: 
+            </div>
+            <div class="col-1">
+                <input type="number" class="form-control" [(ngModel)]="chartWidth" (ngModelChange)="changeSize = true">
+            </div>
+            <div class="col-1 text-right">
+                Height: 
+            </div>
+            <div class="col-1">
+                <input type="number" class="form-control" [(ngModel)]="chartHeight" (ngModelChange)="changeSize = true">
+            </div>
+            <div class="col-1">
+                <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()" [disabled]="!changeSize"><i class="fa-solid fa-expand"></i></button>
+            </div>
+            <div class="col-5">&nbsp;</div>
+            <div class="col-1 text-right">
+                <button class="btn btn-primary m-1" (click)="plot(geoData, geoModelsService)"><i class="fa-solid fa-asterisk"></i> Plot</button>
+            </div>
+            <div class="col-1 text-right">
+                <button class="btn btn-primary m-1" (click)="chartView = false"><i class="fa-solid fa-circle-left"></i>
+                    Back to data</button>
+    
+            </div>
+    
+
+        <div class="centered" style="background-color: white;">
+            <!-- <canvasjs-chart [options]="chartOptions" [styles]="{width: '95%', height:'95%'}" (chartInstance)="getChartInstance($event)"></canvasjs-chart> -->
+            <canvasjs-chart [options]="chartOptions" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
         </div>
     </div>
 </div>

@@ -80,6 +80,11 @@ export class MixingComponent implements OnInit, OnDestroy {
   public xPoint = 0;
   public yPoint = 0;
   public charts: any;
+  public chartWidth: number = 1400;
+  public chartHeight: number = 800;
+  public fontSize = 16;
+  public legendFontSize = 20;
+  public changeSize = false;
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private modalService: NgbModal,
@@ -131,6 +136,17 @@ export class MixingComponent implements OnInit, OnDestroy {
     if (!!this.subEndMemberSet) {
       this.subEndMemberSet.unsubscribe();
     }
+  }
+
+  public chartSizeChange() {
+    this.changeSize = false;
+    // this.chartOptions = {};
+    // this.draw = false;
+    // this.drawChart();
+    setTimeout(() => {
+      // this.draw = true;
+      this.chart();
+    }, 50);
   }
 
   public close(): void {
@@ -504,14 +520,22 @@ export class MixingComponent implements OnInit, OnDestroy {
       this.chartOptions = {
         animationEnabled: true,
         theme: "light2",
-        title: {
-          text: "Mixing model"
-        },
+        exportEnabled: true,
+        zoomEnabled: true,
+        width: this.chartWidth,
+        height: this.chartHeight,  
+        // title: {
+        //   text: "Mixing model",
+        // },
         axisX: {
           title: '' + xText,
+          titleFontSize: this.fontSize,
+          labelFontSize: this.fontSize  
         },
         axisY: {
           title: '' + yText,
+          titleFontSize: this.fontSize,
+          labelFontSize: this.fontSize  
         },
         toolTip: {
           shared: true
@@ -564,7 +588,7 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   getChartInstance(chart: object) {
     this.charts = chart;
-    console.log(this.charts);
+    // console.log(this.charts);
   }
 
   public plot(geoData: any, geoModelsService: GeoModelsService) {
