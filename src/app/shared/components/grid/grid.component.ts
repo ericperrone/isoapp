@@ -454,6 +454,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     let params: ModalParams = {
       choices: [
         { text: 'Plot data', value: 3, icon: 'fa-solid fa-chart-line' },
+        { text: 'Spider diagram', value: 4, icon: 'fa-solid fa-spider' },
         { text: 'Mixing model', value: 0, icon: 'fa-solid fa-flask' },
         { text: 'Crystallization mass balance', value: 1, icon: 'fa-brands fa-codepen' },
         { text: 'Melting', value: 2, icon: 'fa-solid fa-dice-d20' },
