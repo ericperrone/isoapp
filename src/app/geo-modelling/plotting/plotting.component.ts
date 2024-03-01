@@ -101,7 +101,7 @@ export class PlottingComponent implements OnInit {
       data: series
     }
 
-    // console.log(this.chartOptions);
+    console.log(this.chartOptions);
   }
 
 }

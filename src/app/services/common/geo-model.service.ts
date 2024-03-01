@@ -4,11 +4,13 @@ import { MixingComponent } from 'src/app/geo-modelling/mixing/mixing.component';
 import { StoreService } from './store.service';
 import { DataSeries } from 'src/app/models/series';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
+import { SpiderComponent } from 'src/app/geo-modelling/spider/spider.component';
 // import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 
 export enum ModelList {
   Mixing = 0,
   Plotting,
+  Spider,
   MassBalance,
   Melting
 }
@@ -49,12 +51,16 @@ export class GeoModelService {
           this.model.modalRef = ref;
           ref.componentInstance.params = this.model;
           return ref;
-          break;
         case ModelList.Plotting:
           let ref1 = this.modalService.open(PlottingComponent,  { fullscreen: true, windowClass: 'background-white' }); 
           this.model.modalRef = ref1;
           ref1.componentInstance.params = this.model;
           return ref1;
+        case ModelList.Spider:
+          let ref2 = this.modalService.open(SpiderComponent, { fullscreen: true, windowClass: 'background-white' }); 
+          this.model.modalRef = ref2;
+          ref2.componentInstance.params = this.model;
+          return ref2;
         default:
           break;  
       }

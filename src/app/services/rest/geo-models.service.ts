@@ -41,7 +41,7 @@ export class GeoModelsService extends Rest {
     let payload = { data: new Array<MixingModelServicePayloadItem>() };
 
     let payloadItem: MixingModelServicePayloadItem = {
-      increment: !!increment? increment : 0.01,
+      increment: !!increment ? increment : 0.01,
       members: new Array<MixingModelMember>()
     };
 
@@ -59,7 +59,6 @@ export class GeoModelsService extends Rest {
 
     return this.http.post(this.serviceUrl + 'mixing-model', payload).pipe(map(
       (res: any) => {
-        console.log(res);
         return res;
       }
     ),
@@ -68,8 +67,7 @@ export class GeoModelsService extends Rest {
   }
 
   public mixingPlot(payload: MixingPlot): Observable<any> {
-    console.log(payload);
-     return this.http.post(this.serviceUrl + 'mixing-plot', payload).pipe(map(
+    return this.http.post(this.serviceUrl + 'mixing-plot', payload).pipe(map(
       (res: any) => {
         console.log(res);
         return res;
@@ -77,6 +75,14 @@ export class GeoModelsService extends Rest {
     ),
       catchError(this.handleError)
     );
+  }
+
+  public getNorms(): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-normalization').pipe(map(
+      (res: any) => {
+        return res;
+      }
+    ), catchError(this.handleError));
   }
 }
 

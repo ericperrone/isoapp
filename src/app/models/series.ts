@@ -33,4 +33,20 @@ export interface DataSeriesShape {
     shape: string;
 }
 
+export interface SpiderData {
+    x: string;
+    y: number;
+}
+
+export interface SpiderSeries {
+    sample: string;
+    data: Array<SpiderData>;
+}
+
+export interface SpiderDiagram {
+    width: number;
+    height: number;
+    series: Array<SpiderSeries>;
+}
+
 export const DATA_SERIES = '_DATA_SERIES_';

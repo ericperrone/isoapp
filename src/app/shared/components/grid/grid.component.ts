@@ -471,6 +471,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             this.geoModelService.setModel({ selectedModel: 0, endMembers: members });
             this.ref = this.geoModelService.execute();
             break;
+          case 4: 
+            this.geoModelService.setModel({ selectedModel: 2, endMembers: members  });
+            this.ref = this.geoModelService.execute();
+            break;  
           case 1:
             break;
           case 2:
@@ -492,7 +496,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
               }
             }
 
-            console.log(ids);
+            // console.log(ids);
             for (let id of ids) {
               if (id.selected)
                 params.idList?.push(id.content);

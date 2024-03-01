@@ -1,3 +1,18 @@
+export function getElementName(e: string): string {
+    let i = e.indexOf('(');
+    if (i > -1)  
+        return e.substring(0, i).trim();
+    return e;
+}
+
+export function locateByValue(v: Array<string>, item: string): number {    
+    for (let i = 0; i < v.length; i++) {
+        if (v[i] === item)
+            return i;
+    }
+    return -1;
+}
+
 export function distinct(vector: Array<string>): Array<string> {
     let nVector = new Array<string>;
     let index = new Map<string, string>();
