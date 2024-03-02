@@ -34,7 +34,7 @@ export interface DataSeriesShape {
 }
 
 export interface SpiderData {
-    x: string;
+    label: string;
     y: number;
 }
 

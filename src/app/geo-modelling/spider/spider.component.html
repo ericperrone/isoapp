@@ -31,7 +31,7 @@
         </div>
         <div class="col-8"></div>
     </div>
-    <div class="centered">
+    <div class="centered" *ngIf="showChart">
         <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" class="centered"
             (chartInstance)="getChartInstance($event)"></canvasjs-chart>
     </div>

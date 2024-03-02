@@ -16,6 +16,7 @@ export interface SpiderNorm {
   styleUrls: ['./spider.component.scss']
 })
 export class SpiderComponent implements OnInit, AfterViewInit {
+  public showChart = false;
   public norms: Array<SpiderNorm> = new Array<SpiderNorm>();
   public charts: any;
   public chartOptions: any;
@@ -99,7 +100,7 @@ export class SpiderComponent implements OnInit, AfterViewInit {
           if (item.type === 'C' || item.type === 'I') {
             let name = getElementName(item.name);
             if (!!this.theNorm && !!this.theNorm.norm[name] && item.value.length > 0) {
-              ss.data.push({ x: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
+              ss.data.push({ label: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
             }
           }
         }
@@ -109,10 +110,10 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   }
 
   public chartSizeChange() {
-    // this.chartOptions = {};
-    // this.drawChart();
+    this.showChart = false;
     setTimeout(() => {
       this.drawChart();
+      this.showChart = true;
     }, 50);
   }
 
