@@ -58,13 +58,13 @@ export class SpiderComponent implements OnInit, AfterViewInit {
         if (this.norms.length > 0)
           this.selectedMethod = this.norms[0].method;
         s.unsubscribe();
-        // this.drawChart();
+        this.chartSizeChange();
       }
     );
   }
 
   ngAfterViewInit(): void {
-    this.chartSizeChange();
+    // this.chartSizeChange();
   }
 
   private setNorm(): void {
