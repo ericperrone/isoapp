@@ -17,25 +17,17 @@
                     class="fa-solid fa-expand"></i></button>
         </div>
         <div class="col-2 text-righ">Select normalization factor:</div>
-        <div class="col-4"> <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="drawChart()">
+        <div class="col-4"> <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="chartSizeChange()">
                 <option *ngFor="let n of norms">{{ n.method }}</option>
             </select>
         </div>
         <div class="col-1 text-right">
+            <button class="btn btn-outline-dark mr-1" type="button" (click)="donwloadCsv()"><i class="fa-solid fa-download"></i></button>
             <button class="btn btn-outline-dark" type="button" (click)="ref ? ref.close() : undefined">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
     </div>
-    <!-- <div class="row">
-        <div class="col-2 text-right text-primary bold">Select normalization factor:</div>
-        <div class="col-2">
-            <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="setSeries()">
-                <option *ngFor="let n of norms">{{ n.method }}</option>
-            </select>
-        </div>
-        <div class="col-8"></div>
-    </div> -->
     <div class="centered" *ngIf="showChart">
         <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" class="centered"
             (chartInstance)="getChartInstance($event)"></canvasjs-chart>

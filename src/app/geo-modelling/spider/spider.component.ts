@@ -2,7 +2,7 @@ import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
-import { getElementName } from 'src/app/shared/tools';
+import { getElementName, saveCsvFile } from 'src/app/shared/tools';
 
 export interface SpiderNorm {
   method: string;
@@ -64,7 +64,6 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.chartSizeChange();
   }
 
   private setNorm(): void {
@@ -81,7 +80,6 @@ export class SpiderComponent implements OnInit, AfterViewInit {
 
   public getChartInstance(chart: object) {
     this.charts = chart;
-    // console.log(this.charts);
   }
 
   //{type: 'C', name: 'TiO2 (WT%)', value: '0.44'}
@@ -100,7 +98,7 @@ export class SpiderComponent implements OnInit, AfterViewInit {
           if (item.type === 'C' || item.type === 'I') {
             let name = getElementName(item.name);
             if (!!this.theNorm && !!this.theNorm.norm[name] && item.value.length > 0) {
-              ss.data.push({ label: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
+              ss.data.push({ label: name, y: Math.log10(parseFloat(item.value) / this.theNorm.norm[name]) });
             }
           }
         }
@@ -117,10 +115,24 @@ export class SpiderComponent implements OnInit, AfterViewInit {
     }, 50);
   }
 
-  public drawChart(): void {
+  public donwloadCsv(): void {
+    let line = '';
+    if (!!this.spiderDiagram && !!this.spiderDiagram.series) {
+      line += 'Normalization: ' + this.selectedMethod + '\n';
+      for (let s of this.spiderDiagram.series) {
+        line += 'Sample name: ' + s.sample + '\n';
+        for (let d of s.data) {
+          line += d.label + ';' + d.y + "\n";
+        }
+      }
+    }
+    saveCsvFile(line);
+  }
+
+  private drawChart(): void {
     this.setSeries();
     console.log(this.spiderDiagram);
-    let data = [] // <-- qui inserire la struttura 
+    let data = new Array<any>(); // <-- qui inserire la struttura 
     for (let s of this.spiderDiagram.series) {
       data.push({ type: 'line', showInLegend: true, name: s.sample, dataPoints: s.data });
     }
@@ -133,12 +145,12 @@ export class SpiderComponent implements OnInit, AfterViewInit {
       width: this.chartWidth,
       height: this.chartHeight,
       axisX: {
-        // title: '' + this.series.xAxis,
         titleFontSize: this.fontSize,
-        labelFontSize: this.fontSize
+        labelFontSize: this.fontSize,
+        interval: 1
       },
       axisY: {
-        // title: '' + this.series.yAxis,
+        title: 'Sample concentration / ' + this.selectedMethod,
         titleFontSize: this.fontSize,
         labelFontSize: this.fontSize
       },
@@ -159,8 +171,6 @@ export class SpiderComponent implements OnInit, AfterViewInit {
       },
       data: data
     }
-
-    console.log(this.chartOptions);
   }
 
 }
