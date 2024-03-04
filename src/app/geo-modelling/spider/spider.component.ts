@@ -2,7 +2,7 @@ import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
-import { getElementName, saveCsvFile } from 'src/app/shared/tools';
+import { getElementName, locateByValue, saveCsvFile } from 'src/app/shared/tools';
 
 export interface SpiderNorm {
   method: string;
@@ -67,6 +67,16 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
   }
 
+  // private cmp(a: SpiderData, b: SpiderData) {
+  //   let order = this.theNorm.keys;
+  //   if (!!order) {
+  //     let posA = locateByValue(order, a.label);
+  //     let posB = locateByValue(order, b.label);
+  //     return posA - posB;
+  //   }
+  //   return 0
+  // }
+
   private setNorm(): void {
     if (this.norms.length < 1)
       return;
@@ -103,8 +113,17 @@ export class SpiderComponent implements OnInit, AfterViewInit {
             }
           }
         }
+        ss.data = ss.data.sort((a: SpiderData, b: SpiderData) => {
+          let order = this.theNorm.keys;
+          if (!!order) {
+            let posA = locateByValue(order, a.label);
+            let posB = locateByValue(order, b.label);
+            return posA - posB;
+          }
+          return 0               
+        });
         this.spiderDiagram.series.push(ss);
-      }
+      }      
     }
   }
 
