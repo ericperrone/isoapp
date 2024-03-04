@@ -117,7 +117,7 @@ export class SpiderComponent implements OnInit, AfterViewInit {
     }, 50);
   }
 
-  private drawChart(): void {
+  public drawChart(): void {
     this.setSeries();
     console.log(this.spiderDiagram);
     let data = [] // <-- qui inserire la struttura 

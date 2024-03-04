@@ -1,28 +1,33 @@
 <div class="application-frame" style="background-color: white;">
     <div class="row header pt-1 pb-1">
         <div class="col-1 text-right">
-            Width: 
+            Width:
         </div>
         <div class="col-1">
             <input type="number" class="form-control" [(ngModel)]="chartWidth" (ngModelChange)="changeSize = true">
         </div>
         <div class="col-1 text-right">
-            Height: 
+            Height:
         </div>
         <div class="col-1">
             <input type="number" class="form-control" [(ngModel)]="chartHeight" (ngModelChange)="changeSize = true">
         </div>
         <div class="col-1">
-            <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()" [disabled]="!changeSize"><i class="fa-solid fa-expand"></i></button>
+            <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()" [disabled]="!changeSize"><i
+                    class="fa-solid fa-expand"></i></button>
         </div>
-        <div class="col-6">&nbsp;</div>
+        <div class="col-2 text-righ">Select normalization factor:</div>
+        <div class="col-4"> <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="drawChart()">
+                <option *ngFor="let n of norms">{{ n.method }}</option>
+            </select>
+        </div>
         <div class="col-1 text-right">
             <button class="btn btn-outline-dark" type="button" (click)="ref ? ref.close() : undefined">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
     </div>
-    <div class="row">
+    <!-- <div class="row">
         <div class="col-2 text-right text-primary bold">Select normalization factor:</div>
         <div class="col-2">
             <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="setSeries()">
@@ -30,7 +35,7 @@
             </select>
         </div>
         <div class="col-8"></div>
-    </div>
+    </div> -->
     <div class="centered" *ngIf="showChart">
         <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" class="centered"
             (chartInstance)="getChartInstance($event)"></canvasjs-chart>
