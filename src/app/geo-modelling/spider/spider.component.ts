@@ -20,7 +20,8 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   public norms: Array<SpiderNorm> = new Array<SpiderNorm>();
   public charts: any;
   public chartOptions: any;
-  public chartWidth: number = 1400;
+  // public chartWidth: number = 1400;
+  public chartWidth: number = Math.floor(window.innerWidth * 0.9);
   public chartHeight: number = 800;
   public fontSize = 16;
   public legendFontSize = 20;
