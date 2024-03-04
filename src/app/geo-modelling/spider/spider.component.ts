@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, HostListener } from '@angular/core';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
@@ -21,7 +21,7 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   public charts: any;
   public chartOptions: any;
   // public chartWidth: number = 1400;
-  public chartWidth: number = Math.floor(window.innerWidth * 0.9);
+  public chartWidth: number = Math.floor(window.innerWidth * 0.95);
   public chartHeight: number = 800;
   public fontSize = 16;
   public legendFontSize = 20;
@@ -35,6 +35,12 @@ export class SpiderComponent implements OnInit, AfterViewInit {
     series: new Array<SpiderSeries>()
   }
   @Input('params') params: GeoModel | undefined;
+  @HostListener('window:resize', ['$event'])
+  handleResize(event: any) {
+    console.log(event);
+    this.chartWidth = Math.floor(window.innerWidth * 0.95);
+    this.chartSizeChange();
+  }
 
   constructor(private geoModelsService: GeoModelsService) { }
 
@@ -66,16 +72,6 @@ export class SpiderComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
   }
-
-  // private cmp(a: SpiderData, b: SpiderData) {
-  //   let order = this.theNorm.keys;
-  //   if (!!order) {
-  //     let posA = locateByValue(order, a.label);
-  //     let posB = locateByValue(order, b.label);
-  //     return posA - posB;
-  //   }
-  //   return 0
-  // }
 
   private setNorm(): void {
     if (this.norms.length < 1)
@@ -120,10 +116,10 @@ export class SpiderComponent implements OnInit, AfterViewInit {
             let posB = locateByValue(order, b.label);
             return posA - posB;
           }
-          return 0               
+          return 0
         });
         this.spiderDiagram.series.push(ss);
-      }      
+      }
     }
   }
 
