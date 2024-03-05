@@ -4,10 +4,13 @@ import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { getElementName, locateByValue, saveCsvFile } from 'src/app/shared/tools';
 
+export const REE = ['La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Yb', 'Lu'];
+
 export interface SpiderNorm {
   method: string;
   keys: Array<string>;
   norm: any;
+  order?: Array<string>;
 }
 
 @Component({
@@ -16,13 +19,13 @@ export interface SpiderNorm {
   styleUrls: ['./spider.component.scss']
 })
 export class SpiderComponent implements OnInit, AfterViewInit {
+  public onlyREE = false;
   public showChart = false;
   public norms: Array<SpiderNorm> = new Array<SpiderNorm>();
   public charts: any;
   public chartOptions: any;
-  // public chartWidth: number = 1400;
-  public chartWidth: number = Math.floor(window.innerWidth * 0.95);
-  public chartHeight: number = 800;
+  public chartWidth: number = Math.floor(window.innerWidth * 0.99);
+  public chartHeight: number = Math.floor(window.innerHeight * 0.8);;
   public fontSize = 16;
   public legendFontSize = 20;
   public changeSize = false;
@@ -38,7 +41,8 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
     console.log(event);
-    this.chartWidth = Math.floor(window.innerWidth * 0.95);
+    this.chartWidth = Math.floor(window.innerWidth * 0.99);
+    this.chartHeight = Math.floor(window.innerHeight * 0.8);
     this.chartSizeChange();
   }
 
@@ -57,6 +61,9 @@ export class SpiderComponent implements OnInit, AfterViewInit {
           let obj = JSON.parse(r.norm);
           let keys = Object.keys(obj);
           sn.keys = keys;
+          if (!!r.ord) {
+            sn.order = JSON.parse(r.ord);
+          }
           for (let k of keys) {
             Object.defineProperty(sn.norm, k, { value: parseFloat(obj[k]) });
           }
@@ -66,11 +73,16 @@ export class SpiderComponent implements OnInit, AfterViewInit {
           this.selectedMethod = this.norms[0].method;
         s.unsubscribe();
         this.chartSizeChange();
+        console.log(this.norms);
       }
     );
   }
 
   ngAfterViewInit(): void {
+  }
+
+  public handleREE(): void {
+    this.chartSizeChange();
   }
 
   private setNorm(): void {
@@ -89,7 +101,6 @@ export class SpiderComponent implements OnInit, AfterViewInit {
     this.charts = chart;
   }
 
-  //{type: 'C', name: 'TiO2 (WT%)', value: '0.44'}
   public setSeries(): void {
     this.setNorm();
     if (!!this.params && !!this.params.endMembers && !!this.theNorm) {
@@ -105,12 +116,18 @@ export class SpiderComponent implements OnInit, AfterViewInit {
           if (item.type === 'C' || item.type === 'I') {
             let name = getElementName(item.name);
             if (!!this.theNorm && !!this.theNorm.norm[name] && item.value.length > 0) {
-              ss.data.push({ label: name, y: Math.log10(parseFloat(item.value) / this.theNorm.norm[name]) });
+              if (!!this.onlyREE) {
+                if (locateByValue(REE, name) > -1) {
+                  ss.data.push({ label: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
+                }
+              } else {
+                ss.data.push({ label: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
+              }
             }
           }
         }
         ss.data = ss.data.sort((a: SpiderData, b: SpiderData) => {
-          let order = this.theNorm.keys;
+          let order = this.theNorm.order;
           if (!!order) {
             let posA = locateByValue(order, a.label);
             let posB = locateByValue(order, b.label);
@@ -148,7 +165,7 @@ export class SpiderComponent implements OnInit, AfterViewInit {
   private drawChart(): void {
     this.setSeries();
     console.log(this.spiderDiagram);
-    let data = new Array<any>(); // <-- qui inserire la struttura 
+    let data = new Array<any>();
     for (let s of this.spiderDiagram.series) {
       data.push({ type: 'line', showInLegend: true, name: s.sample, dataPoints: s.data });
     }
@@ -168,7 +185,12 @@ export class SpiderComponent implements OnInit, AfterViewInit {
       axisY: {
         title: 'Sample concentration / ' + this.selectedMethod,
         titleFontSize: this.fontSize,
-        labelFontSize: this.fontSize
+        labelFontSize: this.fontSize,
+        margin: 10,
+        // interval: 10,
+        // minimum: 0,
+        // maximum: 10000
+        logarithmic: true
       },
       toolTip: {
         shared: true

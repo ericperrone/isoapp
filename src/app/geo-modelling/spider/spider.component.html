@@ -9,9 +9,10 @@
             <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()" [disabled]="!changeSize"><i
                 class="fa-solid fa-expand"></i></button>
         </div>
-        <div class="col-4"> Normalization: <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="chartSizeChange()" style="max-width: 16em; display: inline-block;">
+        <div class="col-4"> Normalization: <select class="form-select" [(ngModel)]="selectedMethod" (ngModelChange)="chartSizeChange()" style="max-width: 12em; display: inline-block;">
                 <option *ngFor="let n of norms">{{ n.method }}</option>
             </select>
+            <span style="margin-left: 10px; margin-right: 3px;">REE only</span> <input type="checkbox" [(ngModel)]="onlyREE" style="display: inline-block;" (ngModelChange)="handleREE()">
         </div>
         <div class="col-2 text-right">
             <button style="margin-right: 3px;" class="btn btn-outline-dark" type="button" (click)="donwloadCsv()"><i class="fa-solid fa-download"></i></button>
