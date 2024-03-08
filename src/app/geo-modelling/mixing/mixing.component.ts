@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, ViewChildren } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ViewChildren, HostListener } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, END_MEMBER_SET } from '../end-member/end-member.component';
@@ -54,6 +54,13 @@ interface ShowedRow {
   styleUrls: ['./mixing.component.scss']
 })
 export class MixingComponent implements OnInit, OnDestroy {
+  @HostListener('window:resize', ['$event'])
+  handleResize(event: any) {
+    console.log(event);
+    this.chartWidth = Math.floor(window.innerWidth * 0.99);
+    this.chartHeight = Math.floor(window.innerHeight * 0.8);
+    this.chartSizeChange();
+  }
   @Input('params') params: GeoModel | undefined;
   @ViewChildren('ratio') ratios: any;
   @ViewChildren('inverse') inverses: any;
@@ -80,8 +87,8 @@ export class MixingComponent implements OnInit, OnDestroy {
   public xPoint = 0;
   public yPoint = 0;
   public charts: any;
-  public chartWidth: number = 1400;
-  public chartHeight: number = 800;
+  public chartWidth: number = Math.floor(window.innerWidth * 0.99);
+  public chartHeight: number = Math.floor(window.innerHeight * 0.8);
   public fontSize = 16;
   public legendFontSize = 20;
   public changeSize = false;
