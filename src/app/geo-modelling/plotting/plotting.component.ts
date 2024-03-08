@@ -1,7 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
-
 
 @Component({
   selector: 'app-plotting',
@@ -20,6 +19,13 @@ export class PlottingComponent implements OnInit {
   public chartHeight: number = 0;
   public changeSize = false;
   public draw = true;
+  @HostListener('window:resize', ['$event'])
+  handleResize(event: any) {
+    console.log(event);
+    this.chartWidth = Math.floor(window.innerWidth * 0.99);
+    this.chartHeight = Math.floor(window.innerHeight * 0.8);
+    this.chartSizeChange();
+  }
 
   constructor(private storeService: StoreService) { }
 
@@ -28,11 +34,15 @@ export class PlottingComponent implements OnInit {
       this.ref = this.params.ref;
     }
     this.series = this.storeService.get(DATA_SERIES);
-    this.chartWidth = this.series.width;
-    this.chartHeight = this.series.height;
+    this.chartWidth = Math.floor(window.innerWidth * 0.99);
+    this.chartHeight = Math.floor(window.innerHeight * 0.8);
     this.drawChart();
   }
 
+  public donwloadCsv(): void {
+
+  }
+  
   public getChartInstance(chart: object) {
     this.charts = chart;
     // console.log(this.charts);

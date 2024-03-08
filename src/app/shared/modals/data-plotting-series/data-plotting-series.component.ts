@@ -243,8 +243,17 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
+  private deselectAll(): void {
+    if (this.dataSeries && this.dataSeries.series) {
+      for (let ds of this.dataSeries.series) {
+        ds.selected = false;
+      }
+    }
+  }
+
   public addDataSeries(): void {
     if (!!this.dataSeries) {
+      this.deselectAll();
       this.dataSeries.series.push({ name: this.name, samples: new List(), data: new List<DataSeriesPoint>(), selected: true, shape: { color: RGBColors[this.dataSeries.series.length], shape: '' } });
       this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     }
@@ -371,18 +380,22 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public select(ds: DataSeries) {
-    if (!!ds.selected) {
-      this.selectedDataSeries = undefined;
-      ds.selected = false;
-      this.pointButtonEnabled = false;
-    } else {
-      for (let d of this.dataSeries.series) {
-        d.selected = false;
-      }
-      this.selectedDataSeries = ds;
-      ds.selected = true;
-      this.pointButtonEnabled = true;
-    }
+    this.deselectAll();
+    this.selectedDataSeries = ds;
+    ds.selected = true;
+    this.pointButtonEnabled = true;
+    // if (!!ds.selected) {
+    //   this.selectedDataSeries = undefined;
+    //   ds.selected = false;
+    //   this.pointButtonEnabled = false;
+    // } else {
+    //   for (let d of this.dataSeries.series) {
+    //     d.selected = false;
+    //   }
+    //   this.selectedDataSeries = ds;
+    //   ds.selected = true;
+    //   this.pointButtonEnabled = true;
+    // }
   }
 
   public set() {

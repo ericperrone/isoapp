@@ -6,9 +6,6 @@
     <div>
         <div class="task">Choose X axis and Y axis.
             <div class="float-right">
-                <!-- <button (click)="newSeries()" class="btn btn-success" type="button"
-                    [disabled]="xSelected.length === 0 || ySelected.length === 0"><i
-                        class="fa-solid fa-check"></i></button> -->
             </div>
         </div>
         <div>
@@ -113,7 +110,7 @@
                 <tr *ngFor="let ds of dataSeries.series, index as i"
                     [style.background]="ds.selected ? 'orange' : 'white'" (click)="select(ds)" class="clickable">
                     <td><input class="table-input table-ctrl" type="text" [value]="ds.name? ds.name : ''"
-                            [(ngModel)]="dataSeries.series[i].name"> </td>
+                            [(ngModel)]="dataSeries.series[i].name" (click)="select(ds)"> </td>
                     <td><input class="table-input-color" type="color" value="#ff0000"
                             [(ngModel)]="dataSeries.series[i].shape.color"> </td>
                     <td>
