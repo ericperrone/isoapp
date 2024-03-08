@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
+import { saveCsvFile } from 'src/app/shared/tools';
 
 @Component({
   selector: 'app-plotting',
@@ -40,7 +41,18 @@ export class PlottingComponent implements OnInit {
   }
 
   public donwloadCsv(): void {
-
+    let line = '';
+    if (!!this.series) {
+      line += 'x-axis: ' + this.series.xAxis + '\n';
+      line += 'y-axis: ' + this.series.yAxis + '\n';
+      for (let s of this.series.series)  {
+        line += '\nSeries: ' + s.name + '\nX;Y\n';
+        for (let d of s.data) {
+          line += '' + d.x + ';' + d.y + '\n';
+        }
+      }
+    }
+    saveCsvFile(line);
   }
   
   public getChartInstance(chart: object) {
@@ -63,6 +75,8 @@ export class PlottingComponent implements OnInit {
     if (!this.series) {
       return;
     }
+
+    console.log(this.series);
 
     let series = [];
     for (let s of this.series.series) {
