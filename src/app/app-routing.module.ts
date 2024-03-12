@@ -14,6 +14,7 @@ import { GeoComponent } from './shared/components/geo/geo.component';
 import { GeorocComponent } from './data-processing/georoc/georoc.component';
 import { LoginComponent } from './admin/login/login.component';
 import { AdminComponent } from './admin/admin/admin.component';
+import { TestComponent } from './test/test.component';
 
 
 const routes: Routes = [
@@ -32,6 +33,7 @@ const routes: Routes = [
   { path: 'georoc', component: GeorocComponent },
   { path: 'login', component: LoginComponent },
   { path: 'admin', component: AdminComponent },
+  { path: 'test', component: TestComponent },
 ];
 
 @NgModule({

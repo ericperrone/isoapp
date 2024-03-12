@@ -40,8 +40,8 @@ export class HeaderComponent implements OnInit {
     setTimeout(() => this.router.navigate(['main-db-querying']), 100);
   }
 
-  public gotoGeo() {
-    this.router.navigate(['geo']);
+  public gotoTest() {
+    this.router.navigate(['test']);
   }
 
   public gotoLogin() {
