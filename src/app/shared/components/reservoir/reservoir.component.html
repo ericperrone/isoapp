@@ -12,18 +12,23 @@
     </div>
     <div class="centered text-center scrollable w100 lists mt-3">
         <table class="w100" *ngIf="!!showReservoir">
-            <tr class="bottom-border">
-                <th>Name</th>
-                <th>Element</th>
-                <th>Value</th>
-                <th>Unit</th>
-            </tr>
-            <tr *ngFor="let r of this.reservoirs" class="clickable bottom-border" (click)="selectRow(r)" [style.background]="r.selected ? 'orange' : 'white'">
-                <td>{{ r.name }}</td>
-                <td>{{ r.element }}</td>
-                <td>{{ r.value }}</td>
-                <td>{{ r.um ? r.um : '' }}</td>
-            </tr>
+            <thead>
+                <tr class="bottom-border">
+                    <th>Name</th>
+                    <th>Element</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let r of this.reservoirs" class="clickable bottom-border" (click)="selectRow(r)"
+                    [style.background]="r.selected ? 'orange' : 'white'">
+                    <td>{{ r.name }}</td>
+                    <td>{{ r.element }}</td>
+                    <td>{{ r.value }}</td>
+                    <td>{{ r.um ? r.um : '' }}</td>
+                </tr>
+            </tbody>
         </table>
     </div>
 </div>
