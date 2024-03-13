@@ -27,6 +27,7 @@ export class ReservoirComponent implements OnInit {
     this.nameList.length = 0;
     if (this.filter.length === 0) {
       this.nameList = [...this.names];
+      this.reservoirs.length = 0;
     }
     else {
       for (let name of this.names) {
@@ -48,6 +49,17 @@ export class ReservoirComponent implements OnInit {
       }
     }
     this.showReservoir = true;
+  }
+
+  public selectRow(r: Reservoir): void {
+    this.deselectAll();
+    r.selected = true;
+  }
+
+  private deselectAll(): void {
+    for (let t of this.reservoirs) {
+      t.selected = undefined;
+    }
   }
 
   private initCache(): void {

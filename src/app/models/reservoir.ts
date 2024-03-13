@@ -10,4 +10,5 @@ export interface Reservoir {
     doi?: string;
     error?: number;
     errorType?: string;
+    selected?: boolean;
 }
