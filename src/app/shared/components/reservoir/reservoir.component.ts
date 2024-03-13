@@ -12,9 +12,12 @@ export class ReservoirComponent implements OnInit {
   public names = new Array<string>();
   public nameList = new Array<string>();
   public reservoirs = new Array<Reservoir>();
+  public selectedReservoir: Reservoir | undefined;
   public filter = '';
   public reservoirName = "";
   public showReservoir = false;
+  public useButtonDisabled = true;
+  @Output() selected = new EventEmitter<Reservoir>();
 
   constructor(private reservoirService: ReservoirService) { }
 
@@ -28,6 +31,7 @@ export class ReservoirComponent implements OnInit {
     if (this.filter.length === 0) {
       this.nameList = [...this.names];
       this.reservoirs.length = 0;
+      this.useButtonDisabled = true;
     }
     else {
       for (let name of this.names) {
@@ -54,6 +58,14 @@ export class ReservoirComponent implements OnInit {
   public selectRow(r: Reservoir): void {
     this.deselectAll();
     r.selected = true;
+    this.selectedReservoir = r;
+    this.useButtonDisabled = false;
+  }
+
+  public use(): void {
+    if (!!this.selectedReservoir) {
+      this.selected.emit(this.selectedReservoir);
+    }
   }
 
   private deselectAll(): void {
@@ -68,7 +80,6 @@ export class ReservoirComponent implements OnInit {
       (res: any) => {
         for (let item of res)
           this.cache.push(item);
-        // this.reservoirs = [...this.cache];
       }
     );
   }

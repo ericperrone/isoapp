@@ -31,4 +31,7 @@
             </tbody>
         </table>
     </div>
+    <div class="w100 text-right" *ngIf="!!showReservoir">
+        <button class="btn btn-primary m-1" [disabled]="useButtonDisabled" (click)="use()">Use</button>
+    </div>
 </div>
