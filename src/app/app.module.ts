@@ -58,6 +58,7 @@ import { PlottingComponent } from './geo-modelling/plotting/plotting.component';
 import { SpiderComponent } from './geo-modelling/spider/spider.component';
 import { ReservoirComponent } from './shared/components/reservoir/reservoir.component';
 import { TestComponent } from './test/test.component';
+import { QueryConnectorComponent } from './db-querying/common/query-connector/query-connector.component';
 
 
 @NgModule({
@@ -109,6 +110,7 @@ import { TestComponent } from './test/test.component';
     SpiderComponent,
     ReservoirComponent,
     TestComponent,
+    QueryConnectorComponent,
   ],
   imports: [
     BrowserModule,
