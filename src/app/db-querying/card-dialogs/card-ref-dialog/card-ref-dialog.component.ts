@@ -15,6 +15,7 @@ export class CardRefDialogComponent implements OnInit {
   public queryFilter: QueryFilter | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   @ViewChild('linklist') linklist: ElementRef | undefined;
+  private refList = new Array<string>();
 
   constructor(private renderer: Renderer2,
     private storeService: StoreService,
@@ -22,28 +23,52 @@ export class CardRefDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
+    console.log(this.queryFilter);
     if (this.queryFilter) {
-      this.dataSetRef = this.queryFilter.ref;
+      this.dataSetRef = this.queryFilter.ref.ref;
     }
+    this.initCache();
+  }
+
+  private initCache(): void {
+    this.refList.length = 0;
+    let s = this.datasetService.getLinks().subscribe(
+      (res: any) => {
+        console.log(res);
+        for (let r of res) {
+          this.refList.push(r);
+        }
+        // s.unsubscribe();
+      }
+    );
   }
 
   public getLinks() {
-    // this.links = new Array<string>();
-    if (this.dataSetRef.length > 0) {
-      let s = this.datasetService.getLinks(this.dataSetRef).subscribe(
-        (res: any) => {
-          // console.log(res);
-          Array.from(this.linklist?.nativeElement.children).forEach(child => {
-            this.renderer.removeChild(this.linklist?.nativeElement, child);
-          });
-          for (let r of res) {
-            const option = this.renderer.createElement('option');
-            option.setAttribute('value', r);
-            this.renderer.appendChild(this.linklist?.nativeElement, option);
-          }
-          // s.unsubscribe();
+    if (this.dataSetRef.length > 1) {
+      Array.from(this.linklist?.nativeElement.children).forEach(child => {
+        this.renderer.removeChild(this.linklist?.nativeElement, child);
+      });
+      for (let r of this.refList) {
+        if (r.toLowerCase().indexOf(this.dataSetRef) > -1) {
+          const option = this.renderer.createElement('option');
+          option.setAttribute('value', r);
+          this.renderer.appendChild(this.linklist?.nativeElement, option);
         }
-      );
+      }
+
+      // let s = this.datasetService.getLinks(this.dataSetRef).subscribe(
+      //   (res: any) => {
+      //     Array.from(this.linklist?.nativeElement.children).forEach(child => {
+      //       this.renderer.removeChild(this.linklist?.nativeElement, child);
+      //     });
+      //     for (let r of res) {
+      //       const option = this.renderer.createElement('option');
+      //       option.setAttribute('value', r);
+      //       this.renderer.appendChild(this.linklist?.nativeElement, option);
+      //     }
+      //     s.unsubscribe();
+      //   }
+      // );
     }
   }
 
@@ -53,7 +78,7 @@ export class CardRefDialogComponent implements OnInit {
 
   public confirm() {
     let filter = this.storeService.get(FILTER_KEY);
-    filter.ref = this.dataSetRef;
+    filter.ref.ref = this.dataSetRef;
     this.storeService.push({ key: FILTER_KEY, data: filter });
     this.emitter.emit(CONFIRM);
   }

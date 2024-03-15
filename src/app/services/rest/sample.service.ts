@@ -95,26 +95,26 @@ export class SampleService extends Rest {
 
   private buildQueryString(filter: QueryFilter): string {
     let url = '';
-    if (filter.ref.length > 0) {
-      url += '&ref=' + filter.ref;
+    if (filter.ref.ref.length > 0) {
+      url += '&ref=' + filter.ref.ref;
     }
-    if (filter.keywords.length > 0) {
+    if (filter.keywords.keywords.length > 0) {
       let keys = '';
-      for (let k of filter.keywords) {
+      for (let k of filter.keywords.keywords) {
         keys += k + ' ';
       }
       url += "&meta=" + keys.trimEnd();
     }
-    if (filter.authors.length > 0) {
+    if (filter.authors.authors.length > 0) {
       let auth = '';
-      for (let a of filter.authors) {
+      for (let a of filter.authors.authors) {
         auth += a + ';';
       }
       url += "&auth=" + auth.substring(0, auth.length - 1);
     }
     if (!!filter.geo) {
-      url += "&x0=" + filter.geo.topLongitude + "&x1=" + filter.geo.bottomLongitude
-        + "&y0=" + filter.geo.topLatitude + "&y1=" + filter.geo.bottomLatitude;
+      url += "&x0=" + filter.geo.geo.topLongitude + "&x1=" + filter.geo.geo.bottomLongitude
+        + "&y0=" + filter.geo.geo.topLatitude + "&y1=" + filter.geo.geo.bottomLatitude;
     }
     return url;
   }

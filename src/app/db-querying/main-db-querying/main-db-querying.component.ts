@@ -9,6 +9,7 @@ import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 import { AuthorService } from 'src/app/services/rest/author.service';
 import { CACHE_AUTH, CACHE_LINKS } from 'src/app/shared/const';
 import { DatasetService } from 'src/app/services/rest/dataset.service';
+import { AND } from '../common/query-connector/query-connector.component';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -21,10 +22,14 @@ export interface GeoRegion {
 }
 
 export interface QueryFilter {
-  ref: string;
-  authors: string[];
-  keywords: string[];
-  geo?: GeoRegion;
+  ref: {connector: string, ref: string};
+  authors: {connector: string, authors: string[]};
+  keywords: {connector: string, keywords: string[]};
+  geo?: {connector: string, geo: GeoRegion};
+}
+
+export function initQueryFilter(): QueryFilter {
+  return {ref: {connector: AND, ref: ''}, authors: {connector: AND, authors: []}, keywords: {connector: AND, keywords: []} };
 }
 
 @Component({
@@ -48,7 +53,7 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
     private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
-    this.storeService.push({ key: FILTER_KEY, data: { ref: '', authors: [], keywords: [] } });
+    this.storeService.push({ key: FILTER_KEY, data: initQueryFilter() });
     this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
       () => this.filterOn = true
     );
@@ -96,7 +101,7 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
   public checkFilter(): void {
     let filter: QueryFilter = this.storeService.get(FILTER_KEY);
     console.log(filter);
-    if (filter.authors.length > 0 || filter.keywords.length > 0 || filter.ref.length > 0 || !!filter.geo) {
+    if (filter.authors.authors.length > 0 || filter.keywords.keywords.length > 0 || filter.ref.ref.length > 0 || !!filter.geo) {
       this.queryDisabled = false;
     } else {
       this.queryDisabled = true;

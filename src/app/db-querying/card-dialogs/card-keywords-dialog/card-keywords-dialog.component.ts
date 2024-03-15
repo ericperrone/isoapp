@@ -15,11 +15,12 @@ export class CardKeywordsDialogComponent implements OnInit {
   @Output() emitter: EventEmitter<any> = new EventEmitter();
 
   constructor(private storeService: StoreService) { }
-  
+
   ngOnInit(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
+    console.log(this.queryFilter);
     if (!!this.queryFilter) {
-      for (let k of this.queryFilter.keywords) {
+      for (let k of this.queryFilter.keywords.keywords) {
         this.keywords += k + ' ';
       }
     }
@@ -30,15 +31,17 @@ export class CardKeywordsDialogComponent implements OnInit {
   }
 
   public confirm() {
-    let filter = this.storeService.get(FILTER_KEY);
+    // let filter = this.storeService.get(FILTER_KEY);
     let temp = this.keywords.split(' ');
     temp = distinct(temp);
-    filter.keywords = [];
-    for (let t of temp) {
-      if (t.length > 0)
-        filter.keywords.push(t);
+    if (this.queryFilter) {
+      this.queryFilter.keywords.keywords = [];
+      for (let t of temp) {
+        if (t.length > 0)
+        this.queryFilter.keywords.keywords.push(t);
+      }
+      this.storeService.push({ key: FILTER_KEY, data: this.queryFilter });
+      this.emitter.emit(CONFIRM);
     }
-    this.storeService.push({key: FILTER_KEY, data: filter});
-    this.emitter.emit(CONFIRM);
   }
 }

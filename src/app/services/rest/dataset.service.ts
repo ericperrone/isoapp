@@ -17,9 +17,9 @@ export class DatasetService extends Rest {
   }
 
   public getLinks(link?: string): Observable<any> {
-    if (this.storeService.get(CACHE_LINKS)) {
-      return this.getLinksFromCache(link);
-    }
+    // if (this.storeService.get(CACHE_LINKS)) {
+    //   this.getLinksFromCache(link);      
+    // }
     return this.getLinksFromRemote();
   }
 

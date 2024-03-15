@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/cor
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { CardAuthorsDialogComponent } from '../../card-dialogs/card-authors-dialog/card-authors-dialog.component';
 import { Subscription } from 'rxjs';
@@ -14,7 +14,7 @@ import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
   styleUrls: ['./card-authors.component.scss']
 })
 export class CardAuthorsComponent implements OnInit, OnDestroy {
-  public queryFilter: QueryFilter = { ref: '', authors: [], keywords: [] };
+  public queryFilter: QueryFilter = initQueryFilter();
   public disabled = true;
   public authors = '';
   private sub: Subscription | undefined;
@@ -32,7 +32,7 @@ export class CardAuthorsComponent implements OnInit, OnDestroy {
     this.sub = this.eventGeneratorService.on(RESET_FILTER).subscribe(
       (event: any) => {
         this.authors = '';
-        this.queryFilter.authors = [];
+        this.queryFilter.authors.authors = [];
       }
     );
     this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
@@ -59,7 +59,7 @@ export class CardAuthorsComponent implements OnInit, OnDestroy {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.authors = '';
-        for (let key of this.queryFilter.authors) {
+        for (let key of this.queryFilter.authors.authors) {
           this.authors += key + ';';
         }
         this.authors = this.authors.trim();
@@ -72,7 +72,7 @@ export class CardAuthorsComponent implements OnInit, OnDestroy {
 
   public resetFilter(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
-    this.queryFilter.authors = [];
+    this.queryFilter.authors.authors = [];
     this.storeService.push({ key: FILTER_KEY, data: this.queryFilter });
     this.authors = '';
     this.emitter.emit(true);

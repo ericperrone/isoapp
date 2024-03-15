@@ -15,11 +15,12 @@ import { DecimalPipe } from '@angular/common';
 import { epsg3857to4326, GeoGoordinates } from 'src/app/shared/tools';
 import { StoreService } from 'src/app/services/common/store.service';
 import { QueryFilter, FILTER_KEY } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { AND } from 'src/app/db-querying/common/query-connector/query-connector.component';
 
 export interface GeoParams {
   view?: {
     center: Array<number>;
-    zoom: number; 
+    zoom: number;
     projection: string;
   };
   window?: {
@@ -204,10 +205,13 @@ export class GeoComponent implements OnInit, AfterViewInit {
   public confirm() {
     let filter = this.storeService.get(FILTER_KEY);
     filter.geo = {
-      topLatitude: this.coordinates[0][1],
-      topLongitude: this.coordinates[0][0],
-      bottomLatitude: this.coordinates[1][1],
-      bottomLongitude: this.coordinates[1][0]
+      connector: AND,
+      geo: {
+        topLatitude: this.coordinates[0][1],
+        topLongitude: this.coordinates[0][0],
+        bottomLatitude: this.coordinates[1][1],
+        bottomLongitude: this.coordinates[1][0]
+      }
     };
     this.storeService.push({ key: FILTER_KEY, data: filter });
     this.emitter.emit(CONFIRM);

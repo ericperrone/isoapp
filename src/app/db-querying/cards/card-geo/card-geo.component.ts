@@ -3,7 +3,7 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { GeoComponent } from 'src/app/shared/components/geo/geo.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
 import { DecimalPipe } from '@angular/common';
@@ -20,7 +20,7 @@ export class CardGeoComponent implements OnInit, OnDestroy {
   public endLatitude = '';
   public endLongitude = '';
   public disabled = true;
-  public queryFilter: QueryFilter = { ref: '', authors: [], keywords: [] };
+  public queryFilter: QueryFilter = initQueryFilter();
   private sub: Subscription | undefined;
   private subModal: Subscription | undefined;
   private ref: any;
@@ -66,10 +66,10 @@ export class CardGeoComponent implements OnInit, OnDestroy {
         this.resetFields();
         const fractionDigits = 4;
         const digitsInfo = `1.${fractionDigits}-${fractionDigits}`;
-        this.startLatitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.topLatitude, digitsInfo);
-        this.startLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.topLongitude, digitsInfo);
-        this.endLatitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.bottomLatitude, digitsInfo);
-        this.endLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.bottomLongitude, digitsInfo);
+        this.startLatitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.geo.topLatitude, digitsInfo);
+        this.startLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.geo.topLongitude, digitsInfo);
+        this.endLatitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.geo.bottomLatitude, digitsInfo);
+        this.endLongitude = '' + this.decimalPipe.transform(this.queryFilter.geo?.geo.bottomLongitude, digitsInfo);
         this.emitter.emit(true);
       }
       this.ref.close()

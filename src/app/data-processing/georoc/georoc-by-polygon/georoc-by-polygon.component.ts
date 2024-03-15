@@ -12,6 +12,7 @@ import { SampleService } from 'src/app/services/rest/sample.service';
 import { Subscription } from 'rxjs';
 import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
+import { AND, OR } from 'src/app/db-querying/common/query-connector/query-connector.component';
 
 const GEO_DATA_LOOP = '_GEO_DATA_LOOP_';
 
@@ -39,7 +40,7 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
   }
   public spinnerOn = false;
   private sampleList = new Array<number>();
-  private finalReport: FinalReport = {items: 0, inserted: 0, rejected: 0};
+  private finalReport: FinalReport = { items: 0, inserted: 0, rejected: 0 };
   private sampleIndex = 0;
   private polygon = new Array<Array<number>>();
   private loop: Subscription | undefined;
@@ -53,14 +54,17 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     let initial: QueryFilter = {
-      authors: [''],
-      keywords: [''],
-      ref: '',
+      authors: { connector: AND, authors: [''] },
+      keywords: { connector: AND, keywords: ['']},
+      ref: { connector: AND, ref: '' },
       geo: {
-        topLatitude: 0,
-        topLongitude: 0,
-        bottomLatitude: 0,
-        bottomLongitude: 0
+        connector: AND,
+        geo: {
+          topLatitude: 0,
+          topLongitude: 0,
+          bottomLatitude: 0,
+          bottomLongitude: 0
+        }
       }
     };
 
@@ -72,12 +76,12 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
         if (this.sampleIndex >= this.sampleList.length) {
           this.progress.close();
           // console.log(this.finalReport);
- 
+
           let listInfo = new Array<DataListItem>();
           listInfo.push({ key: 'Processed', value: '' + this.finalReport.items });
           listInfo.push({ key: 'Inserted', value: '' + this.finalReport.inserted });
           listInfo.push({ key: 'Rejected', value: '' + this.finalReport.rejected + ' (already in database)' });
-        
+
           let params: ModalParams = {
             headerText: 'Final report',
             list: listInfo
@@ -85,7 +89,7 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
 
           let ref = this.modalService.open(AlertComponent, { centered: true });
           ref.componentInstance.params = params;
-          ref.componentInstance.emitter.subscribe(() => { this.finalReport = { items: 0, inserted: 0, rejected: 0}; ref.close(); });
+          ref.componentInstance.emitter.subscribe(() => { this.finalReport = { items: 0, inserted: 0, rejected: 0 }; ref.close(); });
         } else {
           this.eventGeneratorService.emit({
             key: PROGRESS_TEXT,
@@ -104,7 +108,7 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
   public getGeoSelection(event: any): void {
     console.log(event);
     if (event === CONFIRM) {
-      
+
 
       let ref = this.modalService.open(ConfirmComponent, { centered: true });
       ref.componentInstance.params = {
@@ -163,11 +167,11 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
   private setPolygon(params: QueryFilter): void {
     if (!!params.geo) {
       this.polygon.length = 0;
-      this.polygon.push([params.geo.topLongitude, params.geo.topLatitude]);
-      this.polygon.push([params.geo.bottomLongitude, params.geo.topLatitude]);
-      this.polygon.push([params.geo.bottomLongitude, params.geo.bottomLatitude]);
-      this.polygon.push([params.geo.topLongitude, params.geo.bottomLatitude]);
-      this.polygon.push([params.geo.topLongitude, params.geo.topLatitude]);
+      this.polygon.push([params.geo.geo.topLongitude, params.geo.geo.topLatitude]);
+      this.polygon.push([params.geo.geo.bottomLongitude, params.geo.geo.topLatitude]);
+      this.polygon.push([params.geo.geo.bottomLongitude, params.geo.geo.bottomLatitude]);
+      this.polygon.push([params.geo.geo.topLongitude, params.geo.geo.bottomLatitude]);
+      this.polygon.push([params.geo.geo.topLongitude, params.geo.geo.topLatitude]);
     }
   }
 
@@ -186,12 +190,12 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
             console.log(res);
             let r = parseInt(res.result);
             if (r === 1) {
-              this.finalReport.inserted ++;
+              this.finalReport.inserted++;
             } else {
-              this.finalReport.rejected ++;
+              this.finalReport.rejected++;
             }
             s.unsubscribe();
-            this.eventGeneratorService.emit({key: GEO_DATA_LOOP});
+            this.eventGeneratorService.emit({ key: GEO_DATA_LOOP });
           }
         );
         sampleData.unsubscribe();

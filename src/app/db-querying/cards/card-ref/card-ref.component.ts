@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/cor
 import { StoreService } from 'src/app/services/common/store.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { CardRefDialogComponent } from '../../card-dialogs/card-ref-dialog/card-ref-dialog.component';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
@@ -14,7 +14,7 @@ import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
   styleUrls: ['./card-ref.component.scss']
 })
 export class CardRefComponent implements OnInit, OnDestroy {
-  public queryFilter: QueryFilter = { ref: '', authors: [], keywords: [] };
+  public queryFilter: QueryFilter = initQueryFilter();
   public disabled = true;
   private sub: Subscription | undefined;
   private subModal: Subscription | undefined;
@@ -29,7 +29,7 @@ export class CardRefComponent implements OnInit, OnDestroy {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.sub = this.eventGeneratorService.on(RESET_FILTER).subscribe(
       (event: any) => {
-        this.queryFilter.ref = '';
+        this.queryFilter.ref.ref = '';
       }
     );
     this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
@@ -63,7 +63,7 @@ export class CardRefComponent implements OnInit, OnDestroy {
 
   public resetFilter(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
-    this.queryFilter.ref = '';
+    this.queryFilter.ref.ref = '';
     this.storeService.push({key: FILTER_KEY, data: this.queryFilter});    
     this.emitter.emit(true);
   }

@@ -30,7 +30,7 @@ export class CardAuthorsDialogComponent implements OnInit {
     this.authors = new Array<string>();
     this.queryFilter = this.storeService.get(FILTER_KEY);
     if (!!this.queryFilter) {
-      for (let a of this.queryFilter.authors) {
+      for (let a of this.queryFilter.authors.authors) {
         this.authors.push(a);
       }
     }
@@ -66,7 +66,7 @@ export class CardAuthorsDialogComponent implements OnInit {
 
   public confirm() {
     let filter = this.storeService.get(FILTER_KEY);
-    filter.authors = this.authors;
+    filter.authors.authors = this.authors;
     this.storeService.push({ key: FILTER_KEY, data: filter });
     this.emitter.emit(CONFIRM);
   }
