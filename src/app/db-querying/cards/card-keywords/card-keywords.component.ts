@@ -70,6 +70,10 @@ export class CardKeywordsComponent implements OnInit, OnDestroy {
     });
   }
 
+  public setConnector(event: any) {
+    this.queryFilter.keywords.connector = event;
+  }
+
   public resetFilter(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.queryFilter.keywords.keywords = [];

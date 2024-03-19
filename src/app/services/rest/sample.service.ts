@@ -7,6 +7,12 @@ import { QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-queryi
 import { StoreService, UserInfo } from '../common/store.service';
 import { ChemElements } from 'src/app/shared/const';
 
+export interface QueryInfoBody {
+  authors?: any;
+  keywords?: any;
+  reference?: any;
+  polygon?: any;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +36,7 @@ export class SampleService extends Rest {
             for (let c of r.components) {
               let chem = { component: c.component, value: '' + c.value, isIsotope: c.isIsotope };
               sample.components.push(chem);
-            } 
+            }
           }
         }
         return samples;
@@ -90,7 +96,7 @@ export class SampleService extends Rest {
       }
     ),
       catchError(this.handleError)
-    );;
+    );
   }
 
   private buildQueryString(filter: QueryFilter): string {
@@ -120,9 +126,33 @@ export class SampleService extends Rest {
   }
 
   public mainQueryTable(filter: QueryFilter): Observable<any> {
-    let url = this.serviceUrl + 'get-samples?1=1';
-    url += this.buildQueryString(filter);
-    return this.http.get(url);
+    // let url = this.serviceUrl + 'get-samples?1=1';
+    // url += this.buildQueryString(filter);
+    // return this.http.get(url);
+    let url = this.serviceUrl + 'query-info';
+    let body: QueryInfoBody = {};
+    if (filter.authors && filter.authors.authors.length > 0) {
+      body.authors = { operator: filter.authors.connector, authors: filter.authors.authors };
+    }
+    if (filter.keywords && filter.keywords.keywords.length > 0) {
+      let keys = '';
+      for (let k of filter.keywords.keywords) {
+        keys += k + ' ';
+      }
+      body.keywords = { operator: filter.keywords.connector, keywords: keys };
+    }
+    if (filter.ref && filter.ref.ref.length > 0) {
+      body.reference = { operator: filter.ref.connector, reference: filter.ref.ref };
+    }
+    return this.http.post(url, body).pipe(map(
+      (res: any) => {
+        if (res.status && res.status === 'success') {
+          return res;
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );
   }
 
 

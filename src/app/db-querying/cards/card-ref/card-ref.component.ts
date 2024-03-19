@@ -50,6 +50,10 @@ export class CardRefComponent implements OnInit, OnDestroy {
     }
   }
 
+  public setConnector(event: any) {
+    this.queryFilter.ref.connector = event;
+  }
+
   public editCard(): void {
     this.ref = this.modalService.open(CardRefDialogComponent, { centered: true });
     this.ref.componentInstance.emitter.subscribe((result: string) => {

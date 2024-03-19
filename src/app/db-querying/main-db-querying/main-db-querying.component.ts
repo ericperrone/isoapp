@@ -91,7 +91,10 @@ export class MainDbQueryingComponent implements OnInit, OnDestroy {
         console.log(res);
         // this.jsonHeader = res[0];
         // this.jsonTable = res.slice(1);
-        this.gridContent = res;
+        if (res.status === 'success')
+          this.gridContent = res.tBody;
+        else 
+          this.gridContent = [];
         this.spinnerOn = false;
         this.filterOn = false;
       }

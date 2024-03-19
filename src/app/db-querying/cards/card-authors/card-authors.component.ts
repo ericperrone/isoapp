@@ -70,6 +70,10 @@ export class CardAuthorsComponent implements OnInit, OnDestroy {
     });
   }
 
+  public setConnector(event: any) {
+    this.queryFilter.authors.connector = event;
+  }
+
   public resetFilter(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.queryFilter.authors.authors = [];
