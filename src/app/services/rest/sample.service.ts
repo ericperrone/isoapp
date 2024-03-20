@@ -144,6 +144,13 @@ export class SampleService extends Rest {
     if (filter.ref && filter.ref.ref.length > 0) {
       body.reference = { operator: filter.ref.connector, reference: filter.ref.ref };
     }
+    if (filter.geo && filter.geo.geo) {
+      body.polygon = {
+        operator: filter.geo.connector,
+        topLat: filter.geo.geo.topLatitude, topLon: filter.geo.geo.topLongitude,
+        bottomLat: filter.geo.geo.bottomLatitude, bottomLon: filter.geo.geo.bottomLongitude
+      };
+    }
     return this.http.post(url, body).pipe(map(
       (res: any) => {
         if (res.status && res.status === 'success') {
