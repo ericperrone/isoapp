@@ -1,5 +1,7 @@
-import { Component, Input, OnInit, AfterViewInit, HostListener } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
+import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { getElementName, locateByValue, saveCsvFile } from 'src/app/shared/tools';
@@ -18,7 +20,8 @@ export interface SpiderNorm {
   templateUrl: './spider.component.html',
   styleUrls: ['./spider.component.scss']
 })
-export class SpiderComponent implements OnInit, AfterViewInit {
+export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
+  private sub: any;
   public onlyREE = false;
   public showChart = false;
   public norms: Array<SpiderNorm> = new Array<SpiderNorm>();
@@ -46,9 +49,25 @@ export class SpiderComponent implements OnInit, AfterViewInit {
     this.chartSizeChange();
   }
 
-  constructor(private geoModelsService: GeoModelsService) { }
+  constructor(private geoModelsService: GeoModelsService,
+    private eventGeneratorService: EventGeneratorService) { }
+
+ngOnDestroy(): void {
+  if (this.sub) {
+    this.sub.unsubscribe();
+  }
+}
 
   ngOnInit(): void {
+    this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () => {
+        console.log(this.ref);
+        if (this.ref) {
+          this.ref.close();
+        }
+      }
+    );
+
     console.log(this.params);
     if (this.params?.modalRef) {
       this.ref = this.params.modalRef;

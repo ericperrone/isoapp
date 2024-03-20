@@ -1,14 +1,16 @@
-import { Component, Input, OnInit, HostListener } from '@angular/core';
+import { Component, Input, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 import { saveCsvFile } from 'src/app/shared/tools';
+import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 
 @Component({
   selector: 'app-plotting',
   templateUrl: './plotting.component.html',
   styleUrls: ['./plotting.component.scss']
 })
-export class PlottingComponent implements OnInit {
+export class PlottingComponent implements OnInit, OnDestroy {
   @Input() params: any;
   public series: Series = { xAxis: '', yAxis: '', width: 500, height: 400, series: [] };
   public chartOptions: any;
@@ -20,6 +22,7 @@ export class PlottingComponent implements OnInit {
   public chartHeight: number = 0;
   public changeSize = false;
   public draw = true;
+  private sub: any;
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
     console.log(event);
@@ -28,9 +31,18 @@ export class PlottingComponent implements OnInit {
     this.chartSizeChange();
   }
 
-  constructor(private storeService: StoreService) { }
+  constructor(private storeService: StoreService,
+    private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
+    this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () => {
+        if (this.ref) {
+          this.ref.close();
+        }
+      }
+    );
+
     if (!!this.params) {
       this.ref = this.params.ref;
     }
@@ -53,6 +65,12 @@ export class PlottingComponent implements OnInit {
       }
     }
     saveCsvFile(line);
+  }
+
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
   
   public getChartInstance(chart: object) {

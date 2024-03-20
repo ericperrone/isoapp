@@ -41,10 +41,12 @@ export class HeaderComponent implements OnInit {
   }
 
   public gotoTest() {
+    this.eventGeneratorService.emit({ key: CLOSE_ALL_MODALS });
     this.router.navigate(['test']);
   }
 
   public gotoLogin() {
+    this.eventGeneratorService.emit({ key: CLOSE_ALL_MODALS });
     this.router.navigate(['login']);
   }
 
