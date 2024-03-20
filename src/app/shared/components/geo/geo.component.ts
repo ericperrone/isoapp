@@ -204,9 +204,18 @@ export class GeoComponent implements OnInit, AfterViewInit {
 
   public confirm() {
     let filter = this.storeService.get(FILTER_KEY);
-    filter.geo = {
-      connector: AND,
-      geo: {
+    if (!filter.geo) {
+      filter.geo = {
+        connector: AND,
+        geo: {
+          topLatitude: this.coordinates[0][1],
+          topLongitude: this.coordinates[0][0],
+          bottomLatitude: this.coordinates[1][1],
+          bottomLongitude: this.coordinates[1][0]
+        }
+      }
+    } else {
+      filter.geo.geo = {
         topLatitude: this.coordinates[0][1],
         topLongitude: this.coordinates[0][0],
         bottomLatitude: this.coordinates[1][1],

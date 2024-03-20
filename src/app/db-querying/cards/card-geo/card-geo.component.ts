@@ -49,6 +49,17 @@ export class CardGeoComponent implements OnInit, OnDestroy {
     );
   }
 
+  public setConnector(event: any) {
+    if (!this.queryFilter.geo) {
+      this.queryFilter.geo = { connector: 'AND', geo: {bottomLatitude: 0, bottomLongitude: 0, topLatitude: 0, topLongitude: 0}}
+      this.queryFilter.geo.connector = event;
+    } else {
+      this.queryFilter.geo.connector = event;
+    }
+    this.storeService.push({key: FILTER_KEY, data: this.queryFilter});
+    this.emitter.emit(true);
+  }
+
   ngOnDestroy(): void {
     if (!!this.sub) {
       this.sub.unsubscribe();
