@@ -6,7 +6,7 @@ import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CardAuthorsDialogComponent } from 'src/app/db-querying/card-dialogs/card-authors-dialog/card-authors-dialog.component';
 import { StoreService } from 'src/app/services/common/store.service';
-import { QueryFilter, FILTER_KEY, RESET_FILTER } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 
 @Component({
   selector: 'app-file-uploader',
@@ -40,14 +40,14 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   }
 
   public authorDialog(): void {
-    this.storeService.push({ key: FILTER_KEY, data: { ref: '', authors: [], keywords: [] } });
+    this.storeService.push({ key: FILTER_KEY, data: initQueryFilter() });
     let ref = this.modalService.open(CardAuthorsDialogComponent, { centered: true });
     ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         let queryFilter = this.storeService.get(FILTER_KEY);
         if (this.authors.length > 0)
           this.authors += '; ';
-        for (let key of queryFilter.authors) {
+        for (let key of queryFilter.authors.authors) {
           this.authors += key + '; ';
         }
         this.authors = this.authors.trim();
@@ -83,6 +83,9 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
             this.progress = Math.round(100 * event.loaded / total);
           } else if (event instanceof HttpResponse) {
             s.unsubscribe();
+            if (isNaN(parseInt(this.year))) {
+              this.year = '' + (new Date()).getFullYear();
+            }
             let payload = {
               ref: this.dataSetRef,
               authors: this.authors,

@@ -1,0 +1,49 @@
+<div class="application-frame" style="background-color: white;">
+    <div class="row header pt-1 pb-1">
+        <div class="col-4 text-center">
+            Width:
+            <input type="number" class="form-control" [(ngModel)]="chartWidth" (ngModelChange)="changeSize = true"
+                style="max-width: 5em; display: inline-block;">
+            Height:
+            <input type="number" class="form-control" [(ngModel)]="chartHeight" (ngModelChange)="changeSize = true"
+                style="max-width: 5em; display: inline-block;">
+            &nbsp;
+            <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()" [disabled]="!changeSize"><i
+                    class="fa-solid fa-expand"></i></button>
+        </div>
+        <div class="col-6">&nbsp;</div>
+        <div class="col-2 text-right">
+            <button style="margin-right: 3px;" class="btn btn-outline-dark" type="button" (click)="donwloadCsv()"><i
+                    class="fa-solid fa-download"></i></button>
+            <button class="btn btn-outline-dark" type="button" (click)="ref ? ref.close() : undefined">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+    <div class="w100">
+        <div class="row bottom-bordered w95 centered">
+            <div class="col-4">
+                Element 1
+                <select class="form-select aligned ml-1" [(ngModel)]=vertices[0] (ngModelChange)="checkElements()">
+                    <option *ngFor="let e of elementList">{{ e }}</option>
+                </select>
+            </div>
+            <div class="col-4">
+                Element 2
+                <select class="form-select aligned ml-1" [(ngModel)]=vertices[1] (ngModelChange)="checkElements()">
+                    <option *ngFor="let e of elementList">{{ e }}</option>
+                </select>
+            </div>
+            <div class="col-4">
+                Element 3
+                <select class="form-select aligned ml-1" [(ngModel)]=vertices[2] (ngModelChange)="checkElements()">
+                    <option *ngFor="let e of elementList">{{ e }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="centered" *ngIf="showChart" style="margin-top: 1em;">
+        <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" class="centered"
+            (chartInstance)="getChartInstance($event)"></canvasjs-chart>
+    </div>
+</div>

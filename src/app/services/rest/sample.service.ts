@@ -78,7 +78,7 @@ export class SampleService extends Rest {
       const options = {
         'headers': headers
       };
-      return this.http.post(this.serviceUrl + 'insert-sample', payload).pipe(map(
+      return this.http.post(this.serviceUrl + 'insert-sample', payload, options).pipe(map(
         (res: any) => {
           if (res.status && res.status === 'success') {
             return res;

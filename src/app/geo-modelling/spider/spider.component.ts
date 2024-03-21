@@ -183,7 +183,7 @@ ngOnDestroy(): void {
 
   private drawChart(): void {
     this.setSeries();
-    console.log(this.spiderDiagram);
+    // console.log(this.spiderDiagram);
     let data = new Array<any>();
     for (let s of this.spiderDiagram.series) {
       data.push({ type: 'line', showInLegend: true, name: s.sample, dataPoints: s.data });

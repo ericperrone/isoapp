@@ -5,6 +5,7 @@ import { StoreService } from './store.service';
 import { DataSeries } from 'src/app/models/series';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
 import { SpiderComponent } from 'src/app/geo-modelling/spider/spider.component';
+import { TernaryComponent } from 'src/app/geo-modelling/ternary/ternary.component';
 // import { OUT_RESULT } from 'src/app/geo-modelling/mixing/mixing.component';
 
 export enum ModelList {
@@ -12,7 +13,8 @@ export enum ModelList {
   Plotting,
   Spider,
   MassBalance,
-  Melting
+  Melting,
+  Ternary
 }
 
 export interface EndMemberItem {
@@ -61,6 +63,11 @@ export class GeoModelService {
           this.model.modalRef = ref2;
           ref2.componentInstance.params = this.model;
           return ref2;
+        case ModelList.Ternary:
+          let ref3 = this.modalService.open(TernaryComponent, { fullscreen: true, windowClass: 'background-white' });
+          this.model.modalRef = ref3;
+          ref3.componentInstance.params = this.model;
+          return ref3;  
         default:
           break;  
       }

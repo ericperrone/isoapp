@@ -476,6 +476,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             this.geoModelService.setModel({ selectedModel: 2, endMembers: members  });
             this.ref = this.geoModelService.execute();
             break;  
+          case 5:
+            this.ref = this.geoModelService.setModel({ selectedModel: 5, endMembers: members });
+            this.ref = this.geoModelService.execute();
+            break; 
           case 1:
             break;
           case 2:
