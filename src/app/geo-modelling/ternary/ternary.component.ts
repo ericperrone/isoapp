@@ -39,7 +39,7 @@ export class TernaryComponent implements OnInit {
   public vertices = ['', '', ''];
   private verticesPoints = new Array<any>;
   public chartOptions: any;
-  public lato: number = 700;
+  public lato: number = 75;
   public fontSize = 16;
   public showChart = false;
   public charts: any;
@@ -124,12 +124,15 @@ export class TernaryComponent implements OnInit {
     this.xyPoints.length = 0;
     for (let e of this.abcPoints) {
       let sum = e.a + e.b + e.c;
-      let aa = e.a / sum * 100;
-      let bb = e.b / sum * 100;
-      let correction = 1 / this.lato
+      let aa = (e.a / sum) * 100;
+      let bb = (e.b / sum) * 100;
+      let cc = (e.c / sum) * 100;
+      // let correction = 1 / this.lato;
       // this.xyPoints.push({ x: 1 - aa - bb * 0.5, y: SQRT3 * 0.5 * bb });
-      this.xyPoints.push({ x: this.lato - aa * correction - bb * correction * 0.5, y: SQRT3 * 0.5 * bb * correction });
+      console.log(aa + ', ' + bb + ', ' + cc);
+      this.xyPoints.push({ x: this.lato - aa - bb * 0.5, y: SQRT3 * 0.5 * bb });
     }
+    console.log(this.xyPoints);
   }
 
   private drawChart(): void {
@@ -160,7 +163,7 @@ export class TernaryComponent implements OnInit {
         // interval: 10,
         // minimum: 0,
         // maximum: 10000
-        logarithmic: true
+        // logarithmic: true
       },
       toolTip: {
         shared: true
