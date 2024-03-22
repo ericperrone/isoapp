@@ -40,6 +40,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
     height: this.chartHeight,
     series: new Array<SpiderSeries>()
   }
+  public fixedRatio = false;
   @Input('params') params: GeoModel | undefined;
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
@@ -162,6 +163,12 @@ ngOnDestroy(): void {
   public chartSizeChange() {
     this.showChart = false;
     setTimeout(() => {
+      if (this.fixedRatio) {
+        this.chartWidth = 4 * this.chartHeight / 3;
+      } else {
+        this.chartWidth = Math.floor(window.innerWidth * 0.99);
+        this.chartHeight = Math.floor(window.innerHeight * 0.8);
+      }
       this.drawChart();
       this.showChart = true;
     }, 50);

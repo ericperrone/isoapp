@@ -23,6 +23,7 @@ export class PlottingComponent implements OnInit, OnDestroy {
   public changeSize = false;
   public draw = true;
   private sub: any;
+  public fixedRatio = false;
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
     console.log(event);
@@ -75,17 +76,19 @@ export class PlottingComponent implements OnInit, OnDestroy {
   
   public getChartInstance(chart: object) {
     this.charts = chart;
-    // console.log(this.charts);
   }
 
   public chartSizeChange() {
-    this.changeSize = false;
-    // this.chartOptions = {};
     this.draw = false;
-    this.drawChart();
     setTimeout(() => {
-      this.draw = true;
+      if (this.fixedRatio) {
+        this.chartWidth = 4 * this.chartHeight / 3;
+      } else {
+        this.chartWidth = Math.floor(window.innerWidth * 0.99);
+        this.chartHeight = Math.floor(window.innerHeight * 0.8);
+      }
       this.drawChart();
+      this.draw = true;
     }, 50);
   }
 
@@ -93,8 +96,6 @@ export class PlottingComponent implements OnInit, OnDestroy {
     if (!this.series) {
       return;
     }
-
-    console.log(this.series);
 
     let series = [];
     for (let s of this.series.series) {
@@ -142,8 +143,6 @@ export class PlottingComponent implements OnInit, OnDestroy {
       },
       data: series
     }
-
-    console.log(this.chartOptions);
   }
 
 }

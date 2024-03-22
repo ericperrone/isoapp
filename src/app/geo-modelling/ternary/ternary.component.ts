@@ -58,6 +58,7 @@ export class TernaryComponent implements OnInit {
   public charts: any;
   public xyPoints = new Array<Point2>();
   public abcPoints = new Array<Point3>();
+  public fixedRatio = false;
 
   constructor() { }
 
@@ -70,7 +71,7 @@ export class TernaryComponent implements OnInit {
   public donwloadCsv(): void {
     let csv = '';
     csv += 'sample;'
-      + this.vertices[0] + ';' + this.vertices[1] + ';' + this.vertices[2] + ';' 
+      + this.vertices[0] + ';' + this.vertices[1] + ';' + this.vertices[2] + ';'
       + this.vertices[0] + ' norm.;' + this.vertices[1] + ' norm.;' + this.vertices[2] + ' norm.;' +
       'x;y\n';
 
@@ -118,6 +119,12 @@ export class TernaryComponent implements OnInit {
   public chartSizeChange() {
     this.showChart = false;
     setTimeout(() => {
+      if (this.fixedRatio) {
+        this.chartWidth = 4 * this.chartHeight / 3;
+      } else {
+        this.chartWidth = Math.floor(window.innerWidth * 0.99);
+        this.chartHeight = Math.floor(window.innerHeight * 0.8);
+      }
       this.drawChart();
       this.showChart = true;
     }, 50);
