@@ -68,6 +68,7 @@ export class CardYearComponent implements OnInit, OnDestroy {
     this.ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
+        this.year = this.queryFilter.year?.year ? this.queryFilter.year?.year : '';
         this.emitter.emit(true);
       }
       this.ref.close();
