@@ -81,7 +81,7 @@ export class PlottingComponent implements OnInit, OnDestroy {
   public chartSizeChange() {
     this.draw = false;
     setTimeout(() => {
-      if (this.fixedRatio) {
+      if (this.fixedRatio === true) {
         this.chartWidth = 4 * this.chartHeight / 3;
       } else {
         this.chartWidth = Math.floor(window.innerWidth * 0.99);
@@ -89,7 +89,7 @@ export class PlottingComponent implements OnInit, OnDestroy {
       }
       this.drawChart();
       this.draw = true;
-    }, 50);
+    }, 150);
   }
 
   private drawChart(): void {

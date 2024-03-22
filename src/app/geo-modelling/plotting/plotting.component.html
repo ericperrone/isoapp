@@ -21,7 +21,7 @@
             </button>
         </div>
     </div>
-    <div class="centered">
+    <div class="centered" *ngIf="draw">
         <canvasjs-chart class="m-1 mb-1" [options]="chartOptions" class="centered"
             (chartInstance)="getChartInstance($event)"></canvasjs-chart>
     </div>
