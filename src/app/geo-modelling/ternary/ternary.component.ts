@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, HostListener } from '@angular/core';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
-import { distinct } from 'src/app/shared/tools';
+import { distinct, saveCsvFile } from 'src/app/shared/tools';
 
 export interface Point2 {
   member?: string;
@@ -15,7 +15,20 @@ export interface Point3 {
   c: number;
 }
 
+export interface CsvLine {
+  member: string;
+  a?: number;
+  b?: number;
+  c?: number;
+  an?: number;
+  bn?: number;
+  cn?: number;
+  x?: number;
+  y?: number;
+}
+
 export const SQRT3 = 1.7320508;
+const zero = 0.0001;
 
 @Component({
   selector: 'app-ternary',
@@ -29,7 +42,7 @@ export class TernaryComponent implements OnInit {
     // console.log(event);
     this.chartWidth = Math.floor(window.innerWidth * 0.99);
     this.chartHeight = Math.floor(window.innerHeight * 0.8);
-    // this.chartSizeChange();
+    this.chartSizeChange();
   }
   public chartWidth: number = Math.floor(window.innerWidth * 0.99);
   public chartHeight: number = Math.floor(window.innerHeight * 0.8);;
@@ -39,7 +52,7 @@ export class TernaryComponent implements OnInit {
   public vertices = ['', '', ''];
   private verticesPoints = new Array<any>;
   public chartOptions: any;
-  public lato: number = 75;
+  public lato: number = 1;
   public fontSize = 16;
   public showChart = false;
   public charts: any;
@@ -55,11 +68,59 @@ export class TernaryComponent implements OnInit {
   }
 
   public donwloadCsv(): void {
+    let csv = '';
+    csv += 'sample;'
+      + this.vertices[0] + ';' + this.vertices[1] + ';' + this.vertices[2] + ';' 
+      + this.vertices[0] + ' norm.;' + this.vertices[1] + ' norm.;' + this.vertices[2] + ' norm.;' +
+      'x;y\n';
 
+
+    if (!!this.params && !!this.params.endMembers) {
+      for (let e of this.params?.endMembers) {
+        let csvLine: CsvLine = { member: '' };
+        for (let m of e) {
+          if (m.type === 'F' && m.name.toLowerCase().indexOf('sample') > -1) {
+            csvLine.member = m.value;
+          }
+          if (m.type != 'F') {
+            if (m.name == this.vertices[0]) {
+              csvLine.a = parseFloat(m.value);
+            } else if (m.name === this.vertices[1]) {
+              csvLine.b = parseFloat(m.value);
+            } else if (m.name === this.vertices[2]) {
+              csvLine.c = parseFloat(m.value);
+            }
+          }
+        }
+        if (!!csvLine.a && !!csvLine.b && !!csvLine.c) {
+          let sum = csvLine.a + csvLine.b + csvLine.c;
+          csvLine.an = (csvLine.a / sum);
+          csvLine.bn = (csvLine.b / sum);
+          csvLine.cn = (csvLine.c / sum);
+          csvLine.x = this.lato - csvLine.an - csvLine.bn * 0.5;
+          csvLine.y = SQRT3 * 0.5 * csvLine.bn;
+        }
+        csv += csvLine.member + ';'
+        csv += (csvLine.a ? csvLine.a : '') + ';';
+        csv += (csvLine.b ? csvLine.b : '') + ';';
+        csv += (csvLine.c ? csvLine.c : '') + ';';
+        csv += (csvLine.an ? csvLine.an : '') + ';';
+        csv += (csvLine.bn ? csvLine.bn : '') + ';';
+        csv += (csvLine.cn ? csvLine.cn : '') + ';';
+        csv += (csvLine.x ? csvLine.x : '') + ';';
+        csv += (csvLine.y ? csvLine.y : '') + ';\n';
+      }
+    }
+
+    saveCsvFile(csv);
   }
 
-  public chartSizeChange(): void {
-
+  public chartSizeChange() {
+    this.showChart = false;
+    setTimeout(() => {
+      this.drawChart();
+      this.showChart = true;
+    }, 50);
   }
 
   public getChartInstance(chart: object) {
@@ -71,7 +132,7 @@ export class TernaryComponent implements OnInit {
       return;
     if (this.vertices[0] != this.vertices[1] && this.vertices[0] != this.vertices[2] &&
       this.vertices[1] != this.vertices[2]) {
-      this.drawChart();
+      this.chartSizeChange();
     }
   }
 
@@ -91,15 +152,15 @@ export class TernaryComponent implements OnInit {
 
   private setVerticesPoints(): void {
     this.verticesPoints.length = 0;
-    let zero = 0.0001;
-    this.verticesPoints.push({ x: zero, y: zero });
-    this.verticesPoints.push({ x: this.lato, y: zero });
-    this.verticesPoints.push({ x: this.lato * 0.5, y: this.lato * 0.5 * SQRT3 });
+    this.verticesPoints.push({ indexLabel: this.vertices[0], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero, y: zero });
+    this.verticesPoints.push({ indexLabel: this.vertices[1], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato, y: zero });
+    this.verticesPoints.push({ indexLabel: this.vertices[2], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
     this.verticesPoints.push({ x: zero, y: zero });
   }
 
   private buildPoints(): void {
     if (!!this.params && !!this.params.endMembers) {
+      this.abcPoints.length = 0;
       for (let e of this.params?.endMembers) {
         let abc = { a: 0, b: 0, c: 0 };
         for (let m of e) {
@@ -115,7 +176,6 @@ export class TernaryComponent implements OnInit {
         }
         this.abcPoints.push(abc);
       }
-      console.log(this.abcPoints);
       this.toPoint2();
     }
   }
@@ -124,15 +184,11 @@ export class TernaryComponent implements OnInit {
     this.xyPoints.length = 0;
     for (let e of this.abcPoints) {
       let sum = e.a + e.b + e.c;
-      let aa = (e.a / sum) * 100;
-      let bb = (e.b / sum) * 100;
-      let cc = (e.c / sum) * 100;
-      // let correction = 1 / this.lato;
-      // this.xyPoints.push({ x: 1 - aa - bb * 0.5, y: SQRT3 * 0.5 * bb });
-      console.log(aa + ', ' + bb + ', ' + cc);
-      this.xyPoints.push({ x: this.lato - aa - bb * 0.5, y: SQRT3 * 0.5 * bb });
+      let aa = (e.a / sum);
+      let bb = (e.b / sum);
+      let cc = (e.c / sum);
+      this.xyPoints.push({ x: zero + (this.lato - aa - bb * 0.5), y: zero + SQRT3 * 0.5 * bb });
     }
-    console.log(this.xyPoints);
   }
 
   private drawChart(): void {
@@ -153,17 +209,20 @@ export class TernaryComponent implements OnInit {
       axisX: {
         titleFontSize: this.fontSize,
         labelFontSize: this.fontSize,
-        // interval: 1
+        lineColor: '#ffffff',
+        labelFontColor: '#ffffff',
+        gridColor: '#ffffff',
+        minimum: -0.01,
+        maximun: 2.1
       },
       axisY: {
-        // title: 'Sample concentration / ' + this.selectedMethod,
         titleFontSize: this.fontSize,
         labelFontSize: this.fontSize,
-        margin: 10,
-        // interval: 10,
-        // minimum: 0,
-        // maximum: 10000
-        // logarithmic: true
+        lineColor: '#ffffff',
+        labelFontColor: '#ffffff',
+        gridColor: '#ffffff',
+        minimum: -0.01,
+        maximun: 1
       },
       toolTip: {
         shared: true
