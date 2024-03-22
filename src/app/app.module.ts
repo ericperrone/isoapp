@@ -60,6 +60,8 @@ import { ReservoirComponent } from './shared/components/reservoir/reservoir.comp
 import { TestComponent } from './test/test.component';
 import { QueryConnectorComponent } from './db-querying/common/query-connector/query-connector.component';
 import { TernaryComponent } from './geo-modelling/ternary/ternary.component';
+import { CardYearComponent } from './db-querying/cards/card-year/card-year.component';
+import { CardYearDialogComponent } from './db-querying/card-dialogs/card-year-dialog/card-year-dialog.component';
 
 
 @NgModule({
@@ -113,6 +115,8 @@ import { TernaryComponent } from './geo-modelling/ternary/ternary.component';
     TestComponent,
     QueryConnectorComponent,
     TernaryComponent,
+    CardYearComponent,
+    CardYearDialogComponent,
   ],
   imports: [
     BrowserModule,

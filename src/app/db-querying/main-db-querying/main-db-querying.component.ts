@@ -26,6 +26,7 @@ export interface QueryFilter {
   authors: {connector: string, authors: string[]};
   keywords: {connector: string, keywords: string[]};
   geo?: {connector: string, geo: GeoRegion};
+  year?: {connector: string, year: string};
 }
 
 export function initQueryFilter(): QueryFilter {

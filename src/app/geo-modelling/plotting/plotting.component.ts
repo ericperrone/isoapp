@@ -89,7 +89,7 @@ export class PlottingComponent implements OnInit, OnDestroy {
       }
       this.drawChart();
       this.draw = true;
-    }, 150);
+    }, 50);
   }
 
   private drawChart(): void {

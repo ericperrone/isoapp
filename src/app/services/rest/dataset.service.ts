@@ -3,7 +3,7 @@ import { Rest } from './rest';
 import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Dataset } from 'src/app/models/dataset';
-import { CACHE_LINKS } from 'src/app/shared/const';
+import { CACHE_LINKS, CACHE_YEARS } from 'src/app/shared/const';
 import { StoreService } from '../common/store.service';
 
 @Injectable({
@@ -16,10 +16,25 @@ export class DatasetService extends Rest {
     super();
   }
 
+  public getYears(year?: string): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-years').pipe(map(
+      (res: any) => {
+        let years = new Array<string>();
+        if (!!res) {
+          for (let r of res) {
+            years.push(r);
+          }
+        }
+        this.storeService.clean(CACHE_YEARS);
+        this.storeService.push({ key: CACHE_YEARS, data: years});
+        return years;
+      }
+    ),
+      catchError(this.handleError)
+    );  
+  }
+
   public getLinks(link?: string): Observable<any> {
-    // if (this.storeService.get(CACHE_LINKS)) {
-    //   this.getLinksFromCache(link);      
-    // }
     return this.getLinksFromRemote();
   }
 
