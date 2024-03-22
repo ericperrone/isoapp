@@ -33,7 +33,7 @@ export class CardYearComponent implements OnInit, OnDestroy {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.sub = this.eventGeneratorService.on(RESET_FILTER).subscribe(
       (event: any) => {
-        this.queryFilter.year = undefined;
+        this.resetFilter();
       }
     );
     this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
@@ -89,6 +89,7 @@ export class CardYearComponent implements OnInit, OnDestroy {
   }
 
   public resetFilter(): void {
+    this.year = '';
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.queryFilter.year = undefined;
     this.storeService.push({ key: FILTER_KEY, data: this.queryFilter });
