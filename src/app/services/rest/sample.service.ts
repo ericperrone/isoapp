@@ -12,6 +12,7 @@ export interface QueryInfoBody {
   keywords?: any;
   reference?: any;
   polygon?: any;
+  year?: any;
 }
 
 @Injectable({
@@ -151,6 +152,13 @@ export class SampleService extends Rest {
         bottomLat: filter.geo.geo.bottomLatitude, bottomLon: filter.geo.geo.bottomLongitude
       };
     }
+    if (filter.year && filter.year.year) {
+      body.year = {
+        operator: filter.year.connector,
+        year: filter.year.year
+      };
+    }
+
     return this.http.post(url, body).pipe(map(
       (res: any) => {
         if (res.status && res.status === 'success') {
