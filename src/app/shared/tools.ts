@@ -1,3 +1,29 @@
+import { EndMemberItem } from "../services/common/geo-model.service";
+
+export function toPPM(item: EndMemberItem): number {
+    let result = parseFloat(item.value);
+    let um = item.um;
+    if (!um && item.name.indexOf('(') > -1 && item.name.indexOf(')') > -1) {
+        um = item.name.substring(1 + item.name.indexOf('('));
+        um = um.substring(0, um.length - 1);
+    }
+    if (!!um && um.length > 0) {
+        um = um.toUpperCase();
+        switch(um) {
+            case 'PPB':
+                result = 1000 * result;
+                break;
+            case 'PPT':
+                result = 1000000 * result;
+                break; 
+            case 'WT%':
+                result = 10000 * result;
+                break;       
+        }
+    }
+    return result;
+}
+
 export function getElementName(e: string): string {
     let i = e.indexOf('(');
     if (i > -1)  

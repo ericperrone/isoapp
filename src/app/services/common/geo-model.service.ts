@@ -21,6 +21,7 @@ export interface EndMemberItem {
   type: string;
   name: string;
   value: string;
+  um?: string;
   selected?: boolean;
 }
 

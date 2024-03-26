@@ -4,7 +4,7 @@ import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
-import { getElementName, locateByValue, saveCsvFile } from 'src/app/shared/tools';
+import { getElementName, locateByValue, saveCsvFile, toPPM } from 'src/app/shared/tools';
 
 export const REE = ['La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Yb', 'Lu'];
 
@@ -134,14 +134,15 @@ ngOnDestroy(): void {
             continue;
           }
           if (item.type === 'C' || item.type === 'I') {
+            console.log(item);
             let name = getElementName(item.name);
             if (!!this.theNorm && !!this.theNorm.norm[name] && item.value.length > 0) {
               if (!!this.onlyREE) {
                 if (locateByValue(REE, name) > -1) {
-                  ss.data.push({ label: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
+                  ss.data.push({ label: name, y: toPPM(item) / this.theNorm.norm[name] });
                 }
               } else {
-                ss.data.push({ label: name, y: parseFloat(item.value) / this.theNorm.norm[name] });
+                ss.data.push({ label: name, y: toPPM(item) / this.theNorm.norm[name] });
               }
             }
           }
