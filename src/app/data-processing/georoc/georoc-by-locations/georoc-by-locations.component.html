@@ -22,7 +22,8 @@
             <div class="col-6">Selected: <span style="font-weight: bold;">{{ selection.name }}</span></div>
             <div class="col-6 text-right">
                 <button type="button" class="btn btn-secondary" (click)="reset()">Reset</button>&nbsp;
-                <button type="button" class="btn btn-primary" (click)="use()">Use this</button>
+                <button type="button" class="btn btn-primary" (click)="use()" *ngIf="!spins">Use this</button>
+                <button type="button" class="btn btn-primary" *ngIf="!!spins"><i class="fa-solid fa-circle-notch fa-spin"></i></button>
             </div>
         </div>
     </div>

@@ -46,6 +46,7 @@ export class GeorocByLocationsComponent implements OnInit, OnDestroy {
   private loop: Subscription | undefined;
   private interrupt: Subscription | undefined;
   private progress: any;
+  public spins = false;
   // @ViewChild('authlist') authlist: ElementRef | undefined;
 
 
@@ -183,9 +184,11 @@ export class GeorocByLocationsComponent implements OnInit, OnDestroy {
 
   public use(): void {
     this.spinner2On = true;
+    this.spins = true;
     let sub = this.geoRocService.getSamplesByLocation(this.selection.name).subscribe(
       (res: Array<number>) => {
         this.spinner2On = false;
+        this.spins = false;
         this.sampleList.length = 0;
         for (let r of res) {
           this.sampleList.push(r);

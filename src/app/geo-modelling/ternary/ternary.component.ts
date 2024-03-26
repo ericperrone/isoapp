@@ -223,6 +223,7 @@ export class TernaryComponent implements OnInit {
         maximun: 2.1
       },
       axisY: {
+        tickColor: '#ffffff',
         titleFontSize: this.fontSize,
         labelFontSize: this.fontSize,
         lineColor: '#ffffff',
