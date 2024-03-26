@@ -11,19 +11,19 @@
             <li [ngbNavItem]="1">
                 <a ngbNavLink>By authors</a>
                 <ng-template ngbNavContent>
-                    <app-georoc-by-authors></app-georoc-by-authors>
+                    <app-georoc-by-authors *ngIf="!disabled"></app-georoc-by-authors>
                 </ng-template>
             </li>
             <li [ngbNavItem]="2">
                 <a ngbNavLink>By locations</a>
                 <ng-template ngbNavContent>
-                    <app-georoc-by-locations></app-georoc-by-locations>
+                    <app-georoc-by-locations *ngIf="!disabled"></app-georoc-by-locations>
                 </ng-template>
             </li>
             <li [ngbNavItem]="3">
                 <a ngbNavLink>By polygon</a>
                 <ng-template ngbNavContent>
-                    <app-georoc-by-polygon></app-georoc-by-polygon>
+                    <app-georoc-by-polygon *ngIf="!disabled"></app-georoc-by-polygon>
                 </ng-template>
             </li>
         </ul>

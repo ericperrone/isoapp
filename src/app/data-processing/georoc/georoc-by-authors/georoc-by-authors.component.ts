@@ -10,7 +10,7 @@ import { ModalParams, CONFIRM, CANCEL, DataListItem } from 'src/app/shared/modal
 import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
-import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
+import { PROGRESS_INTERRUPT, PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
 import { isEmpty } from 'src/app/shared/tools';
 
 export const FULL_DATA_LOOP = '_FULL_DATA_LOOP_';
@@ -48,6 +48,7 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
   private sampleList = new Array<number>();
   private sampleIndex = 0;
   private loop: Subscription | undefined;
+  private interrupt: Subscription | undefined;
   private progress: any;
   @ViewChild('authlist') authlist: ElementRef | undefined;
 
@@ -60,6 +61,15 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadAuthors();
+
+    this.interrupt = this.eventGeneratorService.on(PROGRESS_INTERRUPT).subscribe(
+      () => {
+        console.log('RECEIVED INTERRUPT SIGNAL');
+        this.progress.close();
+        this.loop?.unsubscribe();
+        this.loop = undefined;
+      }
+    );
 
     this.loop = this.eventGeneratorService.on(FULL_DATA_LOOP).subscribe(
       () => {
@@ -96,6 +106,9 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (!!this.loop) {
       this.loop.unsubscribe();
+    }
+    if (!!this.interrupt) {
+      this.interrupt.unsubscribe();
     }
   }
 
@@ -245,7 +258,7 @@ export class GeorocByAuthorsComponent implements OnInit, OnDestroy {
             if (response === CONFIRM) {
               this.sampleIndex = 0;
 
-              this.progress = this.modalService.open(ProgressComponent, { centered: true });
+              this.progress = this.modalService.open(ProgressComponent, { centered: true, backdrop: 'static' });
               ref.componentInstance.params = {
                 bodyText: 'Processed ' + this.sampleIndex + ' items of ' + this.sampleList.length
               }

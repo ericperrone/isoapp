@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit,  } from '@angular/core';
 import { StoreService } from 'src/app/services/common/store.service';
 import { GeoParams } from 'src/app/shared/components/geo/geo.component';
 import { FILTER_KEY, QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
@@ -10,9 +10,10 @@ import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { Subscription } from 'rxjs';
-import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
+import { PROGRESS_TEXT, PROGRESS_INTERRUPT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { AND, OR } from 'src/app/db-querying/common/query-connector/query-connector.component';
+import { Router } from '@angular/router';
 
 const GEO_DATA_LOOP = '_GEO_DATA_LOOP_';
 
@@ -44,9 +45,11 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
   private sampleIndex = 0;
   private polygon = new Array<Array<number>>();
   private loop: Subscription | undefined;
+  private interrupt: Subscription | undefined;
   private progress: any;
 
   constructor(private storeService: StoreService,
+    private router: Router,
     private eventGeneratorService: EventGeneratorService,
     private georocService: GeorocService,
     private sampleService: SampleService,
@@ -69,6 +72,14 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
     };
 
     this.storeService.push({ key: FILTER_KEY, data: initial });
+
+    this.interrupt = this.eventGeneratorService.on(PROGRESS_INTERRUPT).subscribe(
+      () =>  { 
+        this.progress.close();
+        this.loop?.unsubscribe();
+        this.loop = undefined;
+      }
+    );
 
     this.loop = this.eventGeneratorService.on(GEO_DATA_LOOP).subscribe(
       () => {
@@ -103,6 +114,12 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.storeService.clean(FILTER_KEY);
+    if (!!this.loop) {
+      this.loop.unsubscribe();
+    }
+    if (!!this.interrupt) {
+      this.interrupt.unsubscribe();
+    }
   }
 
   public getGeoSelection(event: any): void {
@@ -151,7 +168,7 @@ export class GeorocByPolygonComponent implements OnInit, OnDestroy {
             sub2.unsubscribe();
             if (response === CONFIRM) {
               this.sampleIndex = 0;
-              this.progress = this.modalService.open(ProgressComponent, { centered: true });
+              this.progress = this.modalService.open(ProgressComponent, { centered: true, backdrop: 'static' });
               ref.componentInstance.params = {
                 bodyText: 'Processed ' + this.sampleIndex + ' items of ' + this.sampleList.length
               }

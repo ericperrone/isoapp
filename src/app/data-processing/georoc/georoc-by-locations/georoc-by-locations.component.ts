@@ -1,7 +1,8 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeorocService } from 'src/app/services/georoc/georoc.service';
@@ -9,7 +10,7 @@ import { SampleService } from 'src/app/services/rest/sample.service';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { CONFIRM, DataListItem, ModalParams } from 'src/app/shared/modals/modal-params';
-import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
+import { PROGRESS_INTERRUPT, PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
 
 export const LOC_DATA_LOOP = '_LOC_DATA_LOOP_';
 
@@ -30,7 +31,7 @@ interface FinalReport {
   templateUrl: './georoc-by-locations.component.html',
   styleUrls: ['./georoc-by-locations.component.scss']
 })
-export class GeorocByLocationsComponent implements OnInit {
+export class GeorocByLocationsComponent implements OnInit, OnDestroy {
   public spinnerOn = false;
   public locations: any;
   public cache: any;
@@ -43,6 +44,7 @@ export class GeorocByLocationsComponent implements OnInit {
   public finalReport: FinalReport = {location: '', items: 0, inserted: 0, rejected: 0};
   private sampleIndex = 0;
   private loop: Subscription | undefined;
+  private interrupt: Subscription | undefined;
   private progress: any;
   // @ViewChild('authlist') authlist: ElementRef | undefined;
 
@@ -55,6 +57,15 @@ export class GeorocByLocationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLocations();
+    this.interrupt = this.eventGeneratorService.on(PROGRESS_INTERRUPT).subscribe(
+      () => { 
+        this.progress.close();
+        this.eventGeneratorService.emit({key: CLOSE_ALL_MODALS});
+        this.loop?.unsubscribe();
+        this.loop = undefined;   
+      }
+    );
+
     this.loop = this.eventGeneratorService.on(LOC_DATA_LOOP).subscribe(
       () => {
         this.sampleIndex++;
@@ -85,6 +96,15 @@ export class GeorocByLocationsComponent implements OnInit {
         }
       }
     );
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.loop) {
+      this.loop.unsubscribe();
+    }
+    if (!!this.interrupt) {
+      this.interrupt.unsubscribe();
+    }
   }
 
   private loadLocations() {
@@ -187,7 +207,7 @@ export class GeorocByLocationsComponent implements OnInit {
             if (response === CONFIRM) {
               this.sampleIndex = 0;
               
-              this.progress = this.modalService.open(ProgressComponent, { centered: true });
+              this.progress = this.modalService.open(ProgressComponent, { centered: true, backdrop: 'static' });
               ref.componentInstance.params = {
                 bodyText: 'Processed ' + this.sampleIndex + ' items of ' + this.sampleList.length
               }

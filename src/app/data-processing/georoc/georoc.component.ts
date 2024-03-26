@@ -1,20 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild, Renderer2, OnDestroy } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { Router } from '@angular/router';
-import { Observable, Subscription, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
-import { FormsModule } from '@angular/forms';
-import { JsonPipe } from '@angular/common';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-
-import { GeorocService } from 'src/app/services/georoc/georoc.service';
-import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
-import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
-import { ModalParams, CONFIRM, CANCEL, DataListItem } from 'src/app/shared/modals/modal-params';
-import { GeorocData, GeorocFullData, GeorocNative, toGeorocFullData } from 'src/app/models/georoc';
-import { SampleService } from 'src/app/services/rest/sample.service';
-import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
-import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress/progress.component';
+import { StoreService } from 'src/app/services/common/store.service';
 
 
 @Component({
@@ -32,15 +19,15 @@ import { PROGRESS_TEXT, ProgressComponent } from 'src/app/shared/modals/progress
 })
 export class GeorocComponent implements OnInit, OnDestroy {
   public active = 0;
+  public disabled = false;
 
-  constructor(private renderer: Renderer2,
-    private router: Router,
-    private eventGeneratorService: EventGeneratorService,
-    private modalService: NgbModal,
-    private sampleService: SampleService,
-    private geoRocService: GeorocService) { }
+  constructor(private storeService: StoreService,
+    private router: Router) { }
 
   ngOnInit(): void {
+    if (!this.storeService.getCurrentUser()) {
+      this.disabled = true;
+    }
   }
 
   ngOnDestroy(): void {

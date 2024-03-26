@@ -4,6 +4,7 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { Subscription } from 'rxjs';
 
 export const PROGRESS_TEXT = '_PROGRESS_TEXT_';
+export const PROGRESS_INTERRUPT = '_PROGRESS_INTERRUPT_';
 
 @Component({
   selector: 'app-progress',
@@ -29,5 +30,9 @@ export class ProgressComponent implements OnInit, OnDestroy {
     if (this.sub) {
       this.sub.unsubscribe();
     }
+  }
+
+  interrupt(): void {
+    this.eventGeneratorService.emit({ key: PROGRESS_INTERRUPT });
   }
 }
