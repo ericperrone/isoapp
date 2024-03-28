@@ -50,6 +50,9 @@ export class TernaryComponent implements OnInit {
   public ref: any;
   public elementList = new Array<string>();
   public vertices = ['', '', ''];
+  public vertices2 = ['', '', ''];
+  public labels = ['', '', ''];
+  public operators = [0, 0, 0];
   private verticesPoints = new Array<any>;
   public chartOptions: any;
   public lato: number = 1;
@@ -71,8 +74,8 @@ export class TernaryComponent implements OnInit {
   public donwloadCsv(): void {
     let csv = '';
     csv += 'sample;'
-      + this.vertices[0] + ';' + this.vertices[1] + ';' + this.vertices[2] + ';'
-      + this.vertices[0] + ' norm.;' + this.vertices[1] + ' norm.;' + this.vertices[2] + ' norm.;' +
+      + this.labels[0] + ';' + this.labels[1] + ';' + this.labels[2] + ';'
+      + this.labels[0] + ' norm.;' + this.labels[1] + ' norm.;' + this.labels[2] + ' norm.;' +
       'x;y\n';
 
 
@@ -117,6 +120,8 @@ export class TernaryComponent implements OnInit {
   }
 
   public chartSizeChange() {
+    if (this.vertices[0].trim().length === 0 || this.vertices[1].trim().length === 0 || this.vertices[2].trim().length === 0)
+      return;
     this.showChart = false;
     setTimeout(() => {
       if (this.fixedRatio) {
@@ -143,6 +148,22 @@ export class TernaryComponent implements OnInit {
     }
   }
 
+  public checkElements2(n: number): void {
+    if (this.vertices2[n] === this.vertices[n]) {
+      return;
+    }
+    if (this.operators[n] === 0)
+      this.vertices2[n] = '';
+    this.chartSizeChange();
+  }
+
+  public checkOperator(n: number): void {
+    this.operators[n] = parseInt('' + this.operators[n]);
+    if (this.operators[n] === 0)
+      this.vertices2[n] = '';
+    this.chartSizeChange();
+  }
+
   private buildElementsList(): void {
     if (!!this.params && !!this.params.endMembers) {
       for (let e of this.params?.endMembers) {
@@ -157,19 +178,38 @@ export class TernaryComponent implements OnInit {
     }
   }
 
+  private setLables(): void {
+    for (let i = 0; i < this.vertices.length; i++) {
+      switch (this.operators[i]) {
+        case 0:
+          this.labels[i] = this.vertices[i];
+          break;
+        case 1:
+          this.labels[i] = this.vertices[i] + '+' + this.vertices2[i];
+          break;
+        case 2:
+          this.labels[i] = this.vertices[i] + '/' + this.vertices2[i];
+          break;
+      }
+    }
+  }
+
   private setVerticesPoints(): void {
+    this.setLables();
     this.verticesPoints.length = 0;
-    this.verticesPoints.push({ indexLabel: this.vertices[0], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero, y: zero });
-    this.verticesPoints.push({ indexLabel: this.vertices[1], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato, y: zero });
-    this.verticesPoints.push({ indexLabel: this.vertices[2], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
+    this.verticesPoints.push({ indexLabel: this.labels[0], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero, y: zero });
+    this.verticesPoints.push({ indexLabel: this.labels[1], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato, y: zero });
+    this.verticesPoints.push({ indexLabel: this.labels[2], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
     this.verticesPoints.push({ x: zero, y: zero });
   }
 
   private buildPoints(): void {
     if (!!this.params && !!this.params.endMembers) {
       this.abcPoints.length = 0;
+
       for (let e of this.params?.endMembers) {
         let abc = { a: 0, b: 0, c: 0 };
+
         for (let m of e) {
           if (m.type != 'F') {
             if (m.name == this.vertices[0]) {
@@ -181,8 +221,31 @@ export class TernaryComponent implements OnInit {
             }
           }
         }
+
+        for (let m of e) {
+          if (m.type != 'F') {
+            if (m.name == this.vertices2[0]) {
+              if (this.operators[0] == 1)
+                abc.a += parseFloat(m.value);
+              else if (this.operators[0] == 2 && 0 !== parseFloat(m.value))
+                abc.a /= parseFloat(m.value);
+            } else if (m.name === this.vertices2[1]) {
+              if (this.operators[1] == 1)
+                abc.a += parseFloat(m.value);
+              else if (this.operators[1] == 2 && 0 !== parseFloat(m.value))
+                abc.a /= parseFloat(m.value);
+            } else if (m.name === this.vertices2[2]) {
+              if (this.operators[2] == 1)
+                abc.a += parseFloat(m.value);
+              else if (this.operators[2] == 2 && 0 !== parseFloat(m.value))
+                abc.a /= parseFloat(m.value);
+            }
+          }
+        }
+
         this.abcPoints.push(abc);
       }
+
       this.toPoint2();
     }
   }
