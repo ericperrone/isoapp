@@ -93,7 +93,7 @@ ngOnDestroy(): void {
           this.selectedMethod = this.norms[0].method;
         s.unsubscribe();
         this.chartSizeChange();
-        console.log(this.norms);
+        // console.log(this.norms);
       }
     );
   }
@@ -111,7 +111,7 @@ ngOnDestroy(): void {
     for (let n of this.norms) {
       if (n.method === this.selectedMethod) {
         this.theNorm = { ...n };
-        console.log(this.theNorm);
+        // console.log(this.theNorm);
         return;
       }
     }
@@ -134,7 +134,7 @@ ngOnDestroy(): void {
             continue;
           }
           if (item.type === 'C' || item.type === 'I') {
-            console.log(item);
+            // console.log(item);
             let name = getElementName(item.name);
             if (!!this.theNorm && !!this.theNorm.norm[name] && item.value.length > 0) {
               if (!!this.onlyREE) {
@@ -214,9 +214,6 @@ ngOnDestroy(): void {
         titleFontSize: this.fontSize,
         labelFontSize: this.fontSize,
         margin: 10,
-        // interval: 10,
-        // minimum: 0,
-        // maximum: 10000
         logarithmic: true
       },
       toolTip: {

@@ -1,4 +1,4 @@
-import { isEmpty } from "../shared/tools";
+import { UM_SEP1, UM_SEP2, isEmpty } from "../shared/tools";
 import { Author } from "./author";
 import { Dataset } from "./dataset";
 import { Sample, SampleElement, ChemComponent } from "./sample";
@@ -108,7 +108,7 @@ function buildSample(data: GeorocData): Sample {
     if (!!d && !!d.results) {
         for (let i = 0; i < d.results?.length; i++) {
             let cc: ChemComponent = {
-                component: d.results[i].itemName + (!!d.results[i].unit ? ' (' + d.results[i].unit + ')' : ''),
+                component: d.results[i].itemName + (!!d.results[i].unit ? ' ' + UM_SEP1 + d.results[i].unit + UM_SEP2 : ''),
                 value: '' + d.results[i].value,
                 isIsotope: checkIsotope(d.results[i].itemName),
                 um: d.results[i].unit

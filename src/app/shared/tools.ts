@@ -1,10 +1,13 @@
 import { EndMemberItem } from "../services/common/geo-model.service";
 
+export const UM_SEP1 = '[';
+export const UM_SEP2 = ']';
+
 export function toPPM(item: EndMemberItem): number {
     let result = parseFloat(item.value);
     let um = item.um;
-    if (!um && item.name.indexOf('(') > -1 && item.name.indexOf(')') > -1) {
-        um = item.name.substring(1 + item.name.indexOf('('));
+    if (!um && item.name.indexOf(UM_SEP1) > -1 && item.name.indexOf(UM_SEP2) > -1) {
+        um = item.name.substring(1 + item.name.indexOf(UM_SEP1));
         um = um.substring(0, um.length - 1);
     }
     if (!!um && um.length > 0) {
@@ -25,7 +28,7 @@ export function toPPM(item: EndMemberItem): number {
 }
 
 export function getElementName(e: string): string {
-    let i = e.indexOf('(');
+    let i = e.indexOf(UM_SEP1);
     if (i > -1)  
         return e.substring(0, i).trim();
     return e;

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Rest, corsOptions } from './rest';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { ChemComponent, Sample, SampleElement } from 'src/app/models/sample';
 import { QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { StoreService, UserInfo } from '../common/store.service';
@@ -60,7 +60,9 @@ export class SampleService extends Rest {
       const options = {
         'headers': headers
       };
-      return this.http.post(this.serviceUrl + 'insert-fulldata', payload, options);
+      return this.http.post(this.serviceUrl + 'insert-fulldata', payload, options).pipe(
+        map( (res: any) => { return of(res) } ), catchError(this.handleError)
+      );
     }
 
     return this.http.post(this.serviceUrl + 'insert-fulldata', payload);
