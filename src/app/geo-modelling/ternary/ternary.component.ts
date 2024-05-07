@@ -53,7 +53,9 @@ export class TernaryComponent implements OnInit {
   public vertices2 = ['', '', ''];
   public labels = ['', '', ''];
   public operators = [0, 0, 0];
-  private verticesPoints = new Array<any>;
+  private verticesPoints = new Array<any>();
+  private grid1Points = new Array<Array<any>>();
+  private grid2Points = new Array<Array<any>>();
   public chartOptions: any;
   public lato: number = 1;
   public fontSize = 16;
@@ -261,11 +263,41 @@ export class TernaryComponent implements OnInit {
     }
   }
 
+  private setGridPoints(): void {
+    this.grid1Points = new Array<any>();
+    this.grid2Points = new Array<any>();
+
+    this.grid1Points.push([{ x: zero + 0.1, y: zero }, { x: zero + 0.05, y: zero + SQRT3 * 0.5 * 0.1 }]);
+    this.grid1Points.push([{ x: zero + 0.2, y: zero }, { x: zero + 0.1, y: zero + SQRT3 * 0.5 * 0.2 }]);
+    this.grid1Points.push([{ x: zero + 0.3, y: zero }, { x: zero + 0.15, y: zero + SQRT3 * 0.5 * 0.3 }]);
+    this.grid1Points.push([{ x: zero + 0.4, y: zero }, { x: zero + 0.2, y: zero + SQRT3 * 0.5 * 0.4 }]);
+    this.grid1Points.push([{ x: zero + 0.5, y: zero }, { x: zero + 0.25, y: zero + SQRT3 * 0.5 * 0.5 }]);
+    this.grid1Points.push([{ x: zero + 0.6, y: zero }, { x: zero + 0.3, y: zero + SQRT3 * 0.5 * 0.6 }]);
+    this.grid1Points.push([{ x: zero + 0.7, y: zero }, { x: zero + 0.35, y: zero + SQRT3 * 0.5 * 0.7 }]);
+    this.grid1Points.push([{ x: zero + 0.8, y: zero }, { x: zero + 0.4, y: zero + SQRT3 * 0.5 * 0.8 }]);
+    this.grid1Points.push([{ x: zero + 0.9, y: zero }, { x: zero + 0.45, y: zero + SQRT3 * 0.5 * 0.9 }]);
+
+    this.grid2Points.push([{ x: zero + 0.1, y: zero }, { x: zero + 0.1 + (1 - 0.1) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.1) }]);
+    this.grid2Points.push([{ x: zero + 0.2, y: zero }, { x: zero + 0.2 + (1 - 0.2) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.2) }]);
+    this.grid2Points.push([{ x: zero + 0.3, y: zero }, { x: zero + 0.3 + (1 - 0.3) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.3) }]);
+    this.grid2Points.push([{ x: zero + 0.4, y: zero }, { x: zero + 0.4 + (1 - 0.4) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.4) }]);
+    this.grid2Points.push([{ x: zero + 0.5, y: zero }, { x: zero + 0.5 + (1 - 0.5) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.5) }]);
+    this.grid2Points.push([{ x: zero + 0.6, y: zero }, { x: zero + 0.6 + (1 - 0.6) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.6) }]);
+    this.grid2Points.push([{ x: zero + 0.7, y: zero }, { x: zero + 0.7 + (1 - 0.7) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.7) }]);
+    this.grid2Points.push([{ x: zero + 0.8, y: zero }, { x: zero + 0.8 + (1 - 0.8) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.8) }]);
+    this.grid2Points.push([{ x: zero + 0.9, y: zero }, { x: zero + 0.9 + (1 - 0.9) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.9) }]);
+  }
+  
   private drawChart(): void {
     this.showChart = true;
     let data = new Array<any>();
     this.setVerticesPoints();
     this.buildPoints();
+    this.setGridPoints();
+    for (let i = 0; i < 9; i++) {
+      data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid1Points[i] });  
+      data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid2Points[i] });  
+    }
     data.push({ type: 'line', showInLegend: false, name: '', dataPoints: this.verticesPoints });
     data.push({ type: 'scatter', showInLegend: false, name: '', dataPoints: this.xyPoints });
 
