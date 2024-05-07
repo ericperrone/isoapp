@@ -198,8 +198,8 @@ export class TernaryComponent implements OnInit {
     this.setLables();
     this.verticesPoints.length = 0;
     this.verticesPoints.push({ indexLabel: this.labels[0], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero, y: zero });
-    this.verticesPoints.push({ indexLabel: this.labels[1], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato, y: zero });
-    this.verticesPoints.push({ indexLabel: this.labels[2], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
+    this.verticesPoints.push({ indexLabel: this.labels[2], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato, y: zero });
+    this.verticesPoints.push({ indexLabel: this.labels[1], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
     this.verticesPoints.push({ x: zero, y: zero });
   }
 
