@@ -198,10 +198,12 @@ export class TernaryComponent implements OnInit {
 
   private setVerticesPoints(): void {
     this.setLables();
-    this.verticesPoints.length = 0;
-    this.verticesPoints.push({ indexLabel: this.labels[0], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero, y: zero });
-    this.verticesPoints.push({ indexLabel: this.labels[2], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato, y: zero });
-    this.verticesPoints.push({ indexLabel: this.labels[1], indexLabelFontSize: 11, indexLabelPlacement: 'inside', x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
+    let fontSize = 20;
+    let orientation = 'vertical';
+    this.verticesPoints.length = 0;    
+    this.verticesPoints.push({ indexLabel: this.labels[0], indexLabelFontSize: fontSize, indexLabelOrientation: orientation, indexLabelWrap: true, x: zero, y: zero });
+    this.verticesPoints.push({ indexLabel: this.labels[2], indexLabelFontSize: fontSize, indexLabelOrientation: orientation, indexLabelWrap: true, x: zero + this.lato, y: zero });
+    this.verticesPoints.push({ indexLabel: this.labels[1], indexLabelFontSize: fontSize, indexLabelOrientation: orientation, indexLabelWrap: true, x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
     this.verticesPoints.push({ x: zero, y: zero });
   }
 
@@ -298,7 +300,7 @@ export class TernaryComponent implements OnInit {
       data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid1Points[i] });  
       data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid2Points[i] });  
     }
-    data.push({ type: 'line', showInLegend: false, name: '', dataPoints: this.verticesPoints });
+    data.push({ type: 'line', showInLegend: false, name: '', color: '#000000', dataPoints: this.verticesPoints });
     data.push({ type: 'scatter', showInLegend: false, name: '', dataPoints: this.xyPoints });
 
     this.chartOptions = {
