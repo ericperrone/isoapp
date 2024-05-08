@@ -11,8 +11,8 @@ export interface GeorocFullData {
 }
 
 export interface GeorocAuthor {
-    personFirstName?: string;
-    personLastName?: string;
+    firstName?: string;
+    lastName?: string;
     personID?: number;
 }
 
@@ -30,6 +30,7 @@ export interface GeorocReference {
     samplingfeatureid: number;
     authors: Array<GeorocAuthor>;
     // reference: GeorocRef;
+    externalIdentifier?: string;
     doi?: string;
     journal?: string;
     pages?: string;
@@ -44,11 +45,16 @@ export interface GeorocResult {
     unit: string;
 }
 
+export interface GeorocBatchData {
+    results?: Array<GeorocResult>;
+}
+
 export interface GeorocData {
     sampleNum?: number;
     sampleID?: number;
     sampleName: string;
-    results?: Array<GeorocResult>;
+    //results?: Array<GeorocResult>;
+    batchData?: Array<GeorocBatchData>;
     uniqueID?: string;
     batches?: Array<number>;
     references?: Array<GeorocReference>;
@@ -105,13 +111,13 @@ export function toGeorocFullData(gData: GeorocData): GeorocFullData {
 function buildSample(data: GeorocData): Sample {
     let sample: Sample = { fields: new Array<SampleElement>, components: new Array<ChemComponent>() };
     let d = data;
-    if (!!d && !!d.results) {
-        for (let i = 0; i < d.results?.length; i++) {
+    if (!!d && !!d.batchData && !!d.batchData[0].results) {
+        for (let i = 0; i < d.batchData[0].results?.length; i++) {
             let cc: ChemComponent = {
-                component: d.results[i].itemName + (!!d.results[i].unit ? ' ' + UM_SEP1 + d.results[i].unit + UM_SEP2 : ''),
-                value: '' + d.results[i].value,
-                isIsotope: checkIsotope(d.results[i].itemName),
-                um: d.results[i].unit
+                component: d.batchData[0].results[i].itemName + (!!d.batchData[0].results[i].unit ? ' ' + UM_SEP1 + d.batchData[0].results[i].unit + UM_SEP2 : ''),
+                value: '' + d.batchData[0].results[i].value,
+                isIsotope: checkIsotope(d.batchData[0].results[i].itemName),
+                um: d.batchData[0].results[i].unit
             };
             sample.components.push(cc);
         }
@@ -135,10 +141,11 @@ function getDataset(data: GeorocData): Dataset {
     let d = data;
     if (!!d.references) {
         for (let ref of d.references) {
-            dataset.ref = ref.doi ? ref.doi : '';
+            // dataset.ref = ref.doi ? ref.doi : '';
+            dataset.ref = ref.externalIdentifier ? ref.externalIdentifier : '';
             dataset.year = ref.publicationYear;
             for (let a of ref.authors) {
-                dataset.authors += a.personLastName + ',' + a.personFirstName + ';';
+                dataset.authors += a.lastName + ',' + a.firstName + ';';
             }
             dataset.authors = dataset.authors.substring(0, dataset.authors.length - 1);
             let meta = ref.title?.toUpperCase().split(' ');
@@ -164,8 +171,8 @@ function getAuthors(data: GeorocData): Array<Author> {
         for (let r of d.references) {
             for (let a of r.authors) {
                 let author: Author = { surname: '', name: '' };
-                author.surname = a.personLastName ? a.personLastName : '';
-                author.name = a.personFirstName ? a.personFirstName : '';
+                author.surname = a.lastName ? a.lastName : '';
+                author.name = a.firstName ? a.firstName : '';
                 if (author.surname.length > 0 && author.name.length > 0) {
                     authors.push(author);
                 }
