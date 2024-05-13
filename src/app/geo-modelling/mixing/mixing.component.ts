@@ -92,6 +92,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   public fontSize = 16;
   public legendFontSize = 20;
   public changeSize = false;
+  public fixedRatio = false;
 
   constructor(private eventGeneratorService: EventGeneratorService,
     private modalService: NgbModal,
@@ -152,6 +153,9 @@ export class MixingComponent implements OnInit, OnDestroy {
     // this.drawChart();
     setTimeout(() => {
       // this.draw = true;
+      if (this.fixedRatio) {
+        this.chartWidth = 4 * this.chartHeight / 3;
+      }
       this.chart();
     }, 50);
   }
