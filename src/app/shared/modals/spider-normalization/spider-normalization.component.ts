@@ -1,62 +1,68 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CANCEL, CONFIRM, ModalParams } from '../modal-params';
+import { SpiderNorm } from 'src/app/geo-modelling/spider/spider.component';
+
+export interface SpiderNormResult {
+  status: string;
+  norm?: SpiderNorm;
+}
 
 export interface NormFactor {
-  'Li': number;
-  'B': number;
-  'Sc': number;
-  'V': number;
-  'Cr': number;
-  'Co': number;
-  'Ni': number;
-  'Cu': number;
-  'Zn': number;
-  'Ga': number;
-  'Ge': number;
-  'As': number;
-  'Se': number;
-  'Cs': number;
-  'Rb': number;
-  'Ba': number;
-  'Th': number;
-  'U': number;
-  'Nb': number;
-  'Ta': number;
-  'La': number;
-  'Ce': number;
-  'Pb': number;
-  'Pr': number;
-  'Sr': number;
-  'Nd': number;
-  'Sm': number;
-  'Zr': number;
-  'Hf': number;
-  'Eu': number;
-  'Gd': number;
-  'Tb': number;
-  'Dy': number;
-  'Y': number;
-  'Ho': number;
-  'Er': number;
-  'Tm': number;
-  'Yb': number;
-  'Lu': number;
-  'Mo': number;
-  'Pd': number;
-  'Ag': number;
-  'Cd': number;
-  'In': number;
-  'Sn': number;
-  'Sb': number;
-  'W': number;
-  'Re': number;
-  'Os': number;
-  'Ir': number;
-  'Pt': number;
-  'Au': number;
-  'Hg': number;
-  'Tl': number;
-  'Bi': number;
+  Li?: number;
+  B?: number;
+  Sc?: number;
+  V?: number;
+  Cr?: number;
+  Co?: number;
+  Ni?: number;
+  Cu?: number;
+  Zn?: number;
+  Ga?: number;
+  Ge?: number;
+  As?: number;
+  Se?: number;
+  Cs?: number;
+  Rb?: number;
+  Ba?: number;
+  Th?: number;
+  U?: number;
+  Nb?: number;
+  Ta?: number;
+  La?: number;
+  Ce?: number;
+  Pb?: number;
+  Pr?: number;
+  Sr?: number;
+  Nd?: number;
+  Sm?: number;
+  Zr?: number;
+  Hf?: number;
+  Eu?: number;
+  Gd?: number;
+  Tb?: number;
+  Dy?: number;
+  Y?: number;
+  Ho?: number;
+  Er?: number;
+  Tm?: number;
+  Yb?: number;
+  Lu?: number;
+  Mo?: number;
+  Pd?: number;
+  Ag?: number;
+  Cd?: number;
+  In?: number;
+  Sn?: number;
+  Sb?: number;
+  W?: number;
+  Re?: number;
+  Os?: number;
+  Ir?: number;
+  Pt?: number;
+  Au?: number;
+  Hg?: number;
+  Tl?: number;
+  Bi?: number;
 }
 
 export interface NormItem {
@@ -90,11 +96,24 @@ export class SpiderNormalizationComponent implements OnInit {
   }
 
   public cancel() {
-    this.emitter.emit(CANCEL);
+    let response: SpiderNormResult = { status: CANCEL };
+    this.emitter.emit(response);
   }
 
   public confirm() {
-    this.emitter.emit(CONFIRM);
+    let sn: SpiderNorm = { method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm()};
+    let response: SpiderNormResult = { status: CONFIRM, norm: sn };
+    this.emitter.emit(response);
+  }
+
+  private buildNorm(): any {
+    let factor: any = {};
+    for (let item of this.normItemList) {
+      if (item.value !== 0 && !item.excluded) {
+        factor[item.element] = item.value;
+      }
+    }
+    return factor;
   }
 
   onModelChange(): void {
@@ -111,7 +130,7 @@ export class SpiderNormalizationComponent implements OnInit {
         atLeast++;
     }
 
-    if (sum <= 0 || atLeast <= 0)
+    if (sum === 0 || atLeast === 0)
       this.disabled = true;
     else 
       this.disabled = false;

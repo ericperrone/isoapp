@@ -6,7 +6,7 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
-import { SpiderNormalizationComponent } from 'src/app/shared/modals/spider-normalization/spider-normalization.component';
+import { SpiderNormResult, SpiderNormalizationComponent } from 'src/app/shared/modals/spider-normalization/spider-normalization.component';
 import { getElementName, locateByValue, saveCsvFile, toPPM } from 'src/app/shared/tools';
 
 export const REE = ['La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Yb', 'Lu'];
@@ -56,11 +56,11 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private modalService: NgbModal, private geoModelsService: GeoModelsService,
     private eventGeneratorService: EventGeneratorService) { }
 
-ngOnDestroy(): void {
-  if (this.sub) {
-    this.sub.unsubscribe();
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
-}
 
   ngOnInit(): void {
     this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
@@ -126,9 +126,10 @@ ngOnDestroy(): void {
 
   public addNorm(): void {
     let refer = this.modalService.open(SpiderNormalizationComponent, { centered: true, backdrop: false, size: 'lg' });
-    refer.componentInstance.emitter.subscribe((result: string) => {
+    refer.componentInstance.emitter.subscribe((result: SpiderNormResult) => {
       console.log(result);
-      if (result === CONFIRM) {
+      if (result.status === CONFIRM && !!result.norm) {
+        this.norms.push(result.norm)
       }
       refer.close()
     });

@@ -7,14 +7,11 @@
     </div>
     <div class="scrollable" style="max-height: 20em; width: 100%;">
         <div class="row" style="width: 95% !important" *ngFor="let item of normItemList">
-            <div class="col-md-2 col-sm-12 text-center">
+            <div class="col-md-4 col-sm-12 text-center">
                 <span class="item-element">{{ item.element }}</span>
             </div>
-            <div class="col-md-6 col-sm-12">
+            <div class="col-md-8 col-sm-12">
                 Value: <input type="number" class="form-control" [(ngModel)]="item.value" style="width: 50% !important; display: inline;" (ngModelChange)="onModelChange()">
-            </div>
-            <div class="col-md-4 col-sm-12">
-                Exclude: <input type="checkbox" [(ngModel)]="item.excluded" (ngModelChange)="onModelChange()">
             </div>
         </div>
     </div>
