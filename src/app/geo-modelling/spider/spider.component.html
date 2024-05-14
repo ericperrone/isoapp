@@ -16,7 +16,8 @@
                 (ngModelChange)="chartSizeChange()" style="max-width: 12em; display: inline-block;">
                 <option *ngFor="let n of norms">{{ n.method }}</option>
             </select>
-            <span style="margin-left: 10px; margin-right: 3px;">REE only</span> <input type="checkbox"
+            <span style="margin-left: 1em;" class="clickable"><i class="fa-solid fa-circle-plus" (click)="addNorm()"></i></span>
+            <span style="margin-left: 1em; margin-right: 3px;">REE only</span> <input type="checkbox"
                 [(ngModel)]="onlyREE" style="display: inline-block;" (ngModelChange)="handleREE()">
         </div>
         <div class="col-2 text-right">

@@ -1,9 +1,12 @@
 import { Component, Input, OnInit, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
+import { CONFIRM } from 'src/app/shared/modals/modal-params';
+import { SpiderNormalizationComponent } from 'src/app/shared/modals/spider-normalization/spider-normalization.component';
 import { getElementName, locateByValue, saveCsvFile, toPPM } from 'src/app/shared/tools';
 
 export const REE = ['La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Yb', 'Lu'];
@@ -50,7 +53,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.chartSizeChange();
   }
 
-  constructor(private geoModelsService: GeoModelsService,
+  constructor(private modalService: NgbModal, private geoModelsService: GeoModelsService,
     private eventGeneratorService: EventGeneratorService) { }
 
 ngOnDestroy(): void {
@@ -119,6 +122,16 @@ ngOnDestroy(): void {
 
   public getChartInstance(chart: object) {
     this.charts = chart;
+  }
+
+  public addNorm(): void {
+    let refer = this.modalService.open(SpiderNormalizationComponent, { centered: true, backdrop: false, size: 'lg' });
+    refer.componentInstance.emitter.subscribe((result: string) => {
+      console.log(result);
+      if (result === CONFIRM) {
+      }
+      refer.close()
+    });
   }
 
   public setSeries(): void {

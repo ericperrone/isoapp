@@ -62,6 +62,7 @@ import { QueryConnectorComponent } from './db-querying/common/query-connector/qu
 import { TernaryComponent } from './geo-modelling/ternary/ternary.component';
 import { CardYearComponent } from './db-querying/cards/card-year/card-year.component';
 import { CardYearDialogComponent } from './db-querying/card-dialogs/card-year-dialog/card-year-dialog.component';
+import { SpiderNormalizationComponent } from './shared/modals/spider-normalization/spider-normalization.component';
 
 
 @NgModule({
@@ -117,6 +118,7 @@ import { CardYearDialogComponent } from './db-querying/card-dialogs/card-year-di
     TernaryComponent,
     CardYearComponent,
     CardYearDialogComponent,
+    SpiderNormalizationComponent,
   ],
   imports: [
     BrowserModule,
