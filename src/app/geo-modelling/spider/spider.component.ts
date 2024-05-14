@@ -110,8 +110,8 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.norms.length > 0)
           this.selectedMethod = this.norms[0].method;
 
-        this.storeService.push({key: SPIDER_NORM, data: store});
-        s.unsubscribe();        
+        this.storeService.push({ key: SPIDER_NORM, data: store });
+        s.unsubscribe();
 
         this.chartSizeChange();
         // console.log(this.norms);
@@ -151,6 +151,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
         let found = false;
         for (let i = 0; i < this.norms.length; i++) {
           if (this.norms[i].method === result.norm.method) {
+            this.norms[i] = result.norm;
             found = true;
             break;
           }
@@ -159,7 +160,9 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
           this.norms.push(result.norm)
         this.saveInSession(result.norm);
       }
-      refer.close()
+      refer.close();
+      this.chartSizeChange();
+
     });
   }
 
