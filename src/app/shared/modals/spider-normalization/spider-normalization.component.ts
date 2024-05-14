@@ -92,19 +92,10 @@ export class SpiderNormalizationComponent implements OnInit {
         for (let i = 0; i < store.length; i++) {
           if (this.params === store[i].method) {
             this.normName = store[i].method;
-            let fields = Object.getOwnPropertyNames(store[i].norm);
-            console.log(fields);
-            // this.order = norm {U: 0.0074, Y: 1.57, Ba: 2.41, Ce: 0.613, Cs: 0.19, …}
             for (let n = 0; n < this.order.length; n++) {
               this.normItemList.push({ element: this.order[n], value: store[i].norm[this.order[n]], position: i + 1, excluded: false });
             }
           }
-          // this.normName = store[i].method;
-          // this.order = store[i].order;
-          // for (let j = 0; j < store[i].norm.length; j++) {
-          //   // this.normItemList.push({ element: this.order[i], value: store[i].norm[j]., position: i + 1, excluded: false });
-          // }
-          // // { method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm() };         
         }
       }
     } else {

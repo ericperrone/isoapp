@@ -148,10 +148,35 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
     refer.componentInstance.emitter.subscribe((result: SpiderNormResult) => {
       console.log(result);
       if (result.status === CONFIRM && !!result.norm) {
-        this.norms.push(result.norm)
+        let found = false;
+        for (let i = 0; i < this.norms.length; i++) {
+          if (this.norms[i].method === result.norm.method) {
+            found = true;
+            break;
+          }
+        }
+        if (!found)
+          this.norms.push(result.norm)
+        this.saveInSession(result.norm);
       }
       refer.close()
     });
+  }
+
+  private saveInSession(norm: any): void {
+    let store = this.storeService.get(SPIDER_NORM);
+    if (!store) {
+      store = new Array<any>();
+      this.storeService.push({ key: SPIDER_NORM, data: store });
+    }
+
+    for (let i = 0; i < store.length; i++) {
+      if (norm.method === store[i].method) {
+        store[i] = norm;
+        return;
+      }
+    }
+    store.push(norm);
   }
 
   public setSeries(): void {
