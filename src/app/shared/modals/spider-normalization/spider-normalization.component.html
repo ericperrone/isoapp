@@ -4,6 +4,7 @@
 <div class="modal-body">
     <div style="margin-bottom: 1.5em; margin-top: 1.5em;">
         Label: <input type="text" [(ngModel)]="normName" class="form-control" style="width: 70% !important; display: inline;" (ngModelChange)="onModelChange()"> 
+        <button class="btn btn-outline-dark ms-5" (click)="saveInSession()" [disabled]="disabled"><i class="fa-solid fa-right-to-bracket"></i></button>
     </div>
     <div class="scrollable" style="max-height: 20em; width: 100%;">
         <div class="row" style="width: 95% !important" *ngFor="let item of normItemList">

@@ -1,68 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CANCEL, CONFIRM, ModalParams } from '../modal-params';
 import { SpiderNorm } from 'src/app/geo-modelling/spider/spider.component';
+import { StoreService } from 'src/app/services/common/store.service';
 
 export interface SpiderNormResult {
   status: string;
   norm?: SpiderNorm;
-}
-
-export interface NormFactor {
-  Li?: number;
-  B?: number;
-  Sc?: number;
-  V?: number;
-  Cr?: number;
-  Co?: number;
-  Ni?: number;
-  Cu?: number;
-  Zn?: number;
-  Ga?: number;
-  Ge?: number;
-  As?: number;
-  Se?: number;
-  Cs?: number;
-  Rb?: number;
-  Ba?: number;
-  Th?: number;
-  U?: number;
-  Nb?: number;
-  Ta?: number;
-  La?: number;
-  Ce?: number;
-  Pb?: number;
-  Pr?: number;
-  Sr?: number;
-  Nd?: number;
-  Sm?: number;
-  Zr?: number;
-  Hf?: number;
-  Eu?: number;
-  Gd?: number;
-  Tb?: number;
-  Dy?: number;
-  Y?: number;
-  Ho?: number;
-  Er?: number;
-  Tm?: number;
-  Yb?: number;
-  Lu?: number;
-  Mo?: number;
-  Pd?: number;
-  Ag?: number;
-  Cd?: number;
-  In?: number;
-  Sn?: number;
-  Sb?: number;
-  W?: number;
-  Re?: number;
-  Os?: number;
-  Ir?: number;
-  Pt?: number;
-  Au?: number;
-  Hg?: number;
-  Tl?: number;
-  Bi?: number;
 }
 
 export interface NormItem {
@@ -72,26 +15,29 @@ export interface NormItem {
   excluded: boolean;
 }
 
+export const SPIDER_NORM = '_SPIDER_NORM_';
+
 @Component({
   selector: 'app-spider-normalization',
   templateUrl: './spider-normalization.component.html',
   styleUrls: ['./spider-normalization.component.scss']
 })
 export class SpiderNormalizationComponent implements OnInit {
-  @Input() params: ModalParams | undefined;
+  @Input() params: string | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   public normName = '';
   public order = ['Li', 'B', 'Sc', 'V', 'Cr', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Cs', 'Rb', 'Ba', 'Th', 'U', 'Nb', 'Ta', 'La', 'Ce', 'Pb', 'Pr', 'Sr', 'Nd', 'Sm', 'Zr', 'Hf', 'Eu', 'Gd', 'Tb', 'Dy', 'Y', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Mo', 'Pd', 'Ag', 'Cd', 'In', 'Sn', 'Sb', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Tl', 'Bi']
   public normItemList = new Array<NormItem>();
   public disabled = true;
 
-  constructor() { }
+  constructor(private storeService: StoreService) { }
 
   ngOnInit(): void {
-    this.normItemList = new Array<NormItem>();
-    for (let i = 0; i < this.order.length; i++) {
-      this.normItemList.push({element: this.order[i], value: 0, position: i + 1, excluded: false});
-    }
+    this.initStoredNorm();
+    // this.normItemList = new Array<NormItem>();
+    // for (let i = 0; i < this.order.length; i++) {
+    //   this.normItemList.push({ element: this.order[i], value: 0, position: i + 1, excluded: false });
+    // }
     this.onModelChange();
   }
 
@@ -101,7 +47,7 @@ export class SpiderNormalizationComponent implements OnInit {
   }
 
   public confirm() {
-    let sn: SpiderNorm = { method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm()};
+    let sn: SpiderNorm = { method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm() };
     let response: SpiderNormResult = { status: CONFIRM, norm: sn };
     this.emitter.emit(response);
   }
@@ -132,9 +78,56 @@ export class SpiderNormalizationComponent implements OnInit {
 
     if (sum === 0 || atLeast === 0)
       this.disabled = true;
-    else 
+    else
       this.disabled = false;
-      
+
+  }
+
+  initStoredNorm(): void {
+    console.log(this.params);
+    this.normItemList = new Array<NormItem>();
+    if (!!this.params) {
+      let store = this.storeService.get(SPIDER_NORM);
+      if (!!store) {
+        for (let i = 0; i < store.length; i++) {
+          if (this.params === store[i].method) {
+            this.normName = store[i].method;
+            let fields = Object.getOwnPropertyNames(store[i].norm);
+            console.log(fields);
+            // this.order = norm {U: 0.0074, Y: 1.57, Ba: 2.41, Ce: 0.613, Cs: 0.19, …}
+            for (let n = 0; n < this.order.length; n++) {
+              this.normItemList.push({ element: this.order[n], value: store[i].norm[this.order[n]], position: i + 1, excluded: false });
+            }
+          }
+          // this.normName = store[i].method;
+          // this.order = store[i].order;
+          // for (let j = 0; j < store[i].norm.length; j++) {
+          //   // this.normItemList.push({ element: this.order[i], value: store[i].norm[j]., position: i + 1, excluded: false });
+          // }
+          // // { method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm() };         
+        }
+      }
+    } else {
+      for (let i = 0; i < this.order.length; i++) {
+        this.normItemList.push({ element: this.order[i], value: 0, position: i + 1, excluded: false });
+      }
+    }
+  }
+
+  saveInSession(): void {
+    let store = this.storeService.get(SPIDER_NORM);
+    if (!store) {
+      store = new Array<any>();
+      this.storeService.push({ key: SPIDER_NORM, data: store });
+    }
+
+    for (let i = 0; i < store.length; i++) {
+      if (this.normName === store[i].method) {
+        store[i] = { method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm() };
+        return;
+      }
+    }
+    store.push({ method: this.normName, keys: this.order, order: this.order, norm: this.buildNorm() });
   }
 
 }

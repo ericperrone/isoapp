@@ -4,9 +4,10 @@ import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
+import { StoreService } from 'src/app/services/common/store.service';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
-import { SpiderNormResult, SpiderNormalizationComponent } from 'src/app/shared/modals/spider-normalization/spider-normalization.component';
+import { SPIDER_NORM, SpiderNormResult, SpiderNormalizationComponent } from 'src/app/shared/modals/spider-normalization/spider-normalization.component';
 import { getElementName, locateByValue, saveCsvFile, toPPM } from 'src/app/shared/tools';
 
 export const REE = ['La', 'Ce', 'Pr', 'Nd', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Yb', 'Lu'];
@@ -54,6 +55,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   constructor(private modalService: NgbModal, private geoModelsService: GeoModelsService,
+    private storeService: StoreService,
     private eventGeneratorService: EventGeneratorService) { }
 
   ngOnDestroy(): void {
@@ -77,6 +79,11 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ref = this.params.modalRef;
     }
 
+    let store = this.storeService.get(SPIDER_NORM);
+    if (!store) {
+      store = new Array<any>();
+    }
+
     let s = this.geoModelsService.getNorms().subscribe(
       (res: any) => {
         for (let r of res) {
@@ -90,11 +97,22 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
           for (let k of keys) {
             Object.defineProperty(sn.norm, k, { value: parseFloat(obj[k]) });
           }
-          this.norms.push(sn);
+          // this.norms.push(sn);
+          store.push(sn);
         }
+
+        // let store = this.storeService.get(SPIDER_NORM);
+        if (!!store) {
+          for (let s of store)
+            this.norms.push(s);
+        }
+
         if (this.norms.length > 0)
           this.selectedMethod = this.norms[0].method;
-        s.unsubscribe();
+
+        this.storeService.push({key: SPIDER_NORM, data: store});
+        s.unsubscribe();        
+
         this.chartSizeChange();
         // console.log(this.norms);
       }
@@ -126,6 +144,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public addNorm(): void {
     let refer = this.modalService.open(SpiderNormalizationComponent, { centered: true, backdrop: false, size: 'lg' });
+    refer.componentInstance.params = this.selectedMethod;
     refer.componentInstance.emitter.subscribe((result: SpiderNormResult) => {
       console.log(result);
       if (result.status === CONFIRM && !!result.norm) {
