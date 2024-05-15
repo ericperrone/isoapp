@@ -12,7 +12,7 @@ import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 })
 export class PlottingComponent implements OnInit, OnDestroy {
   @Input() params: any;
-  public series: Series = { xAxis: '', yAxis: '', width: 500, height: 400, series: [] };
+  public series: Series = { xAxis: '', yAxis: '', width: 500, height: 400, series: [], xLog: false, yLog: false };
   public chartOptions: any;
   public charts: any;
   public fontSize = 16;
@@ -119,12 +119,14 @@ export class PlottingComponent implements OnInit, OnDestroy {
       axisX: {
         title: '' + this.series.xAxis,
         titleFontSize: this.fontSize,
-        labelFontSize: this.fontSize
+        labelFontSize: this.fontSize,
+        logarithmic: this.series.xLog
       },
       axisY: {
         title: '' + this.series.yAxis,
         titleFontSize: this.fontSize,
-        labelFontSize: this.fontSize
+        labelFontSize: this.fontSize,
+        logarithmic: this.series.yLog
       },
       toolTip: {
         shared: true

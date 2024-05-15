@@ -13,6 +13,8 @@ export interface Series {
     width: number;
     height: number;
     series: Array<DataSeries>;
+    xLog: boolean;
+    yLog: boolean;
 }
 
 export interface DataSeries {

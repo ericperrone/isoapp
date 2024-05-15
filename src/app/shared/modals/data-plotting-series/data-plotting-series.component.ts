@@ -35,7 +35,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   public pointButtonEnabled = false;
   public color = '';
   public name = '';
-  public dataSeries: Series = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartHeight, series: [] };
+  public dataSeries: Series = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartHeight, series: [], xLog: false, yLog: false };
   public xAxis = new Array<string>();
   public yAxis = new Array<string>();
   public xData = new Array<number>();
@@ -47,8 +47,6 @@ export class DataPlottingSeriesComponent implements OnInit {
   public shape = 'circle';
   public xRange: Range = { min: -10000, max: 10000 };
   public yRange: Range = { min: -10000, max: 10000 };
-  private xRangeBak: Range = { min: -10000, max: 10000 };
-  private yRangeBak: Range = { min: -10000, max: 10000 };
   public xLog = false;
   public yLog = false;
   public selectedDataSeries: DataSeries | undefined;
@@ -86,16 +84,10 @@ export class DataPlottingSeriesComponent implements OnInit {
 
   public xOperatorChange(): void {
     this.selectedChange();
-    // if (this.xOperator === '1' || this.xOperator === '0') {
-    //   this.selectedChange();
-    // }
   }
 
   public yOperatorChange(): void {
     this.selectedChange();
-    // if (this.yOperator === '1' || this.yOperator === '0') {
-    //   this.selectedChange();
-    // }
   }
 
   public xLogHandler(): void {
@@ -223,12 +215,14 @@ export class DataPlottingSeriesComponent implements OnInit {
         case '2':
           this.dataSeries.yAxis = this.ySelected + ' / ' + this.ySelected2;
       }
-      if (this.xLog === true) {
-        this.dataSeries.xAxis = 'Log ' + this.dataSeries.xAxis;
-      }
-      if (this.yLog === true) {
-        this.dataSeries.yAxis = 'Log ' + this.dataSeries.yAxis;
-      }
+      this.dataSeries.xLog = this.xLog;
+      this.dataSeries.yLog = this.yLog;
+      // if (this.xLog === true) {
+      //   this.dataSeries.xLog = true;
+      // }
+      // if (this.yLog === true) {
+      //   this.dataSeries.yAxis = 'Log ' + this.dataSeries.yAxis;
+      // }
       console.log(this.dataSeries);
     }
   }
@@ -371,7 +365,7 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.yRange = { min: -10000, max: 10000 };
     this.xOperator = '0';
     this.yOperator = '0';
-    this.dataSeries = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartWidth, series: [] };
+    this.dataSeries = { xAxis: '', yAxis: '', width: this.chartWidth, height: this.chartWidth, series: [], xLog: false, yLog: false };
     this.storeService.clean(DATA_SERIES);
     if (!!this.dataGrid) {
       this.dataGrid.reset();
