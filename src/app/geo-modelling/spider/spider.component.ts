@@ -24,7 +24,7 @@ export interface SpiderNorm {
   templateUrl: './spider.component.html',
   styleUrls: ['./spider.component.scss']
 })
-export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SpiderComponent implements OnInit, OnDestroy {
   private sub: any;
   public onlyREE = false;
   public showChart = false;
@@ -37,7 +37,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
   public legendFontSize = 20;
   public changeSize = false;
   public ref: any;
-  public selectedMethod = "";
+  public selectedMethod = '';
   public theNorm: any;
   public spiderDiagram: SpiderDiagram = {
     width: this.chartWidth,
@@ -97,8 +97,16 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
           for (let k of keys) {
             Object.defineProperty(sn.norm, k, { value: parseFloat(obj[k]) });
           }
-          // this.norms.push(sn);
-          store.push(sn);
+
+          let found = false;
+          for (let item of store) {
+            if (sn.method === item.method) {
+              found = true;
+              break;
+            }
+          }
+          if (!found)
+            store.push(sn);
         }
 
         // let store = this.storeService.get(SPIDER_NORM);
@@ -119,14 +127,12 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  ngAfterViewInit(): void {
-  }
-
   public handleREE(): void {
     this.chartSizeChange();
   }
 
   private setNorm(): void {
+    console.log ('setNorm() ' + this.selectedMethod);
     if (this.norms.length < 1)
       return;
     for (let n of this.norms) {
@@ -159,6 +165,8 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!found)
           this.norms.push(result.norm)
         this.saveInSession(result.norm);
+        this.selectedMethod = result.norm.method;
+        console.log ('addNorm() ' + this.selectedMethod);
       }
       refer.close();
       this.chartSizeChange();
@@ -223,6 +231,7 @@ export class SpiderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public chartSizeChange() {
+    console.log('chartSizeChange() ' + this.selectedMethod)
     this.showChart = false;
     setTimeout(() => {
       if (this.fixedRatio) {
