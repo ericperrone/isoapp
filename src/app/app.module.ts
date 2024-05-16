@@ -6,6 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { CookieService } from 'ngx-cookie-service'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
@@ -63,6 +64,7 @@ import { TernaryComponent } from './geo-modelling/ternary/ternary.component';
 import { CardYearComponent } from './db-querying/cards/card-year/card-year.component';
 import { CardYearDialogComponent } from './db-querying/card-dialogs/card-year-dialog/card-year-dialog.component';
 import { SpiderNormalizationComponent } from './shared/modals/spider-normalization/spider-normalization.component';
+import { DbFiltersComponent } from './db-querying/db-filters/db-filters.component';
 
 
 @NgModule({
@@ -119,6 +121,7 @@ import { SpiderNormalizationComponent } from './shared/modals/spider-normalizati
     CardYearComponent,
     CardYearDialogComponent,
     SpiderNormalizationComponent,
+    DbFiltersComponent,
   ],
   imports: [
     BrowserModule,
@@ -128,6 +131,7 @@ import { SpiderNormalizationComponent } from './shared/modals/spider-normalizati
     HttpClientModule,
     NgbNavModule,
     NgbTypeaheadModule,
+    NgbAlertModule,
     FormsModule, 
     ReactiveFormsModule,
     CanvasJSAngularChartsModule

@@ -1,21 +1,23 @@
 import { Component, OnInit, OnDestroy, Input, ViewChildren, HostListener } from '@angular/core';
-import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
 import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, END_MEMBER_SET } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 import { Subscription } from 'rxjs';
-import { CACHE_AUTH, getElementByisotope } from 'src/app/shared/const';
+import { getElementByisotope } from 'src/app/shared/const';
 import { StoreService } from 'src/app/services/common/store.service';
-import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { PlotComponent, CLOSE, PLOT } from 'src/app/shared/modals/plot/plot.component';
+import { PlotComponent, PLOT } from 'src/app/shared/modals/plot/plot.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 
-export const OUT_RESULT = '_OUT_RESULT_';
-export const GEO_DATA = '_GEO_DATA_';
+export const MIXING_CACHE = '_MIXING_CACHE_';
+
+export interface MixingData {
+  geoData?: any;
+  outResult?: any;
+}
 
 interface MemberItem {
   endMemberName: string;
@@ -101,11 +103,17 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // console.log(this.params);
-    this.outResult = this.storeService.get(OUT_RESULT);
+    let stored: MixingData = this.getCachedData();
+    console.log(this.params);
+    console.log(stored);
+
+    // this.outResult = this.storeService.get(OUT_RESULT);
+    this.outResult = stored.outResult;
     if (!this.outResult) {
       this.outResult = new Array<ShowedRow>();
     }
-    this.geoData = this.storeService.get(GEO_DATA);
+    // this.geoData = this.storeService.get(GEO_DATA);
+    this.geoData = stored.geoData;
     if (!this.geoData) {
       this.geoData = new Array<any>();
     }
@@ -146,13 +154,32 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getCachedData(): MixingData {
+    let mixingData: MixingData = {};
+    let stored = this.storeService.get(MIXING_CACHE);
+    if (!!stored && !!stored.geoData) {
+      mixingData.geoData = stored.geoData;
+    }
+    if (!!stored && !!stored.outResult) {
+      mixingData.outResult = stored.outResult;
+    }
+    return mixingData;
+  }
+
+  private saveCachedData() {
+    let mixingData: MixingData = {};
+    let stored = this.storeService.get(MIXING_CACHE);
+    if (!!stored) {
+      mixingData = stored;
+    }
+    mixingData.geoData = this.geoData;
+    mixingData.outResult = this.outResult;
+    this.storeService.push({key: MIXING_CACHE, data: mixingData}, this.eventGeneratorService);
+  }
+
   public chartSizeChange() {
     this.changeSize = false;
-    // this.chartOptions = {};
-    // this.draw = false;
-    // this.drawChart();
     setTimeout(() => {
-      // this.draw = true;
       if (this.fixedRatio) {
         this.chartWidth = 4 * this.chartHeight / 3;
       }
@@ -190,8 +217,9 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   public clean(): void {
-    this.storeService.clean(OUT_RESULT);
-    this.storeService.clean(GEO_DATA);
+    // this.storeService.clean(OUT_RESULT);
+    // this.storeService.clean(GEO_DATA);
+    this.storeService.clean(MIXING_CACHE, this.eventGeneratorService);
     this.outResult = new Array<ShowedRow>();
     this.geoData = new Array<any>();
   }
@@ -302,7 +330,6 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   public getAnalyzedMembers(event: any) {
-    // console.log(event);
     this.endMembers = event;
     this.computables = new Array<Computable>();
     this.ratio = new Array<boolean>();
@@ -396,11 +423,8 @@ export class MixingComponent implements OnInit, OnDestroy {
         (res: any) => {
           this.tempResult = new Array<ShowedRow>();
           this.result = res.results;
-          // this.geoData = res.geoData;
           this.geoData = [...this.geoData, ...res.geoData];
-          this.storeService.push({ key: GEO_DATA, data: this.geoData });
-
-          // console.log(this.result);
+          // this.storeService.push({ key: GEO_DATA, data: this.geoData });
 
           if (!!this.result) {
             let nRow = this.result[0].samples.length;
@@ -421,7 +445,8 @@ export class MixingComponent implements OnInit, OnDestroy {
             }
           }
           this.outResult = [...this.outResult, ...this.tempResult];
-          this.storeService.push({ key: OUT_RESULT, data: this.outResult });
+          // this.storeService.push({ key: OUT_RESULT, data: this.outResult });
+          this.saveCachedData();
           this.resultReady = true;
           s.unsubscribe();
           this.addReady = true;
@@ -475,10 +500,15 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   public chart(): void {
     this.chartView = true;
-    let data = this.storeService.get(OUT_RESULT);
-    console.log(data);
-    let geoData = this.storeService.get(GEO_DATA);
-    console.log(geoData);
+    // let data = this.storeService.get(OUT_RESULT);
+    // console.log(data);
+    // let geoData = this.storeService.get(GEO_DATA);
+    // console.log(geoData);
+
+    let stored = this.getCachedData();
+    let data = stored.outResult;
+    let geoData = stored.geoData;
+
     let xText = geoData[0].members[0].element;
     let yText = geoData[1].members[0].element;
 
@@ -599,7 +629,6 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   getChartInstance(chart: object) {
     this.charts = chart;
-    // console.log(this.charts);
   }
 
   public plot(geoData: any, geoModelsService: GeoModelsService) {
