@@ -53,6 +53,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   public dataGrid: DataGrid = new DataGrid(this.storeService);
+  public onMix = false;
 
   constructor(private storeService: StoreService,
     private sampleService: SampleService,

@@ -49,7 +49,7 @@
   <div class="application-page" [hidden]="filterOn === true">
     <div class="w95 centered data-gathering-header row mb-1">
       <div class="col-8">
-        <ngb-alert [type]="'danger'" [dismissible]="false" *ngIf="alertMx" class="cache-alert clickable" (click)="onMxCache()">MX</ngb-alert>
+        <ngb-alert [type]="'danger'" [dismissible]="false" *ngIf="alertMx" class="cache-alert clickable" (click)="onMxCache()"><span class="fa-solid fa-flask"></span></ngb-alert>
       </div>
       <div class="col-4">
         <button class="btn btn-primary m-1 float-right" (click)="export()">Export</button>
