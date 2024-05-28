@@ -132,7 +132,7 @@ export class SpiderComponent implements OnInit, OnDestroy {
   }
 
   private setNorm(): void {
-    console.log ('setNorm() ' + this.selectedMethod);
+    console.log('setNorm() ' + this.selectedMethod);
     if (this.norms.length < 1)
       return;
     for (let n of this.norms) {
@@ -166,7 +166,7 @@ export class SpiderComponent implements OnInit, OnDestroy {
           this.norms.push(result.norm)
         this.saveInSession(result.norm);
         this.selectedMethod = result.norm.method;
-        console.log ('addNorm() ' + this.selectedMethod);
+        console.log('addNorm() ' + this.selectedMethod);
       }
       refer.close();
       this.chartSizeChange();
@@ -205,13 +205,23 @@ export class SpiderComponent implements OnInit, OnDestroy {
           if (item.type === 'C' || item.type === 'I') {
             // console.log(item);
             let name = getElementName(item.name);
-            if (!!this.theNorm && !!this.theNorm.norm[name] && item.value.length > 0) {
-              if (!!this.onlyREE) {
-                if (locateByValue(REE, name) > -1) {
+            if (!!this.theNorm && !!this.theNorm.norm[name]) {
+              if (item.value.length > 0) {
+                if (!!this.onlyREE) {
+                  if (locateByValue(REE, name) > -1) {
+                    ss.data.push({ label: name, y: toPPM(item) / this.theNorm.norm[name] });
+                  }
+                } else {
                   ss.data.push({ label: name, y: toPPM(item) / this.theNorm.norm[name] });
                 }
               } else {
-                ss.data.push({ label: name, y: toPPM(item) / this.theNorm.norm[name] });
+                if (!!this.onlyREE) {
+                  if (locateByValue(REE, name) > -1) {
+                    ss.data.push({ label: name});
+                  }
+                } else {
+                  ss.data.push({ label: name });
+                }
               }
             }
           }

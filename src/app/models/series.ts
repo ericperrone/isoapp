@@ -37,7 +37,7 @@ export interface DataSeriesShape {
 
 export interface SpiderData {
     label: string;
-    y: number;
+    y?: number;
 }
 
 export interface SpiderSeries {
