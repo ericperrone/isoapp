@@ -50,6 +50,11 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['login']);
   }
 
+  public gotoHome() {
+    this.eventGeneratorService.emit({ key: CLOSE_ALL_MODALS });
+    this.router.navigate(['main']);
+  }
+
   public toggleSidebar(): void {
     if (this.transition === 'sideOff') {
       this.transition = 'transitionRight';

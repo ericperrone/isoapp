@@ -20,7 +20,7 @@
     min-width: 220px;
     height: 100%;
     position: fixed;
-    top: 3em;
+    top: 5em;
     left: 0;
     bottom: 0;
     margin: 0;
@@ -32,7 +32,7 @@
     min-width: 220px;
     height: 100%;
     position: fixed;
-    top: 3em;
+    top: 5em;
     left: -220px;
     bottom: 0;
     margin: 0;
@@ -44,7 +44,7 @@
     min-width: 220px;
     height: 100%;
     position: fixed;
-    top: 3em;
+    top: 5em;
     bottom: 0;
     margin: 0;
     z-index: 100;
@@ -57,7 +57,7 @@
     min-width: 220px;
     height: 100%;
     position: fixed;
-    top: 3em;
+    top: 5em;
     bottom: 0;
     margin: 0;
     z-index: 100;
@@ -67,6 +67,10 @@
 
 .sidebar-item {
     margin-left: 1.5em;
+}
+
+.margin-logo {
+    margin-left: solid 1px white;
 }
 
 @-webkit-keyframes slideLeft {
