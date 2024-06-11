@@ -120,7 +120,7 @@
             </div> -->
             <div class="row header pt-1 pb-1">
                 <div class="col-1">&nbsp;</div>
-                <div class="col-9 text-left">
+                <div class="col-8 text-left">
                     Width:
                     <input type="number" class="form-control" [(ngModel)]="chartWidth"
                         (ngModelChange)="changeSize = true" style="max-width: 5em; display: inline-block;">
@@ -134,6 +134,9 @@
                     <input type="checkbox" [(ngModel)]="fixedRatio" (ngModelChange)="chartSizeChange()">Fixed ratio
                     (4:3)
                 </div>
+                <div class="col-1 text-right">
+                    <button class="btn btn-primary m-1" (click)="plot(geoData, geoModelsService)"><i class="fa-solid fa-asterisk"></i> Plot</button>
+                </div>    
                 <div class="col-2 text-right">
                     <button class="btn btn-primary m-1" (click)="chartView = false"><i
                             class="fa-solid fa-circle-left"></i>
