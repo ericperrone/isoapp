@@ -9,6 +9,7 @@ import { SampleService } from 'src/app/services/rest/sample.service';
 import { DataGrid } from 'src/app/models/datagrid';
 import { ConfirmComponent } from '../confirm/confirm.component';
 import { List } from '../../list';
+import { MIXING_CACHE } from 'src/app/geo-modelling/mixing/mixing.component';
 
 export interface Range {
   min: number;
@@ -54,6 +55,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   public dataGrid: DataGrid = new DataGrid(this.storeService);
   public onMix = false;
+  public alertMx = false;
 
   constructor(private storeService: StoreService,
     private sampleService: SampleService,
@@ -81,8 +83,18 @@ export class DataPlottingSeriesComponent implements OnInit {
         this.yAxis.push(item);
       }
     }
+    this.checkStoredVars();
   }
 
+  private checkStoredVars(): void {
+    let stored = this.storeService.get(MIXING_CACHE);
+    if (!!stored && !!stored.outResult) {
+      this.alertMx = true;
+    } else {
+      this.alertMx = false;
+    }
+  }
+  
   public xOperatorChange(): void {
     this.selectedChange();
   }
