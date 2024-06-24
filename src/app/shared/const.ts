@@ -140,7 +140,8 @@ export const ChemElements = [
     'H2O (Tot)',
     'CO2',
     'F',
-    'Cl'
+    'Cl',
+    'SO4'
 ];
 
 export const Isotopes = [
@@ -259,8 +260,10 @@ export const Isotopes = [
 export function getElementByisotope(isotope: string): string {
     let element = '';
     let iso = isotope.toLowerCase();
+    console.log(ChemElements);
     for (let ch of ChemElements) {
         let c = ch.toLowerCase();
+        // console.log('c: ' + c);
         let match = iso.match(c);
         if (!!match) {
             if (match[0].length > element.length && match[0] !== iso)

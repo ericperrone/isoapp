@@ -174,7 +174,7 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
     mixingData.geoData = this.geoData;
     mixingData.outResult = this.outResult;
-    this.storeService.push({key: MIXING_CACHE, data: mixingData}, this.eventGeneratorService);
+    this.storeService.push({ key: MIXING_CACHE, data: mixingData }, this.eventGeneratorService);
   }
 
   public chartSizeChange() {
@@ -477,18 +477,9 @@ export class MixingComponent implements OnInit, OnDestroy {
   private getCardinality(data: any): number {
     for (let i = 0; i < data.length; i++) {
       if (data[i].row[0] === 'MIX')
-        return i + 1;
+        return i;
     }
     return 0;
-  }
-
-  private getChartNumber(data: any): number {
-    let counter = 0;
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].row[0] === 'MIX')
-        counter++;
-    }
-    return counter * this.compute(counter);
   }
 
   private compute(n: number): number {
@@ -498,25 +489,57 @@ export class MixingComponent implements OnInit, OnDestroy {
     return n - 1 + this.compute(n - 1);
   }
 
+  private checkIsotopes(data: any): boolean {
+    if (!!data) {
+      for (let d of data) {
+        for (let m of d.members) {
+          if (!!m.concentration2 && 0 !== m.concentration2)
+            return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private getBorder3(data: any): any {
+    let dataPoint1 = new Array<any>();
+    let dataPoint2 = new Array<any>();
+    let dataPoint3 = new Array<any>();
+
+    for (let i = 1; i < data[0].row.length; i++) {
+      if (parseFloat(data[0].row[i]) === 0) {
+        dataPoint1.push({ x: parseFloat(data[3].row[i]), y: parseFloat(data[7].row[i]) });
+      }
+      if (parseFloat(data[1].row[i]) === 0) {
+        dataPoint2.push({ x: parseFloat(data[3].row[i]), y: parseFloat(data[7].row[i]) });
+      }
+      if (parseFloat(data[2].row[i]) === 0) {
+        dataPoint3.push({ x: parseFloat(data[3].row[i]), y: parseFloat(data[7].row[i]) });
+      }
+    }
+    dataPoint1 = dataPoint1.sort((a, b) => { return a.x - b.x });
+    dataPoint2 = dataPoint2.sort((a, b) => { return a.x - b.x });
+    dataPoint3 = dataPoint3.sort((a, b) => { return a.x - b.x });
+
+    return { dp1: dataPoint1, dp2: dataPoint2, dp3: dataPoint3 };
+  }
+
   public chart(): void {
     this.chartView = true;
-    // let data = this.storeService.get(OUT_RESULT);
-    // console.log(data);
-    // let geoData = this.storeService.get(GEO_DATA);
-    // console.log(geoData);
 
     let stored = this.getCachedData();
     let data = stored.outResult;
     let geoData = stored.geoData;
+    // console.log(geoData);
 
     let xText = geoData[0].members[0].element;
     let yText = geoData[1].members[0].element;
 
     let cardinality = this.getCardinality(data);
-    if (cardinality === 0)
+    if (cardinality !== 2 && cardinality !== 3)
       return;
 
-    if (data.length > 0 && data.length % cardinality === 0) {
+    if (data.length > 0) {
       let chartsData = this.getChartsData(data);
       if (chartsData.length < 2) {
         this.chartView = false;
@@ -532,31 +555,41 @@ export class MixingComponent implements OnInit, OnDestroy {
             dp.push({ x: chartsData[i].points[k], y: chartsData[i + 1].points[k] });
           }
           charts.push({
-            type: 'scatter',
-            name: 'Mixed points', // chartsData[i].title + ' ' + chartsData[i + 1].title,
-            showInLegend: true,
+            type: cardinality === 3 ? 'scatter' : 'line',
+            // name: 'Mixed points', // chartsData[i].title + ' ' + chartsData[i + 1].title,
+            showInLegend: false,
             dataPoints: dp,
           });
         }
       }
 
-      console.log(charts);
 
       let dpem = new Array<any>();
-      for (let i = 0; i < geoData.length - 1; i++) {
-        for (let j = 0; j < geoData[i].members.length; j++) {
-          dpem.push({ x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration });
+
+      if (cardinality === 3) {
+        if (!this.checkIsotopes(geoData)) {
+          for (let i = 0; i < geoData.length - 1; i++) {
+            for (let j = 0; j < geoData[i].members.length; j++) {
+              dpem.push({ x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration });
+            }
+          }
+
+          for (let j = 0; j < geoData[0].members.length; j++) {
+            dpem.push({ x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration });
+          }
+
+          charts.push({
+            type: 'line',
+            markerColor: 'red',
+            dataPoints: dpem
+          });
+        } else {
+          let additional = this.getBorder3(data);
+          charts.push({ type: 'line', markerColor: 'red', dataPoints: additional.dp1 });
+          charts.push({ type: 'line', markerColor: 'red', dataPoints: additional.dp2 });
+          charts.push({ type: 'line', markerColor: 'red', dataPoints: additional.dp3 });
         }
       }
-
-      for (let j = 0; j < geoData[0].members.length; j++) {
-        dpem.push({ x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration });
-      }
-
-      charts.push({
-        type: 'line',
-        dataPoints: dpem
-      });
 
       this.chartOptions = {
         animationEnabled: true,
@@ -564,19 +597,19 @@ export class MixingComponent implements OnInit, OnDestroy {
         exportEnabled: true,
         zoomEnabled: true,
         width: this.chartWidth,
-        height: this.chartHeight,  
+        height: this.chartHeight,
         // title: {
         //   text: "Mixing model",
         // },
         axisX: {
           title: '' + xText,
           titleFontSize: this.fontSize,
-          labelFontSize: this.fontSize  
+          labelFontSize: this.fontSize
         },
         axisY: {
           title: '' + yText,
           titleFontSize: this.fontSize,
-          labelFontSize: this.fontSize  
+          labelFontSize: this.fontSize
         },
         toolTip: {
           shared: true
@@ -595,6 +628,7 @@ export class MixingComponent implements OnInit, OnDestroy {
         data: charts
       }
     }
+    console.log(this.chartOptions);
   }
 
   private getChartsData(data: any): Array<chartData> {
@@ -656,24 +690,24 @@ export class MixingComponent implements OnInit, OnDestroy {
                 console.log(e.dataPoint);
                 let xs = new Array<MixingModelPayload>();
                 let ys = new Array<MixingModelPayload>();
-  
+
                 xs = [...geoData[0].members];
                 ys = [...geoData[1].members];
-  
+
                 let payload = {
                   xPoint: e.dataPoint.x,
                   yPoint: e.dataPoint.y,
                   xs: xs,
                   ys: ys
                 };
-  
+
                 console.log(payload);
-  
+
                 let s = geoModelsService.mixingPlot(payload).subscribe(
                   (res: any) => {
                     console.log(res);
                     let ref = that.modalService.open(AlertComponent, { centered: true });
-                    if ( typeof(res) === 'string' && res.startsWith('Error')) {
+                    if (typeof (res) === 'string' && res.startsWith('Error')) {
                       let params: ModalParams = {
                         headerText: 'Info',
                         bodyText: 'The selected point cannot be produced by a mixing of the related endmembers.'
@@ -697,7 +731,7 @@ export class MixingComponent implements OnInit, OnDestroy {
                 );
               },
               dataPoints: [{ x: this.xPoint, y: this.yPoint }]
-            });           
+            });
           } else {
             userData.dataPoints.push({ x: this.xPoint, y: this.yPoint });
           }
