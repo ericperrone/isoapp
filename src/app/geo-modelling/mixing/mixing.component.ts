@@ -11,6 +11,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlotComponent, PLOT } from 'src/app/shared/modals/plot/plot.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
+import { scale } from 'ol/size';
 
 export const MIXING_CACHE = '_MIXING_CACHE_';
 
@@ -48,6 +49,18 @@ interface chartData {
 
 interface ShowedRow {
   row: Array<string>;
+}
+
+interface DP {
+  x: number;
+  y: number;
+}
+
+interface ScaleAxis {
+  xMin: number;
+  yMin: number;
+  xMax: number;
+  yMax: number;
 }
 
 @Component({
@@ -524,6 +537,19 @@ export class MixingComponent implements OnInit, OnDestroy {
     return { dp1: dataPoint1, dp2: dataPoint2, dp3: dataPoint3 };
   }
 
+  private getScaleXY(dp: Array<DP>, epsilonX: number, epsilonY: number): ScaleAxis {
+    let scale = { xMin: 0, yMin: 0, xMax: 0, yMax: 0};
+    let dx = dp.sort((a, b) => {return (b.x - a.x)});
+    console.log(dx);
+    scale.xMin = dx[0].x - epsilonX;
+    scale.xMax = dx[dx.length - 1].x + epsilonX;
+    let dy = dp.sort((a, b) => {return (b.y - a.y)});
+    console.log(dy);
+    scale.yMin = dy[0].y - epsilonY;
+    scale.yMax = dy[dy.length - 1].y + epsilonY;
+    return scale;
+  }
+
   public chart(): void {
     this.chartView = true;
 
@@ -547,7 +573,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       }
 
       let charts = new Array();
-
+      
       for (let i = 0; i < chartsData.length; i += 2) {
         if (i + 1 < chartsData.length) {
           let dp = new Array<any>();
@@ -556,13 +582,12 @@ export class MixingComponent implements OnInit, OnDestroy {
           }
           charts.push({
             type: cardinality === 3 ? 'scatter' : 'line',
-            // name: 'Mixed points', // chartsData[i].title + ' ' + chartsData[i + 1].title,
             showInLegend: false,
-            dataPoints: dp,
+            dataPoints: dp
           });
         }
       }
-
+       
 
       let dpem = new Array<any>();
 
@@ -580,16 +605,35 @@ export class MixingComponent implements OnInit, OnDestroy {
 
           charts.push({
             type: 'line',
-            markerColor: 'red',
+            // lineColor: 'blue',
+            // markerColor: 'blue',
             dataPoints: dpem
           });
         } else {
           let additional = this.getBorder3(data);
-          charts.push({ type: 'line', markerColor: 'red', dataPoints: additional.dp1 });
-          charts.push({ type: 'line', markerColor: 'red', dataPoints: additional.dp2 });
-          charts.push({ type: 'line', markerColor: 'red', dataPoints: additional.dp3 });
+          charts.push({
+            type: 'line',
+            markerColor: 'blue',
+            lineColor: 'blue',
+            dataPoints: additional.dp1
+          });
+          charts.push({
+            type: 'line',
+            markerColor: 'blue',
+            lineColor: 'blue',
+            dataPoints: additional.dp2
+          });
+          charts.push({
+            type: 'line',
+            markerColor: 'blue',
+            lineColor: 'blue',
+            dataPoints: additional.dp3
+          });
         }
       }
+
+      let scale = this.getScaleXY(charts[0].dataPoints, 0.5, 0.5);
+      console.log(scale);
 
       this.chartOptions = {
         animationEnabled: true,
@@ -598,18 +642,19 @@ export class MixingComponent implements OnInit, OnDestroy {
         zoomEnabled: true,
         width: this.chartWidth,
         height: this.chartHeight,
-        // title: {
-        //   text: "Mixing model",
-        // },
         axisX: {
           title: '' + xText,
           titleFontSize: this.fontSize,
-          labelFontSize: this.fontSize
+          labelFontSize: this.fontSize,
+          // minimum: scale.xMax,
+          // maximum: scale.xMin
         },
         axisY: {
           title: '' + yText,
           titleFontSize: this.fontSize,
-          labelFontSize: this.fontSize
+          labelFontSize: this.fontSize,
+          // minimum: scale.yMax,
+          // maximum: scale.yMin
         },
         toolTip: {
           shared: true
