@@ -8,6 +8,7 @@ export interface GeorocFullData {
     authors?: Array<Author>;
     dataset?: Dataset;
     sample?: Sample;
+    matrix?: Array<string>;
 }
 
 export interface GeorocAuthor {
@@ -63,7 +64,7 @@ export interface GeorocData {
     elevationMin?: string;
     elevationMax?: string;
     landOrSea?: string;
-    rockTypes?: Array<string>;
+    rockTypes?: Array<GeorocRockType>;
     rockClasses?: Array<string>;
     rockTextures?: Array<string>;
     materials?: Array<string>;
@@ -88,17 +89,24 @@ export interface GeorocData {
     units?: Array<string>;
 }
 
+export interface GeorocRockType {
+    value: string;
+    label: string;
+    id: number;
+}
+
 export interface GeorocNative {
     numItems: number;
     data?: Array<GeorocData>;
 }
 
 export function toGeorocFullData(gData: GeorocData): GeorocFullData {
-    let fullData: GeorocFullData = {};    
+    let fullData: GeorocFullData = {};
     if (!isEmpty(gData)) {
         fullData.authors = getAuthors(gData);
         fullData.dataset = getDataset(gData);
         fullData.sample = buildSample(gData);
+        fullData.matrix = getRockTypes(gData);
     }
     // if (!!gData.data && gData.data.length > 0) {
     //     fullData.authors = getAuthors(gData.data);
@@ -114,7 +122,7 @@ function buildSample(data: GeorocData): Sample {
     if (!!d && !!d.batchData && !!d.batchData[0].results) {
         for (let i = 0; i < d.batchData[0].results?.length; i++) {
             let cc: ChemComponent = {
-                component: d.batchData[0].results[i].itemName + (!!d.batchData[0].results[i].unit ? ' ' + UM_SEP1 + d.batchData[0].results[i].unit + UM_SEP2 : ''),
+                component: d.batchData[0].results[i].itemName, // + (!!d.batchData[0].results[i].unit ? ' ' + UM_SEP1 + d.batchData[0].results[i].unit + UM_SEP2 : ''),
                 value: '' + d.batchData[0].results[i].value,
                 isIsotope: checkIsotope(d.batchData[0].results[i].itemName),
                 um: d.batchData[0].results[i].unit
@@ -126,12 +134,12 @@ function buildSample(data: GeorocData): Sample {
         sample.fields.push({ field: 'LONGITUDE', value: '' + d.longitude });
         sample.fields.push({ field: 'GEOROC_ID', value: '' + d.sampleID });
         let loc = '';
-        if (!!d.locationNames)            
+        if (!!d.locationNames)
             for (let i = 0; i < d.locationNames.length; i++) {
                 // sample.fields.push({ field: 'LOCATION ' + (i + 1), value: d.locationNames[i] });
                 loc += d.locationNames[i] + '::';
             }
-            sample.fields.push({ field: 'LOCATIONS', value: loc });
+        sample.fields.push({ field: 'LOCATIONS', value: loc });
     }
     return sample;
 }
@@ -181,4 +189,16 @@ function getAuthors(data: GeorocData): Array<Author> {
     }
 
     return authors;
+}
+
+function getRockTypes(data: GeorocData): Array<string> {
+    let d = data;
+    if (!!d.rockTypes && d.rockTypes.length > 0) {
+        let rocks = [];
+        for (let r of d.rockTypes) {
+            rocks.push('' + r.label);
+        }
+        return rocks;
+    }
+    return [];
 }
