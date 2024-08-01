@@ -73,6 +73,12 @@
     margin-left: solid 1px white;
 }
 
+@media (max-width: 1330px) {
+    img {
+        display: none;
+    }
+}
+
 @-webkit-keyframes slideLeft {
     from {
         left: 0;
