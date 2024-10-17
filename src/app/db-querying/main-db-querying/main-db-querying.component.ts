@@ -27,6 +27,7 @@ export interface QueryFilter {
   keywords: {connector: string, keywords: string[]};
   geo?: {connector: string, geo: GeoRegion};
   year?: {connector: string, year: string};
+  matrix?: {connector: string, matrix: string};
 }
 
 export function initQueryFilter(): QueryFilter {

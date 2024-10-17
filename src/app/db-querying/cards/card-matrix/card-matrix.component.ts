@@ -5,6 +5,7 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { FILTER_KEY, initQueryFilter, QueryFilter, RESET_FILTER } from '../../main-db-querying/main-db-querying.component';
 import { Subscription } from 'rxjs';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+import { CONFIRM } from 'src/app/shared/modals/modal-params';
 
 @Component({
   selector: 'app-card-matrix',
@@ -51,6 +52,16 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
   }
 
   public editCard(): void {
+    this.ref = this.modalService.open(CardMatrixComponent, { centered: true });
+    this.ref.componentInstance.emitter.subscribe((result: string) => {
+      if (result === CONFIRM) {
+        this.queryFilter = this.storeService.get(FILTER_KEY);
+        this.matrix = this.queryFilter.matrix ? this.queryFilter.matrix.matrix : '';
+      }
+      console.log(this.queryFilter);  
+      this.ref.close()
+      this.emitter.emit(true);
+    });
   }
 
   public setConnector(event: any) {
