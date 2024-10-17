@@ -65,6 +65,8 @@ import { CardYearComponent } from './db-querying/cards/card-year/card-year.compo
 import { CardYearDialogComponent } from './db-querying/card-dialogs/card-year-dialog/card-year-dialog.component';
 import { SpiderNormalizationComponent } from './shared/modals/spider-normalization/spider-normalization.component';
 import { DbFiltersComponent } from './db-querying/db-filters/db-filters.component';
+import { CardMatrixComponent } from './db-querying/cards/card-matrix/card-matrix.component';
+import { CardMatrixDialogComponent } from './db-querying/card-dialogs/card-matrix-dialog/card-matrix-dialog.component';
 
 
 @NgModule({
@@ -122,6 +124,8 @@ import { DbFiltersComponent } from './db-querying/db-filters/db-filters.componen
     CardYearDialogComponent,
     SpiderNormalizationComponent,
     DbFiltersComponent,
+    CardMatrixComponent,
+    CardMatrixDialogComponent,
   ],
   imports: [
     BrowserModule,

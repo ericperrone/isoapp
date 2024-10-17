@@ -1,0 +1,67 @@
+import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
+import { StoreService } from 'src/app/services/common/store.service';
+import { FILTER_KEY, initQueryFilter, QueryFilter, RESET_FILTER } from '../../main-db-querying/main-db-querying.component';
+import { Subscription } from 'rxjs';
+import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+
+@Component({
+  selector: 'app-card-matrix',
+  templateUrl: './card-matrix.component.html',
+  styleUrls: ['./card-matrix.component.scss']
+})
+export class CardMatrixComponent implements OnInit, OnDestroy {
+  public queryFilter: QueryFilter = initQueryFilter();
+  public disabled = true;
+  public matrix = '';
+  @Output() emitter: EventEmitter<any> = new EventEmitter();
+  private sub: Subscription | undefined;
+  private subModal: Subscription | undefined;
+  private ref: any;
+
+  constructor(private storeService: StoreService,
+    private eventGeneratorService: EventGeneratorService,
+    private modalService: NgbModal) { }
+
+  ngOnInit(): void {
+    this.queryFilter = this.storeService.get(FILTER_KEY);
+    this.sub = this.eventGeneratorService.on(RESET_FILTER).subscribe(
+      (event: any) => {
+        this.matrix = '';
+        this.queryFilter.keywords.keywords = [];
+      }
+    );
+    this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
+      () =>  {
+        if (!!this.ref) {
+          this.ref.close();
+        }
+      }
+    );
+  }
+
+  ngOnDestroy(): void {
+    if (!!this.sub) {
+      this.sub.unsubscribe();
+    }
+    if (this.subModal) {
+      this.subModal.unsubscribe();
+    }
+  }
+
+  public editCard(): void {
+  }
+
+  public setConnector(event: any) {
+    this.queryFilter.keywords.connector = event;
+  }
+
+  public resetFilter(): void {
+    this.queryFilter = this.storeService.get(FILTER_KEY);
+    this.queryFilter.keywords.keywords = [];
+    this.storeService.push({key: FILTER_KEY, data: this.queryFilter});
+    this.matrix = '';
+    this.emitter.emit(true);
+  }
+}
