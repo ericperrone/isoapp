@@ -13,6 +13,7 @@ export interface QueryInfoBody {
   reference?: any;
   polygon?: any;
   year?: any;
+  matrix?: any;
 }
 
 @Injectable({
@@ -159,6 +160,12 @@ export class SampleService extends Rest {
         operator: filter.year.connector,
         year: filter.year.year
       };
+    }
+    if (filter.matrix && filter.matrix.matrix) {
+      body.matrix = {
+        operator: filter.matrix.connector,
+        matrix: filter.matrix.matrix
+      }
     }
 
     return this.http.post(url, body).pipe(map(

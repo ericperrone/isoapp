@@ -10,6 +10,7 @@ import { AuthorService } from 'src/app/services/rest/author.service';
 import { CACHE_AUTH } from 'src/app/shared/const';
 import { DatasetService } from 'src/app/services/rest/dataset.service';
 import { AND } from '../common/query-connector/query-connector.component';
+import { Matrix } from 'src/app/models/sample';
 
 export const RESET_FILTER = '_RESET_FILTER_';
 export const FILTER_KEY = '_FILTER_KEY_';
@@ -27,7 +28,7 @@ export interface QueryFilter {
   keywords: {connector: string, keywords: string[]};
   geo?: {connector: string, geo: GeoRegion};
   year?: {connector: string, year: string};
-  matrix?: {connector: string, matrix: string};
+  matrix?: {connector: string, matrix: Matrix};
 }
 
 export function initQueryFilter(): QueryFilter {

@@ -6,6 +6,8 @@ import { FILTER_KEY, initQueryFilter, QueryFilter, RESET_FILTER } from '../../ma
 import { Subscription } from 'rxjs';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
+import { CardMatrixDialogComponent } from '../../card-dialogs/card-matrix-dialog/card-matrix-dialog.component';
+import { Matrix } from 'src/app/models/sample';
 
 @Component({
   selector: 'app-card-matrix',
@@ -15,7 +17,7 @@ import { CONFIRM } from 'src/app/shared/modals/modal-params';
 export class CardMatrixComponent implements OnInit, OnDestroy {
   public queryFilter: QueryFilter = initQueryFilter();
   public disabled = true;
-  public matrix = '';
+  public matrix: Matrix = { matrix: '', nodeId: 0 };
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   private sub: Subscription | undefined;
   private subModal: Subscription | undefined;
@@ -29,7 +31,7 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.sub = this.eventGeneratorService.on(RESET_FILTER).subscribe(
       (event: any) => {
-        this.matrix = '';
+        this.matrix = { matrix: '', nodeId: 0 };
         this.queryFilter.keywords.keywords = [];
       }
     );
@@ -52,13 +54,14 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
   }
 
   public editCard(): void {
-    this.ref = this.modalService.open(CardMatrixComponent, { centered: true });
+    this.ref = this.modalService.open(CardMatrixDialogComponent, { centered: true });
     this.ref.componentInstance.emitter.subscribe((result: string) => {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
-        this.matrix = this.queryFilter.matrix ? this.queryFilter.matrix.matrix : '';
+        this.matrix = this.queryFilter.matrix ? this.queryFilter.matrix.matrix : { matrix: '', nodeId: 0 };;
+        
       }
-      console.log(this.queryFilter);  
+      console.log(this.queryFilter); 
       this.ref.close()
       this.emitter.emit(true);
     });
@@ -72,7 +75,7 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.queryFilter.keywords.keywords = [];
     this.storeService.push({key: FILTER_KEY, data: this.queryFilter});
-    this.matrix = '';
+    this.matrix = { matrix: '', nodeId: 0 };;
     this.emitter.emit(true);
   }
 }

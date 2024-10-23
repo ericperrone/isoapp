@@ -114,7 +114,8 @@ export class DbFiltersComponent implements OnInit, OnDestroy {
   public checkFilter(): void {
     let filter: QueryFilter = this.storeService.get(FILTER_KEY);
     console.log(filter);
-    if (filter.authors.authors.length > 0 || filter.keywords.keywords.length > 0 || filter.ref.ref.length > 0 || !!filter.geo || !!filter.year) {
+    if (filter.authors.authors.length > 0 || filter.keywords.keywords.length > 0 || 
+      filter.ref.ref.length > 0 || !!filter.geo || !!filter.year || !!filter.matrix) {
       this.queryDisabled = false;
     } else {
       this.queryDisabled = true;
@@ -126,7 +127,7 @@ export class DbFiltersComponent implements OnInit, OnDestroy {
   }
 
   public onMxCache(): void {
-    let params: ModalParams = {headerText: 'Confirm', bodyText: 'Found cached mixing results. Want you clean out the cache?'};
+    let params: ModalParams = {headerText: 'Confirm', bodyText: 'Found cached mixing results. Want you clean the cache?'};
     let ref = this.modalService.open(ConfirmComponent, {size: 'sm', backdrop: 'static'});
     ref.componentInstance.params = params;
     ref.componentInstance.emitter.subscribe(
