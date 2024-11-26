@@ -5,7 +5,6 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { ChemComponent, Sample, SampleElement } from 'src/app/models/sample';
 import { QueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { StoreService, UserInfo } from '../common/store.service';
-import { ChemElements } from 'src/app/shared/const';
 
 export interface QueryInfoBody {
   authors?: any;

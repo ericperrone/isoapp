@@ -9,6 +9,7 @@ export interface GeorocFullData {
     dataset?: Dataset;
     sample?: Sample;
     matrix?: Array<string>;
+    // metadata?: string;
 }
 
 export interface GeorocAuthor {
@@ -38,6 +39,15 @@ export interface GeorocReference {
     ref_num?: number;
     title?: string;
     publicationYear: number;
+    citationID: number;
+    publisher?: string;
+    citationLink?: string;
+    volume?: string;
+    issue?: string;
+    firstPage?: string;
+    lastPage?: string;
+    bookTitle?: string;
+    editors?: string;
 }
 
 export interface GeorocResult {
@@ -107,12 +117,9 @@ export function toGeorocFullData(gData: GeorocData): GeorocFullData {
         fullData.dataset = getDataset(gData);
         fullData.sample = buildSample(gData);
         fullData.matrix = getRockTypes(gData);
+        // fullData.metadata = getMetadata(gData);
     }
-    // if (!!gData.data && gData.data.length > 0) {
-    //     fullData.authors = getAuthors(gData.data);
-    //     fullData.dataset = getDataset(gData.data);
-    //     fullData.sample = buildSample(gData.data);
-    // }
+
     return fullData;
 }
 
@@ -144,8 +151,61 @@ function buildSample(data: GeorocData): Sample {
     return sample;
 }
 
+function getMetadata(data: GeorocData): string {
+    let meta = '@';
+    let d = data;
+    if (!!d.references) {
+        let ref = d.references[0];
+        if (!!ref.bookTitle) {
+            meta += 'book{';
+        } else if (!!ref.journal) {
+            meta += 'article{';
+        } else {
+            return meta;
+        }
+        meta += '' + ref.citationID;
+        if (!!ref.authors && !!ref.publicationYear) {
+            meta += '' + ref.authors[0].lastName + ref.publicationYear;
+        }
+        meta += ',';
+        meta += 'title={' + ref.title + '},';
+        if (!!ref.journal) {
+            meta += 'journal = {' + ref.journal + '},';
+        }
+        if (!!ref.bookTitle) {
+            meta += 'journal = {' + ref.bookTitle + '},';
+        }
+        if (!!ref.volume) {
+            meta += 'volume = {' + ref.volume + '},';
+        }
+        if (!!ref.firstPage && !!ref.lastPage) {
+            meta += 'pages = {' + ref.firstPage + '-' + ref.lastPage + '},';
+        }
+        if (!!ref.externalIdentifier) {
+            meta += 'url = {' + ref.externalIdentifier + '},';
+        }
+        if (!!ref.publicationYear) {
+            meta += 'year = {' + ref.publicationYear + '},';
+        }
+        if (!!ref.publisher) {
+            meta += 'publisher = {' + ref.publisher + '},';
+        }
+        if (!!ref.authors) {
+            meta += 'author = {';
+            for (let i = 0; i < ref.authors.length - 2; i++) {
+                meta += ref.authors[i].lastName + ' ' + ref.authors[i].firstName + ' and ';
+            }
+            meta += ref.authors[ref.authors.length - 1].lastName + ' ' + ref.authors[ref.authors.length - 1].firstName;
+            meta += '}';
+        }
+
+        meta += '}';
+    }
+    return meta;
+}
+
 function getDataset(data: GeorocData): Dataset {
-    let dataset: Dataset = { fileName: '_GEOROC_', metadata: '', ref: '', authors: '', year: 0, processed: true };
+    let dataset: Dataset = { fileName: '_GEOROC_', keywords: '', ref: '', authors: '', year: 0, processed: true, metadata: '' };
     let d = data;
     if (!!d.references) {
         for (let ref of d.references) {
@@ -161,12 +221,12 @@ function getDataset(data: GeorocData): Dataset {
                 for (let m of meta) {
                     if (m !== 'THE' && m !== 'OF' && m !== 'A' && m !== 'AN' && m !== 'FROM' && m !== 'TO'
                         && m !== 'FOR' && m !== 'IN' && m !== 'ON') {
-                        dataset.metadata += m + ' ';
+                        dataset.keywords += m + ' ';
                     }
                 }
-                dataset.metadata = dataset.metadata.trim();
+                dataset.keywords = dataset.keywords.trim();
             }
-
+            dataset.metadata = getMetadata(d);
         }
     }
     return dataset;

@@ -230,9 +230,9 @@ export class GeorocByLocationsComponent implements OnInit, OnDestroy {
     }
     let sampleData = this.geoRocService.getSampleFullData(this.sampleList[this.sampleIndex]).subscribe(
       (res: GeorocData) => {
-        console.log(res);
+        // console.log(res);
         let fullData: GeorocFullData = toGeorocFullData(res);
-        console.log(fullData);
+        // console.log(fullData);
         let s = this.sampleService.insertFullData(fullData).subscribe(
           (res: any) => {
             console.log(res);

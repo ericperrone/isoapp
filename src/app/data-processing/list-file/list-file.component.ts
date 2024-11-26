@@ -68,7 +68,7 @@ export class ListFileComponent implements OnInit {
   public showInfo(dataset: Dataset): void {
     let listInfo = new Array<DataListItem>();
     listInfo.push({ key: 'fileName', value: dataset.fileName });
-    listInfo.push({ key: 'keywords', value: dataset.metadata });
+    listInfo.push({ key: 'keywords', value: dataset.keywords });
     listInfo.push({ key: 'link', value: dataset.ref });
     listInfo.push({ key: 'authors', value: dataset.authors });
     listInfo.push({ key: 'year', value: '' + dataset.year });
