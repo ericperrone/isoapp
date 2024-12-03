@@ -7,6 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CardAuthorsDialogComponent } from 'src/app/db-querying/card-dialogs/card-authors-dialog/card-authors-dialog.component';
 import { StoreService } from 'src/app/services/common/store.service';
 import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
+import { UploaderService } from 'src/app/services/rest/uploader.service';
 
 @Component({
   selector: 'app-file-uploader',
@@ -17,6 +18,8 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   @Output() emitter: EventEmitter<any> = new EventEmitter();
   @ViewChild('uploader') uploader: any;
   @ViewChild('hiddeninput') hiddenInput: any;
+  @ViewChild('metauploader') metauploader: any;
+  @ViewChild('hiddenmetainput') hiddenMetaInput: any;
   public actionUrl = '';
   public dataSetRef = '';
   public authors = '';
@@ -26,9 +29,10 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   public inProgress = false;
   public year = '';
   public progress = 0;
+  public metadata = '';
 
   constructor(private datasetService: DatasetService, private modalService: NgbModal,
-    private storeService: StoreService) {
+    private storeService: StoreService, private uploaderService: UploaderService) {
     this.actionUrl = environment.be.protocol + '://' + environment.be.server + '/' + environment.be.basedir;
   }
 
@@ -67,9 +71,21 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   }
 
   public setFile(event: any): void {
-    console.log(event);
+    // console.log(event);
     this.uploadedFile = event.target.files[0].name;
     this.selectedFile = event.target.files[0];
+  }
+
+
+  public setMetadata(event: any): void {
+    console.log(event);
+    let s = this.uploaderService.onFileSelected(event).subscribe(
+      (res: any) => {
+        // console.log(res);
+        this.metadata = res;
+        s.unsubscribe();
+      }
+    );
   }
 
   public confirm(): void {
@@ -107,6 +123,10 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
 
   public fireClick(): void {
     this.hiddenInput.nativeElement.click();
+  }
+
+  public fireMetaClick(): void {
+    this.hiddenMetaInput.nativeElement.click();
   }
 
   public onFormSubmit() {
