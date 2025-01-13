@@ -9,9 +9,9 @@
                  </th>
             </thead>
             <tr>
-                <td *ngFor="let item of em.member" class="clickable" (click)="onClick(item, em.name)">
-                    <span style="background-color: orange;" *ngIf="true === item.selected">{{ item.value }}</span>
-                    <span *ngIf="!item.selected">{{ item.value }}</span>
+                <td *ngFor="let item of em.member" class="clickable" (click)="onClick(item, em.name)" (contextmenu)="onRightClick($event)">
+                    <!-- <span style="background-color: orange;" *ngIf="true === item.selected">{{ item.value }}</span> -->
+                    <span [style.background]="item.selected ? 'orange' : 'white'">{{ item.value }}</span>
                   </td>
             </tr>
         </table>

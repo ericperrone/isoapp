@@ -30,7 +30,7 @@ interface Computable {
   elementName: string;
   elementNameCopy?: string;
   elementValue: string;
-  elementNumericValue?: number;
+  selected?: boolean;
   elementValueCopy?: string;
   row: number;
   active: boolean;
@@ -118,8 +118,8 @@ export class MixingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // console.log(this.params);
     let stored: MixingData = this.getCachedData();
-    console.log(this.params);
-    console.log(stored);
+    // console.log(this.params);
+    // console.log(stored);
 
     // this.outResult = this.storeService.get(OUT_RESULT);
     this.outResult = stored.outResult;

@@ -121,6 +121,11 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     return { name: '', member: new Array<EndMemberItem>(), multipleSelectionMode: false, maxSelectable: 1 };
   }
 
+  public onRightClick(event: any) {
+    event.preventDefault();
+    console.log(event);
+  }
+
   public onClick(item: EndMemberItem, memberName: string): void {
     if (memberName === this.activeMember) {
       let m = this.getMemberByName(memberName);
@@ -129,7 +134,9 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       }
       let nSelected = this.countSelected(m);
 
-      true === item.selected ? item.selected = false : (nSelected < m.maxSelectable ? item.selected = true : item.selected = false);
+      // true === item.selected ? item.selected = false : (nSelected < m.maxSelectable ? item.selected = true : item.selected = false);
+      item.selected = !!item.selected ? !item.selected : true;
+      item.selected = nSelected < m.maxSelectable ? item.selected = true : item.selected = false;
       if (nSelected == m.maxSelectable && !item.selected)
         return;
       let outItem = { ...item };
