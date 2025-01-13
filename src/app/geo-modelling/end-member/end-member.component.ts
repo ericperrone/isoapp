@@ -133,6 +133,10 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       if (nSelected == m.maxSelectable && !item.selected)
         return;
       let outItem = { ...item };
+      let ind = outItem.value.indexOf(' [');
+      if (ind > 0) {
+        outItem.value = outItem.value.substring(0, ind);
+      }
       if (!!m.inverse) {
         let x = parseFloat(outItem.value);
         outItem.value = '' + (1 / x);

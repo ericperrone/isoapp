@@ -30,6 +30,7 @@ interface Computable {
   elementName: string;
   elementNameCopy?: string;
   elementValue: string;
+  elementNumericValue?: number;
   elementValueCopy?: string;
   row: number;
   active: boolean;
@@ -281,7 +282,7 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   public getSelected(event: any): void {
-    // console.log(event);
+    console.log(event);
     if (!!this.computables && !!this.endMembers) {
       let currentComputable = this.getComputableByMemberName(event.memberName);
       if (!!currentComputable) {

@@ -96,30 +96,6 @@ export class SaveDataComponent extends DataGathering implements OnInit, OnDestro
 
     let n = 0;
     this.recursiveInsert(n, index);
-
-    // const s = this.sampleService.insertSample(this.session.samples).subscribe(
-    //   (res: any) => {
-    //     console.log(res);
-    //     this.spinnerOn = false;
-    //     s.unsubscribe();
-
-    //     const su = this.dataProcessingService.releaseContent(this.session.key).subscribe(
-    //       (r) => {
-    //         console.log(r);
-    //         su.unsubscribe();
-
-    //         const ds = this.datasetService.closeDataset({ dataset: this.session.selectedDataset }).subscribe(
-    //           (res) => {
-    //             console.log(res);
-    //             ds.unsubscribe();
-    //           }
-    //         );
-    //       }
-    //     );
-
-    //     this.displayMessage(res);
-    //   }
-    // );
   }
 
   private recursiveInsert(counter: number, limit: number): void {

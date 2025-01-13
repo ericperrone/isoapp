@@ -3,6 +3,9 @@ export interface ChemComponent {
     value: string;
     isIsotope: boolean;
     um?: string;
+    uncertainty?: number;
+    uncertaintyType?: string;
+    technique?: string;
 }
 
 export interface SampleElement {

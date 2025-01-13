@@ -1,3 +1,28 @@
+export const ItinerisKeywords = [
+    'ITINERIS_Document', 'Sample Name',	'Location',	'Location_Details',	
+    'Latitude',	'Longitude', 'EPSG', 'Matrix', 'Matrix_Details', 'DOI',	
+    'Authors',	'Year of Publication',	'Unit',	
+     'Technique', 'Ref.Std.'
+];
+
+export function isItinerisTemplate(header: string[]): boolean {
+    for (let h of header) {
+        if (h.toLowerCase() === 'itineris_document')
+            return true;
+    }
+    return false;
+}
+
+export function isItinerisKey(key: string): boolean {
+    let keyl = key.toLowerCase();
+    for (let k of ItinerisKeywords) {
+        if (k.toLowerCase() === keyl) {
+            return true;
+        }
+    }
+    return false;
+}
+
 export const ChemElements = [
     'Ac',
     'Ag',
@@ -293,7 +318,12 @@ export function checkChemElement(element: string): boolean {
 
 export const FIELDS = [
     'rock', 'sampl', 'age', 'loca', 'latitude', 'longitude', 'material', 'mineral', 'ref', 'tect', 'type', 'name', 'serie',
-    'alter', 'drill', 'geol', 'erupt', 'year', 'elevation'
+    'alter', 'drill', 'geol', 'erupt', 'year', 'elevation', 'itineris_document', 'matrix', 'matrix_details', 'doi', 'authors',
+    'uncertainty', 'technique', 'unit'
+];
+
+export const ITINERIS_RESERVED = [
+    'uncertainty', 'technique', 'unit', 'type of uncertainty'
 ];
 
 export const CACHE_AUTH = '_CACHE_AUTH_';

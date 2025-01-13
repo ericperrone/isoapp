@@ -1,25 +1,4 @@
-<!-- <div class="scrollable centered" style="max-width: 95%; max-height: 40%; border: 1px solid lightgray; padding: 1px;">
-    <div *ngFor="let em of endMembers">
-        <span class="endmember field-back">{{ em.name }}</span>
-        <table>
-            <thead>
-                <th *ngFor="let item of em.member">
-                    {{ item.name }}
-                </th>
-            </thead>
-            <tr>
-                <td *ngFor="let item of em.member" class="clickable" (click)="onClick(item, em.name)">
-                    <span style="background-color: orange;" *ngIf="true === item.selected">{{ item.value }}</span>
-                    <span *ngIf="!item.selected">{{ item.value }}</span>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div> -->
-
 <div *ngFor="let em of endMembers" class="centered mt-2 mb-1" style="max-width: 95%; padding: 1px;">
-    <!-- <span class="endmember clickable" *ngIf="em.name !== activeMember" (click)="selectActive(em)">{{ em.name }}</span>
-    <span class="endmember active-border color-primary" *ngIf="em.name === activeMember">{{ em.name }}</span> -->
     <button type="button" class="btn btn-outline-primary" *ngIf="em.name === activeMember"><strong>{{ em.name }}</strong></button>
     <button type="button" class="btn btn-outline-secondary" *ngIf="em.name !== activeMember" (click)="selectActive(em)">{{ em.name }}</button>
     <div class="scrollable centered" style="max-width: 100%; max-height: 40%; border: 1px solid lightgray; padding: 1px;">
@@ -27,17 +6,13 @@
             <thead>
                 <th *ngFor="let item of em.member">
                     {{ item.name }}
-                    <!-- <span *ngIf="item.type === 'C'" class="chem">{{ item.name }}</span>
-                    <span *ngIf="item.type === 'I'" class="isotope">{{ item.name }}</span> -->
-                </th>
+                 </th>
             </thead>
             <tr>
                 <td *ngFor="let item of em.member" class="clickable" (click)="onClick(item, em.name)">
                     <span style="background-color: orange;" *ngIf="true === item.selected">{{ item.value }}</span>
                     <span *ngIf="!item.selected">{{ item.value }}</span>
-                    <!-- <span *ngIf="item.type === 'C'" class="chem">{{ item.value }}</span>
-                    <span *ngIf="item.type === 'I'" class="isotope">{{ item.value }}</span> -->
-                </td>
+                  </td>
             </tr>
         </table>
     </div>

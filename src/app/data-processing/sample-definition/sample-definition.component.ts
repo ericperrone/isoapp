@@ -5,7 +5,7 @@ import { DATA_GATHERING, DataGatheringSession } from 'src/app/data-processing/ma
 import { DataGathering } from '../data-gathering';
 import { SampleElement, ChemComponent, Sample } from 'src/app/models/sample';
 import { trigger, style, animate, transition } from '@angular/animations';
-import { checkChemElement, checkField, checkIsotope } from 'src/app/shared/const';
+import { checkChemElement, checkField, checkIsotope, ITINERIS_RESERVED } from 'src/app/shared/const';
 import { Subscription } from 'rxjs';
 
 export interface Col {
@@ -180,11 +180,40 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
         let sample: Sample = { fields: new Array<SampleElement>(), components: new Array<ChemComponent>() };
         for (let j = 0; j < row.length; j++) {
           let element = row[j];
-          for (let hc of headerCols) {
+          // for (let hc of headerCols) {
+          for (let k = 0; k < headerCols.length; k++) {
+            let hc = headerCols[k];
             if (j === hc.col) {
               switch (hc.type) {
                 case SampleType.FIELD:
-                  sample.fields.push({ field: hc.name, value: element });
+                  if (!this.checkItinerisReserved(hc.name))
+                    sample.fields.push({ field: hc.name, value: element });
+                  else {
+                    let key = hc.name.toLowerCase().trim();
+                    let previousHc = headerCols[k - 1];
+                    switch (key) {
+                      case 'unit':
+                        if (previousHc.type === SampleType.CHEM) {
+                          sample.components[sample.components.length - 1].um = element;
+                        }
+                        break;
+                      case 'technique':
+                        if (previousHc.type === SampleType.ISOTOPE) {
+                          sample.components[sample.components.length - 1].technique = element;
+                        }
+                        break;
+                      case 'uncertainty':
+                        if (previousHc.type === SampleType.ISOTOPE) {
+                          sample.components[sample.components.length - 1].uncertainty = parseFloat(element);
+                        }
+                        break;
+                      case 'type of uncertainty':
+                        if (previousHc.type === SampleType.ISOTOPE) {
+                          sample.components[sample.components.length - 1].uncertaintyType = element;
+                        }
+                        break;
+                    }
+                  }
                   break;
                 case SampleType.CHEM:
                   sample.components.push({ component: hc.name, value: element, isIsotope: false });
@@ -203,148 +232,13 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
     }
   }
 
-  // private collectSampleFields(): void {
-  //   let fields = new Array<string>();
-  //   let chems = new Array<string>();
-  //   let fieldCols = new Array<Col>();
-  //   let chemCols = new Array<Col>();
-
-  //   this.session.fields = new Array<string>();
-  //   this.session.chems = new Array<string>();
-  //   this.session.isotopes = new Array<string>();
-
-  //   for (let j = 0; j < this.sampleFields._results.length; j++) {
-  //     if (!!this.sampleFields._results[j].nativeElement.checked) {
-  //       fields.push(this.sampleFields._results[j].nativeElement.name);
-  //       if (!this.session.fields.find(element => element === this.sampleFields._results[j].nativeElement.name))
-  //         this.session.fields.push(this.sampleFields._results[j].nativeElement.name);
-  //     } else if (!!this.chemFields._results[j].nativeElement.checked) {
-  //       chems.push(this.chemFields._results[j].nativeElement.name);
-  //       if (!this.session.chems.find(element => element === this.chemFields._results[j].nativeElement.name))
-  //         this.session.chems.push(this.chemFields._results[j].nativeElement.name);
-  //     } else if (!!this.isotopes._results[j].nativeElement.checked) {
-  //       chems.push('isotope::' + this.chemFields._results[j].nativeElement.name);
-  //       if (!this.session.isotopes.find(element => element === this.chemFields._results[j].nativeElement.name))
-  //         this.session.isotopes.push(this.chemFields._results[j].nativeElement.name);
-  //     }
-  //     console.log(this.session.chems);
-  //   }
-
-  //   if (!!this.session.header) {
-  //     for (let i = 0; i < this.session.header?.length; i++) {
-  //       for (let f of fields) {
-  //         if (f === this.session.header[i]) {
-  //           fieldCols.push({ name: f, col: i });
-  //           break;
-  //         }
-  //       }
-  //       for (let c of chems) {
-  //         let n = c;
-  //         let isoFlag = false;
-  //         if (c.startsWith('isotope::')) {
-  //           n = c.substring(9);
-  //           isoFlag = true;
-  //         }
-  //         if (n === this.session.header[i]) {
-  //           chemCols.push({ name: n, col: i, isIsotope: isoFlag });
-  //           break;
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   if (this.session.headerPosition !== undefined && this.session.headerPosition >= 0) {
-  //     if (!this.session.content)
-  //       return;
-  //     let lastRow = !!this.session.endTable ? this.session.endTable : this.session.content?.length;
-  //     if (!lastRow)
-  //       return;
-
-
-  //     for (let i = this.session.headerPosition + 1, n = 0; i <= lastRow; i++, n++) {
-  //       let fields = new Array<SampleElement>();
-  //       for (let j = 0; j < this.session.content[i].length; j++) {
-  //         for (let fc of fieldCols) {
-  //           if (j === fc.col) {
-  //             let se: SampleElement = { field: fc.name, value: this.session.content[i][j] };
-  //             fields.push(se);
-  //           }
-  //         }
-  //       }
-
-  //       if (!this.session.samples[n]) {
-  //         this.session.samples[n] = { fields: [] };
-  //         for (let f of fields) {
-  //           this.session.samples[n].fields.push(f);
-  //         }
-  //       } else {
-  //         // deve tener conto che i dati possono essere su piu' tabelle ordinate in modo diverso.
-
-  //       }
-
-  //     }
-
-  //     if (this.session.samples.length > 0 && chemCols.length > 0) {
-  //       for (let i = this.session.headerPosition + 1; i <= lastRow; i++) {
-  //         let sample = this.session.samples[i - this.session.headerPosition - 1];
-  //         let components = new Array<ChemComponent>();
-  //         for (let j = 0; j < this.session.content[i].length; j++) {
-  //           for (let cc of chemCols) {
-  //             if (j === cc.col) {
-  //               let ce: ChemComponent = {
-  //                 component: cc.name, value: this.session.content[i][j],
-  //                 isIsotope: !!cc.isIsotope ? cc.isIsotope : false
-  //               };
-  //               components.push(ce);
-  //             }
-  //           }
-  //         }
-  //         sample.components = components;
-  //       }
-  //     }
-
-  //     console.log(this.session.samples);
-  //     this.dataComposed = true;
-  //   }
-
-  // }
-
-  // public markAll(val: number) {
-  //   for (let r of this.row) {
-  //     switch (val) {
-  //       case 1:
-  //         this.styles[r] = 'lightseagreen';
-  //         for (let j = 0; j < this.sampleFields._results.length; j++) {
-  //           this.sampleFields._results[j].nativeElement.checked = true;
-  //         }
-  //         break;
-  //       case 2:
-  //         this.styles[r] = 'lightsalmon';
-  //         for (let j = 0; j < this.chemFields._results.length; j++) {
-  //           this.chemFields._results[j].nativeElement.checked = true;
-  //         }
-  //         break;
-  //       case 4:
-  //         this.styles[r] = 'lightgreen';
-  //         for (let j = 0; j < this.chemFields._results.length; j++) {
-  //           this.isotopes._results[j].nativeElement.checked = true;
-  //         }
-  //         break;
-  //       default:
-  //         this.styles[r] = 'transparent';
-  //         for (let j = 0; j < this.nones._results.length; j++) {
-  //           this.nones._results[j].nativeElement.checked = true;
-  //         }
-  //         break;
-  //     }
-  //   }
-  //   this.buttonEnabled = true;
-  //   // this.enableButton();
-  // }
-
-  // public getSamples(): void {
-
-  // }
+  private checkItinerisReserved(key: string): boolean {
+    for (let r of ITINERIS_RESERVED) {
+      if (key.toLowerCase().trim() === r)
+        return true;
+    }
+    return false;
+  }
 
   private cleanRow(session: DataGatheringSession): Array<string> {
     let r = new Array<string>();
