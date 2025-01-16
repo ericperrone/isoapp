@@ -30,12 +30,14 @@ interface Computable {
   elementName: string;
   elementNameCopy?: string;
   elementValue: string;
+  elementUm?: string;
   selected?: boolean;
   elementValueCopy?: string;
   row: number;
   active: boolean;
   concentration: string;
   concentrationValue: string;
+  concentrationUm?: string;
 }
 
 interface MixingResult {
