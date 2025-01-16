@@ -41,11 +41,11 @@ export class ConversionDialogComponent implements OnInit {
         }
       }
     }
-    this.emitter.emit(CONFIRM);
+    this.emitter.emit({ response: CONFIRM, data: this.computables } );
   }
 
   public cancel(): void {
-    this.emitter.emit(CANCEL);
+    this.emitter.emit({ response: CANCEL });
   }
 
    private loadConversionTable(): void {
