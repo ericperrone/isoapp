@@ -12,6 +12,7 @@ import { PlotComponent, PLOT } from 'src/app/shared/modals/plot/plot.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 import { scale } from 'ol/size';
+import { ConversionDialogComponent } from 'src/app/shared/components/conversion-dialog/conversion-dialog.component';
 
 export const MIXING_CACHE = '_MIXING_CACHE_';
 
@@ -25,7 +26,7 @@ interface MemberItem {
   value: string;
 }
 
-interface Computable {
+export interface Computable {
   endMemberName: string;
   elementName: string;
   elementNameCopy?: string;
@@ -314,6 +315,7 @@ export class MixingComponent implements OnInit, OnDestroy {
                 }
               }
             } else {
+              currentComputable.elementUm = event.item.um;
               currentComputable.concentration = '';
               currentComputable.concentrationValue = '';
             }
@@ -432,7 +434,44 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
+  private checkComputablesUm(): void {
+    if (!!this.computables && this.computables.length > 0) {
+      console.log(this.computables);
+      let ums = new Array<string>();
+      for (let c of this.computables) {
+        ums.push('' + c.elementUm);
+      }
+      let conversionNeeded = false;
+      
+      if (ums.length > 0) {
+        let um0 = ums[0].toLowerCase();
+        for (let u of ums) {
+          let um = u.toLowerCase();
+          if (um !== um0) {
+            conversionNeeded = true;
+            break;
+          }
+          if (um !== 'ppm' && um !== 'wt%') {
+            conversionNeeded = true;
+            break;
+          }
+        }
+      }
+
+      if (conversionNeeded === true) {
+        let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
+        r.componentInstance.params = { 'computables': this.computables };
+        let s = r.componentInstance.emitter.subscribe((result: any) => {
+          r.close();
+          s.unsubscribe();
+        })
+      }
+    }
+  }
+
   public submit() {
+    this.checkComputablesUm();
+    /****
     if (!!this.computables) {
       const payload = this.computables;
       let s = this.geoModelsService.mixingModel(payload, this.step).subscribe(
@@ -469,7 +508,7 @@ export class MixingComponent implements OnInit, OnDestroy {
           this.add();
         }
       )
-    }
+    } */
   }
 
   public export() {
@@ -715,7 +754,7 @@ export class MixingComponent implements OnInit, OnDestroy {
 
   public plot(geoData: any, geoModelsService: GeoModelsService) {
     let that = this;
-    this.ref = this.modalService.open(PlotComponent, { centered: true });
+    this.ref = this.modalService.open(PlotComponent, { centered: true, backdrop: 'static' });
     this.ref.componentInstance.emitter.subscribe((result: any) => {
       if (result.cmd === PLOT) {
         this.xPoint = result.xPoint;

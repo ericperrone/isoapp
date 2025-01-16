@@ -67,6 +67,7 @@ import { SpiderNormalizationComponent } from './shared/modals/spider-normalizati
 import { DbFiltersComponent } from './db-querying/db-filters/db-filters.component';
 import { CardMatrixComponent } from './db-querying/cards/card-matrix/card-matrix.component';
 import { CardMatrixDialogComponent } from './db-querying/card-dialogs/card-matrix-dialog/card-matrix-dialog.component';
+import { ConversionDialogComponent } from './shared/components/conversion-dialog/conversion-dialog.component';
 
 
 @NgModule({
@@ -126,6 +127,7 @@ import { CardMatrixDialogComponent } from './db-querying/card-dialogs/card-matri
     DbFiltersComponent,
     CardMatrixComponent,
     CardMatrixDialogComponent,
+    ConversionDialogComponent,
   ],
   imports: [
     BrowserModule,

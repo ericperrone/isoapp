@@ -84,6 +84,14 @@ export class GeoModelsService extends Rest {
       }
     ), catchError(this.handleError));
   }
+
+  public getConversionTable(): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-measure-unit').pipe(map(
+      (res: any) => {
+        return res;
+      }
+    ), catchError(this.handleError));   
+  }
 }
 
 

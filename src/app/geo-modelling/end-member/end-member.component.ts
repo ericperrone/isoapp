@@ -141,12 +141,15 @@ export class EndMemberComponent implements OnInit, OnDestroy {
         return;
       let outItem = { ...item };
       let ind = outItem.value.indexOf(' [');
+      let um = outItem.value.substring(ind + 2, outItem.value.indexOf(']'));
       if (ind > 0) {
         outItem.value = outItem.value.substring(0, ind);
+        outItem.um = um;
       }
       if (!!m.inverse) {
         let x = parseFloat(outItem.value);
         outItem.value = '' + (1 / x);
+        outItem.um = '1/' + um;
       }
       this.onSelect.emit({ 'memberName': memberName, 'item': outItem });
     }
