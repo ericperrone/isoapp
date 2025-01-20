@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, ViewChildren, HostListener } from '@angular/core';
-import { GeoModel } from 'src/app/services/common/geo-model.service';
+import { EndMemberItem, GeoModel } from 'src/app/services/common/geo-model.service';
 import { EndMember, RESET_SELECTION, END_MEMBER, MULTIPLE_SELECTION_MODE, RESET_SELECTION_OUT, END_MEMBER_SET } from '../end-member/end-member.component';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
@@ -13,6 +13,7 @@ import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 import { scale } from 'ol/size';
 import { ConversionDialogComponent } from 'src/app/shared/components/conversion-dialog/conversion-dialog.component';
+import { AlertServiceService } from 'src/app/services/common/alert-service.service';
 
 export const MIXING_CACHE = '_MIXING_CACHE_';
 
@@ -39,6 +40,7 @@ export interface Computable {
   concentration: string;
   concentrationValue: string;
   concentrationUm?: string;
+  isIsotope?: boolean;
 }
 
 interface MixingResult {
@@ -75,7 +77,9 @@ interface ScaleAxis {
 export class MixingComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
-    console.log(event);
+    // console.log(event);
+    if (!this.chartView)
+      return;
     this.chartWidth = Math.floor(window.innerWidth * 0.99);
     this.chartHeight = Math.floor(window.innerHeight * 0.8);
     this.chartSizeChange();
@@ -112,13 +116,16 @@ export class MixingComponent implements OnInit, OnDestroy {
   public legendFontSize = 20;
   public changeSize = false;
   public fixedRatio = false;
+  public selectOptions = new Array<EndMemberItem>();
 
   constructor(private eventGeneratorService: EventGeneratorService,
+    private alertService: AlertServiceService,
     private modalService: NgbModal,
     private storeService: StoreService,
     public geoModelsService: GeoModelsService) { }
 
   ngOnInit(): void {
+    this.buildSelect();
     // console.log(this.params);
     let stored: MixingData = this.getCachedData();
     // console.log(this.params);
@@ -142,6 +149,7 @@ export class MixingComponent implements OnInit, OnDestroy {
             if (this.computables[i].endMemberName === event.content) {
               this.computables[i].elementName = '';
               this.computables[i].elementValue = '';
+              this.computables[i].isIsotope = false;
               this.ratio[i] = false;
               break;
             }
@@ -156,6 +164,7 @@ export class MixingComponent implements OnInit, OnDestroy {
           let c = this.getComputableByMemberName(event.content);
           if (!!c)
             this.selectMember(c);
+          // console.log(c);
         }
       }
     );
@@ -168,6 +177,19 @@ export class MixingComponent implements OnInit, OnDestroy {
 
     if (!!this.subEndMemberSet) {
       this.subEndMemberSet.unsubscribe();
+    }
+  }
+
+  private buildSelect(): void {
+    this.selectOptions.length = 0;
+    if (!!this.params && !!this.params.endMembers) {
+      for (let i = 0; i < this.params.endMembers.length; i++) {
+        for (let j = 0; j < this.params.endMembers[i].length; j++) {
+          if ('C' === this.params.endMembers[i][j].type) {
+            this.selectOptions.push(this.params.endMembers[i][j]);
+          }
+        }
+      }
     }
   }
 
@@ -264,25 +286,47 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
+  private setIsIsotope(c: Computable): void {
+    if (!!this.params && !!this.params.endMembers) {
+      for (let i = 0; i < this.params.endMembers.length; i++) {
+        for (let j = 0; j < this.params.endMembers[i].length; j++) {
+          if (this.params.endMembers[i][j].name === c.elementName) {
+            console.log(this.params.endMembers[i][j]);
+            if ('I' === this.params.endMembers[i][j].type) {
+              c.isIsotope = true;
+            } else {
+              c.isIsotope = false;
+            }
+            console.log(c);
+            return;
+          }
+        }
+      }
+    }
+  }
+
   private getComputableByMemberName(name: string): Computable | undefined {
     if (!!this.computables) {
       for (let c of this.computables) {
-        if (c.endMemberName === name)
+        if (c.endMemberName === name) {
+          // this.setIsIsotope(c);
+          // console.log(this.computables);
           return c;
+        }
       }
     }
     return undefined;
   }
 
-  private getComputableByRow(row: number): Computable | undefined {
-    if (!!this.computables) {
-      for (let c of this.computables) {
-        if (c.row === row)
-          return c;
-      }
-    }
-    return undefined;
-  }
+  // private getComputableByRow(row: number): Computable | undefined {
+  //   if (!!this.computables) {
+  //     for (let c of this.computables) {
+  //       if (c.row === row)
+  //         return c;
+  //     }
+  //   }
+  //   return undefined;
+  // }
 
   public getSelected(event: any): void {
     console.log(event);
@@ -298,27 +342,32 @@ export class MixingComponent implements OnInit, OnDestroy {
           if (!this.ratio[currentComputable.row]) {
             currentComputable.elementName = event.item.name;
             currentComputable.elementValue = event.item.value;
-            if (event.item.type === 'I') {
-              let element = this.getChemFromIsotope(event.item.name);
-              element = element.toLowerCase()
-              for (let em of this.endMembers) {
-                if (em.name === event.memberName) {
-                  for (let m of em.member) {
-                    currentComputable.concentration = '';
-                    currentComputable.concentrationValue = '';
-                    if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
-                      currentComputable.concentration = m.name;
-                      currentComputable.concentrationValue = m.value;
-                      break;
-                    }
-                  }
-                }
-              }
-            } else {
-              currentComputable.elementUm = event.item.um;
-              currentComputable.concentration = '';
-              currentComputable.concentrationValue = '';
-            }
+            currentComputable.elementUm = event.item.um;
+            currentComputable.concentration = '';
+            currentComputable.concentrationValue = '';
+
+            if (event.item.type === 'I') { }
+            // let element = this.getChemFromIsotope(event.item.name);
+            // element = element.toLowerCase()
+            // for (let em of this.endMembers) {
+            //   if (em.name === event.memberName) {
+            //     for (let m of em.member) {
+            //       currentComputable.concentration = '';
+            //       currentComputable.concentrationValue = '';
+            //       if (m.name.toLowerCase().match(element) && m.name !== currentComputable.elementName && (!!m.value && m.value.length > 0)) {
+            //         currentComputable.concentration = m.name;
+            //         currentComputable.concentrationValue = m.value;
+            //         break;
+            //       }
+            //     }
+            //   }
+            // }
+
+            // } else {
+            //   currentComputable.elementUm = event.item.um;
+            //   currentComputable.concentration = '';
+            //   currentComputable.concentrationValue = '';
+            // }
           } else {
             currentComputable.elementName = currentComputable.elementName + ' / ' + event.item.name;
             currentComputable.elementValue = '' + (parseFloat(currentComputable.elementValue) / parseFloat(event.item.value));
@@ -380,11 +429,11 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getChemFromIsotope(isotope: string): string {
-    let chem = '';
-    chem = getElementByisotope(isotope);
-    return chem;
-  }
+  // private getChemFromIsotope(isotope: string): string {
+  //   let chem = '';
+  //   chem = getElementByisotope(isotope);
+  //   return chem;
+  // }
 
   private resetComputables(): void {
     this.submitOn = false;
@@ -434,15 +483,52 @@ export class MixingComponent implements OnInit, OnDestroy {
     }
   }
 
+  private finalChecks(): void {
+    if (!!this.checkConcentration()) {
+      this.checkComputablesUm();
+    }
+  }
+
+  public setConcentrationValue(c: Computable, index: number): void {
+    if (this.params && this.params.endMembers)
+      for (let e of this.params?.endMembers[index]) {
+        if (e.name === c.concentration) {
+          let value = e.value.split(' [');
+          let um = value[1] ? value[1].substring(0, value[1].indexOf(']')) : undefined;
+          c.concentrationValue = value[0];
+          c.concentrationUm = um;
+          console.log(c);
+          return;
+        }
+      }
+  }
+
+  private checkConcentration(): boolean {
+    if (!!this.computables && this.computables.length > 0) {
+      for (let c of this.computables) {
+        this.setIsIsotope(c);
+        if (c.isIsotope && !c.concentration) {
+          console.log(c);
+          this.alertService.alert('Warning', 'Found isotope ratio in your choise; please select related element concentration');
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   private checkComputablesUm(): void {
     if (!!this.computables && this.computables.length > 0) {
       console.log(this.computables);
+
       let ums = new Array<string>();
       for (let c of this.computables) {
-        ums.push('' + c.elementUm);
+        if (!!c.elementUm)
+          ums.push('' + c.elementUm);
       }
       let conversionNeeded = false;
-      
+
       if (ums.length > 0) {
         let um0 = ums[0].toLowerCase();
         for (let u of ums) {
@@ -464,13 +550,57 @@ export class MixingComponent implements OnInit, OnDestroy {
         let s = r.componentInstance.emitter.subscribe((result: any) => {
           r.close();
           s.unsubscribe();
+          this.computeMixing();
         })
+      } else {
+        this.computeMixing();
       }
     }
   }
 
+  private computeMixing(): void {
+    if (!!this.computables) {
+
+      const payload = this.computables;
+      let s = this.geoModelsService.mixingModel(payload, this.step).subscribe(
+        (res: any) => {
+          this.tempResult = new Array<ShowedRow>();
+          this.result = res.results;
+          this.geoData = [...this.geoData, ...res.geoData];
+          // this.storeService.push({ key: GEO_DATA, data: this.geoData });
+
+          if (!!this.result) {
+            let nRow = this.result[0].samples.length;
+            for (let n = 0; n < nRow; n++) {
+              let r = new Array<string>();
+              r.push(this.result[0].samples[n].member + ": " + this.result[0].samples[n].element);
+              this.tempResult.push({ row: r });
+            }
+            let r = new Array<string>();
+            r.push('MIX');
+            this.tempResult.push({ row: r });
+
+            for (let r of this.result) {
+              for (let n = 0; n < nRow; n++) {
+                this.tempResult[n].row.push('' + r.samples[n].f);
+              }
+              this.tempResult[this.tempResult.length - 1].row.push('' + r.mix);
+            }
+          }
+          this.outResult = [...this.outResult, ...this.tempResult];
+          // this.storeService.push({ key: OUT_RESULT, data: this.outResult });
+          this.saveCachedData();
+          this.resultReady = true;
+          s.unsubscribe();
+          this.addReady = true;
+          this.add();
+        }
+      )
+    }
+  }
+
   public submit() {
-    this.checkComputablesUm();
+    this.finalChecks();
     /****
     if (!!this.computables) {
       const payload = this.computables;
@@ -580,12 +710,12 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   private getScaleXY(dp: Array<DP>, epsilonX: number, epsilonY: number): ScaleAxis {
-    let scale = { xMin: 0, yMin: 0, xMax: 0, yMax: 0};
-    let dx = dp.sort((a, b) => {return (b.x - a.x)});
+    let scale = { xMin: 0, yMin: 0, xMax: 0, yMax: 0 };
+    let dx = dp.sort((a, b) => { return (b.x - a.x) });
     console.log(dx);
     scale.xMin = dx[0].x - epsilonX;
     scale.xMax = dx[dx.length - 1].x + epsilonX;
-    let dy = dp.sort((a, b) => {return (b.y - a.y)});
+    let dy = dp.sort((a, b) => { return (b.y - a.y) });
     console.log(dy);
     scale.yMin = dy[0].y - epsilonY;
     scale.yMax = dy[dy.length - 1].y + epsilonY;
@@ -615,7 +745,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       }
 
       let charts = new Array();
-      
+
       for (let i = 0; i < chartsData.length; i += 2) {
         if (i + 1 < chartsData.length) {
           let dp = new Array<any>();
@@ -629,7 +759,7 @@ export class MixingComponent implements OnInit, OnDestroy {
           });
         }
       }
-       
+
 
       let dpem = new Array<any>();
 

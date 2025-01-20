@@ -14,8 +14,18 @@
                         (click)="onMemberSelection(c)">End member: {{ c.endMemberName }}</button>
                 </div>
                 <div class="row mt-2 underlined">
-                    <div class="col-3">{{ c.elementName }}</div>
+                    <div class="col-2">{{ c.elementName }}</div>
                     <div class="col-2">{{ c.elementValue }}</div>
+                    <div class="col-1">
+                        <select [(ngModel)]="computables[i].concentration" (ngModelChange)="setConcentrationValue(computables[i], i)">
+                            <option *ngFor="let o of this.selectOptions">
+                                {{ o.name }}
+                            </option>
+                        </select>
+                        <span class="fa-solid fa-circle-info" style="color: darkgreen;"
+                        ngbPopover="When isotope ratio is selected, then choose the related element concentration value"
+                        triggers="mouseenter:mouseleave"></span>
+                    </div>
                     <div class="col-3"><input class="clickable" type="checkbox" #ratio (change)="onRatio($event, c)"
                             [disabled]="c.elementValue.length === 0"> x / y
                         <span class="fa-solid fa-circle-info" style="color: darkgreen;"
