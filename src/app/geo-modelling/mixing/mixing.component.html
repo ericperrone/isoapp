@@ -14,15 +14,15 @@
                         (click)="onMemberSelection(c)">End member: {{ c.endMemberName }}</button>
                 </div>
                 <div class="row mt-2 underlined">
-                    <div class="col-2">{{ c.elementName }}</div>
+                    <div class="col-1">{{ c.elementName }}</div>
                     <div class="col-2">{{ c.elementValue }}</div>
-                    <div class="col-1">
-                        <select [(ngModel)]="computables[i].concentration" (ngModelChange)="setConcentrationValue(computables[i], i)">
+                    <div class="col-2">
+                        <select style="border: solid 1px #dee2e6; padding: 0.375rem 0.75rem" [(ngModel)]="computables[i].concentration" (ngModelChange)="setConcentrationValue(computables[i], i)">
                             <option *ngFor="let o of this.selectOptions">
                                 {{ o.name }}
                             </option>
                         </select>
-                        <span class="fa-solid fa-circle-info" style="color: darkgreen;"
+                        <span class="fa-solid fa-circle-info" style="color: darkgreen; margin-left: 3px;"
                         ngbPopover="When isotope ratio is selected, then choose the related element concentration value"
                         triggers="mouseenter:mouseleave"></span>
                     </div>
