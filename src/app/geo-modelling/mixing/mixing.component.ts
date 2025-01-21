@@ -548,6 +548,7 @@ export class MixingComponent implements OnInit, OnDestroy {
         let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
         r.componentInstance.params = { 'computables': this.computables };
         let s = r.componentInstance.emitter.subscribe((result: any) => {
+          console.log(result);
           r.close();
           s.unsubscribe();
           this.computeMixing();

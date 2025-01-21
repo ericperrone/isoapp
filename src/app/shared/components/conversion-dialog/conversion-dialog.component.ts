@@ -32,7 +32,7 @@ export class ConversionDialogComponent implements OnInit {
       if (currentUm === this.UM) 
         continue;
       for (let ctItem of this.conversionTable) {
-        if (ctItem.um === currentUm) {
+        if (ctItem.um.toLowerCase() === currentUm) {
           c.elementUm = this.UM;
           let value = parseFloat(c.elementValue) * ctItem.toPPM;
           if (this.UM === 'wt%')
