@@ -12,7 +12,7 @@ import { PlotComponent, PLOT } from 'src/app/shared/modals/plot/plot.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
 import { scale } from 'ol/size';
-import { ConversionDialogComponent } from 'src/app/shared/components/conversion-dialog/conversion-dialog.component';
+import { ConversionDialogComponent, ConversionType } from 'src/app/shared/components/conversion-dialog/conversion-dialog.component';
 import { AlertServiceService } from 'src/app/services/common/alert-service.service';
 
 export const MIXING_CACHE = '_MIXING_CACHE_';
@@ -509,7 +509,7 @@ export class MixingComponent implements OnInit, OnDestroy {
         this.setIsIsotope(c);
         if (c.isIsotope && !c.concentration) {
           console.log(c);
-          this.alertService.alert('Warning', 'Found isotope ratio in your choise; please select related element concentration');
+          this.alertService.alert('Warning', 'Found isotope ratio. Please select related element concentration');
           return false;
         }
       }
@@ -523,30 +523,81 @@ export class MixingComponent implements OnInit, OnDestroy {
       console.log(this.computables);
 
       let ums = new Array<string>();
+      let umsc = new Array<string>();
+
       for (let c of this.computables) {
         if (!!c.elementUm)
           ums.push('' + c.elementUm);
+        if (!!c.concentrationUm) {
+          umsc.push(c.concentrationUm);
+        }
       }
-      let conversionNeeded = false;
 
-      if (ums.length > 0) {
-        let um0 = ums[0].toLowerCase();
-        for (let u of ums) {
-          let um = u.toLowerCase();
-          if (um !== um0) {
-            conversionNeeded = true;
-            break;
+      let conversionNeeded = false;
+      let conversionType: ConversionType = ConversionType.NONE;
+
+      let umc0 = umsc[0];
+      if (!!umc0) {
+        if (ums.length > 0) {
+          let um0 = ums[0].toLowerCase();
+          umc0 = umsc[0].toLowerCase();
+          for (let u of ums) {
+            let um = u.toLowerCase();
+            if (um !== um0 || um !== umc0) {
+              conversionNeeded = true;
+              conversionType = ConversionType.CHEM_ONLY;
+              break;
+            }
           }
-          if (um !== 'ppm' && um !== 'wt%') {
-            conversionNeeded = true;
-            break;
+        }
+      } else {
+        if (ums.length > 0) {
+          let um0 = ums[0].toLowerCase();
+          for (let u of ums) {
+            let um = u.toLowerCase();
+            if (um !== um0) {
+              conversionNeeded = true;
+              conversionType = ConversionType.CHEM_ONLY;
+              break;
+            }
           }
         }
       }
 
+      let um0 = ums[0];
+      if (!!um0)
+        if (umsc.length > 0) {
+          let umc0 = umsc[0].toLowerCase();
+          um0 = ums[0].toLowerCase();
+          for (let u of umsc) {
+            let um = u.toLowerCase();
+            if (um !== umc0 || um !== um0) {
+              conversionNeeded = true;
+              if (conversionType === ConversionType.NONE)
+                conversionType = ConversionType.CHEM_ONLY;
+              else
+                conversionType = ConversionType.BOTH;
+              break;
+            }
+          }
+        } else {
+          let umc0 = umsc[0].toLowerCase();
+          for (let u of umsc) {
+            let um = u.toLowerCase();
+            if (um !== umc0) {
+              conversionNeeded = true;
+              if (conversionType === ConversionType.NONE)
+                conversionType = ConversionType.CHEM_ONLY;
+              else
+                conversionType = ConversionType.BOTH;
+              break;
+            }
+          }
+        }
+
       if (conversionNeeded === true) {
         let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
-        r.componentInstance.params = { 'computables': this.computables };
+        r.componentInstance.params = { 'computables': this.computables, 'type': conversionType };
         let s = r.componentInstance.emitter.subscribe((result: any) => {
           console.log(result);
           r.close();
