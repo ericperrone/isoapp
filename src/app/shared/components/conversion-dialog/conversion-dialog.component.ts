@@ -4,7 +4,7 @@ import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { CANCEL, CONFIRM } from '../../modals/modal-params';
 import { Computable } from 'src/app/geo-modelling/mixing/mixing.component';
 
-export enum ConversionType { NONE = 0, BOTH, CHEM_ONLY, ISOTOPE_ONLY };
+export enum ConversionType { NONE = 0, BOTH, CHEM_ONLY, ISOTOPE_ONLY, ERROR };
 
 @Component({
   selector: 'app-conversion-dialog',

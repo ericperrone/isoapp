@@ -5,17 +5,16 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { GeoModelsService, MixingModelPayload } from 'src/app/services/rest/geo-models.service';
 import { saveCsvFile } from 'src/app/shared/tools';
 import { Subscription } from 'rxjs';
-import { getElementByisotope } from 'src/app/shared/const';
 import { StoreService } from 'src/app/services/common/store.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlotComponent, PLOT } from 'src/app/shared/modals/plot/plot.component';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams } from 'src/app/shared/modals/modal-params';
-import { scale } from 'ol/size';
 import { ConversionDialogComponent, ConversionType } from 'src/app/shared/components/conversion-dialog/conversion-dialog.component';
 import { AlertServiceService } from 'src/app/services/common/alert-service.service';
 
 export const MIXING_CACHE = '_MIXING_CACHE_';
+export const COMPUTABLES = '_COMPUTABLES_';
 
 export interface MixingData {
   geoData?: any;
@@ -25,6 +24,11 @@ export interface MixingData {
 interface MemberItem {
   endMemberName: string;
   value: string;
+}
+
+interface MixComputable {
+  type: ConversionType;
+  computables: Array<Computable>;
 }
 
 export interface Computable {
@@ -125,6 +129,8 @@ export class MixingComponent implements OnInit, OnDestroy {
     public geoModelsService: GeoModelsService) { }
 
   ngOnInit(): void {
+    this.storeService.clean(COMPUTABLES);
+    console.log(' --- RESET ---');
     this.buildSelect();
     // console.log(this.params);
     let stored: MixingData = this.getCachedData();
@@ -518,84 +524,61 @@ export class MixingComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  private checkSelectedComputables(): ConversionType {
+    if (!!this.computables && this.computables.length > 0) {
+      // i dati devono essere omogenei
+      let um = new Array<string>();
+      let umc = new Array<string>();
+
+      // raccoglie le unita' di misura degli elementi scelti e delle
+      // eventuali concentrazioni (se isotopi)
+      for (let c of this.computables) {
+        if (!!c.elementUm)
+          um.push(c.elementUm);
+        if (!!c.concentrationUm) {
+          umc.push(c.concentrationUm);
+        }
+      }
+
+      // uno dei due array non deve contenere elementi
+      // altrimenti la scelta e' sbagliata
+      if (um.length > 0 && umc.length > 0) {
+        return ConversionType.ERROR;
+      }
+
+      let selected = um.length > 0 ? um : umc;
+      let ret = um.length > 0 ? ConversionType.CHEM_ONLY : ConversionType.ISOTOPE_ONLY;
+
+      let s0 = selected[0];
+      for (let s of selected) {
+        // se le unità di misura non sono omogenee e' richiesta una conversione
+        if (s0.toLowerCase() !== s.toLowerCase())
+          return ret;
+      }
+    }
+    return ConversionType.NONE;
+  }
+
   private checkComputablesUm(): void {
     if (!!this.computables && this.computables.length > 0) {
       console.log(this.computables);
-
-      let ums = new Array<string>();
-      let umsc = new Array<string>();
-
-      for (let c of this.computables) {
-        if (!!c.elementUm)
-          ums.push('' + c.elementUm);
-        if (!!c.concentrationUm) {
-          umsc.push(c.concentrationUm);
-        }
+      let conversionType = this.checkSelectedComputables();
+      if (conversionType === ConversionType.ERROR) {
+        let r = this.modalService.open(AlertComponent, { centered: true, backdrop: 'static' });
+        r.componentInstance.params = {headerText: 'Error', bodyText: 'Not homogeneous elements. Please, correct your choice.'};
+        let s = r.componentInstance.emitter.subscribe((result: any) => {
+          console.log(result);
+          r.close();
+          s.unsubscribe();
+        });
+        return;
+      }
+      let oldComputables: MixComputable | undefined = this.storeService.get(COMPUTABLES);
+      if (!!oldComputables) {
+        // verificare con i precedenti risultati
       }
 
-      let conversionNeeded = false;
-      let conversionType: ConversionType = ConversionType.NONE;
-
-      let umc0 = umsc[0];
-      if (!!umc0) {
-        if (ums.length > 0) {
-          let um0 = ums[0].toLowerCase();
-          umc0 = umsc[0].toLowerCase();
-          for (let u of ums) {
-            let um = u.toLowerCase();
-            if (um !== um0 || um !== umc0) {
-              conversionNeeded = true;
-              conversionType = ConversionType.CHEM_ONLY;
-              break;
-            }
-          }
-        }
-      } else {
-        if (ums.length > 0) {
-          let um0 = ums[0].toLowerCase();
-          for (let u of ums) {
-            let um = u.toLowerCase();
-            if (um !== um0) {
-              conversionNeeded = true;
-              conversionType = ConversionType.CHEM_ONLY;
-              break;
-            }
-          }
-        }
-      }
-
-      let um0 = ums[0];
-      if (!!um0)
-        if (umsc.length > 0) {
-          let umc0 = umsc[0].toLowerCase();
-          um0 = ums[0].toLowerCase();
-          for (let u of umsc) {
-            let um = u.toLowerCase();
-            if (um !== umc0 || um !== um0) {
-              conversionNeeded = true;
-              if (conversionType === ConversionType.NONE)
-                conversionType = ConversionType.CHEM_ONLY;
-              else
-                conversionType = ConversionType.BOTH;
-              break;
-            }
-          }
-        } else {
-          let umc0 = umsc[0].toLowerCase();
-          for (let u of umsc) {
-            let um = u.toLowerCase();
-            if (um !== umc0) {
-              conversionNeeded = true;
-              if (conversionType === ConversionType.NONE)
-                conversionType = ConversionType.CHEM_ONLY;
-              else
-                conversionType = ConversionType.BOTH;
-              break;
-            }
-          }
-        }
-
-      if (conversionNeeded === true) {
+      if (conversionType !== ConversionType.NONE) {
         let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
         r.componentInstance.params = { 'computables': this.computables, 'type': conversionType };
         let s = r.componentInstance.emitter.subscribe((result: any) => {
