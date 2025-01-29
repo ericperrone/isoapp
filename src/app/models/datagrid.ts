@@ -143,11 +143,12 @@ export class DataGrid {
     }
 
     public getHeaderCol(name: string): number {
+        name = name.trim();
         let col = -1;
         if (!this.headers)
             return col;
         for (let h of this.headers) {
-            if (h.content === name) {
+            if (h.content.trim() === name) {
                 col = h.col;
                 break;
             }

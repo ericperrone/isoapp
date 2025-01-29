@@ -22,6 +22,34 @@ export interface GridItem {
   type: string;
 }
 
+export interface ComputableGridItem {
+  element: string;
+  row: number;
+  col: number;
+  type: string;
+  value: number;
+  um?: string;
+}
+
+export function gridItem2Computable(gi: GridItem, element: string): ComputableGridItem {
+  let cgi: ComputableGridItem = { element: '', row: -1, col: -1, type: '', value: -1 };
+  if (!gi.header && gi.type !== 'F') {
+    cgi.element = element;
+    cgi.row = gi.row;
+    cgi.col = gi.col;
+    cgi.type = gi.type;
+    if (gi.content.indexOf(' [') > 0 ) {
+      let value = gi.content.substring(0, gi.content.indexOf(' ['));
+      let um = gi.content.substring(gi.content.indexOf('[') + 1, gi.content.indexOf(']'));
+      cgi.value = parseFloat(value);
+      cgi.um = um;
+    } else {
+      cgi.value = parseFloat(gi.content);
+    }
+  }
+  return cgi;
+}
+
 export const EXPORT = '_EXPORT_';
 const GRID_LOOP = '_GRID_LOOP_';
 
@@ -457,8 +485,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
         { text: 'Spider diagram', value: 4, icon: 'fa-solid fa-spider' },
         { text: 'Ternary diagram', value: 5, icon: 'fa-solid fa-t'},
         { text: 'Mixing model', value: 0, icon: 'fa-solid fa-flask' },
-        { text: 'Crystallization mass balance', value: 1, icon: 'fa-brands fa-codepen' },
-        { text: 'Melting', value: 2, icon: 'fa-solid fa-dice-d20' },
+        // { text: 'Crystallization mass balance', value: 1, icon: 'fa-brands fa-codepen' },
+        // { text: 'Melting', value: 2, icon: 'fa-solid fa-dice-d20' },
       ]
     };
 
@@ -508,16 +536,18 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             }
 
             for (let h of this.gridHeader) {
-              if (h.type !== 'F')
+              if (h.type !== 'F') {
                 list.push({ key: h.content, value: h.content });
+              }
             }
 
             let selcetedRowsData = new Array<Array<GridItem>>();
             for (let n of this.selectedRowsIndex) {
               selcetedRowsData.push(this.gridRows[n]);
             }
+            console.log(selcetedRowsData);
             params.anyParams = { selection: selcetedRowsData, headers: this.gridHeader };
-
+            console.log(params);
             let reff = this.modalService.open(DataPlottingSeriesComponent, { centered: true, size: 'lg', scrollable: true });
             reff.componentInstance.params = params;
             let rr = reff.componentInstance.emitter.subscribe(

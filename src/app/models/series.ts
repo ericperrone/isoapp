@@ -25,9 +25,11 @@ export interface DataSeries {
     name: string;
 }
 
+export interface Point { value: number; um?: string };
+
 export interface DataSeriesPoint {
-    x: number;
-    y: number;
+    x: Point;
+    y: Point;
 }
 
 export interface DataSeriesShape {

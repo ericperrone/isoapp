@@ -96,15 +96,21 @@ export class PlottingComponent implements OnInit, OnDestroy {
     if (!this.series) {
       return;
     }
-
+    console.log(this.series);
+    
+    
     let series = [];
     for (let s of this.series.series) {
+      let data = [];
+      for (let d of s.data) {
+        data.push({x: d.x.value, y: d.y.value});
+      }
       series.push({
         type: 'scatter',
         name: s.name,
         showInLegend: true,
         color: '' + s.shape.color,
-        dataPoints: s.data,
+        dataPoints: data,
         markerType: s.shape.shape ? '' + s.shape.shape : 'circle'
       });
     }

@@ -4,7 +4,7 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { ModalParams, CANCEL, CONFIRM } from '../modal-params';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PlottingComponent } from 'src/app/geo-modelling/plotting/plotting.component';
-import { GridItem } from '../../components/grid/grid.component';
+import { ComputableGridItem, GridItem, gridItem2Computable } from '../../components/grid/grid.component';
 import { SampleService } from 'src/app/services/rest/sample.service';
 import { DataGrid } from 'src/app/models/datagrid';
 import { ConfirmComponent } from '../confirm/confirm.component';
@@ -56,6 +56,7 @@ export class DataPlottingSeriesComponent implements OnInit {
   public dataGrid: DataGrid = new DataGrid(this.storeService);
   public onMix = false;
   public alertMx = false;
+  public computables = new Array<Array<ComputableGridItem>>();
 
   constructor(private storeService: StoreService,
     private sampleService: SampleService,
@@ -75,6 +76,8 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
     if (!!this.params && !!this.params.list) {
       console.log(this.params);
+      this.getComputables();
+      console.log(this.computables);
       this.dataGrid.add(this.params.anyParams.headers, this.params.anyParams.selection);
       this.dataGrid.persist();
       let list = this.dataGrid.getElementList();
@@ -86,6 +89,26 @@ export class DataPlottingSeriesComponent implements OnInit {
     this.checkStoredVars();
   }
 
+  private getComputables(): void {
+    this.computables = new Array<Array<ComputableGridItem>>();
+    for (let i = 0; i < this.params?.anyParams.selection.length; i++) {
+      this.computables.push(new Array<ComputableGridItem>());
+      for (let j = 0; j < this.params?.anyParams.selection[i].length; j++) {
+        let cgi: ComputableGridItem = gridItem2Computable(this.params?.anyParams.selection[i][j], this.params?.anyParams.headers[j].content);
+        if (cgi.row > 0) {
+          this.computables[i].push(cgi);
+        }
+      }
+    }
+  }
+
+  private checkComputablesUm(): void {
+    if (!!this.dataSeries) {
+      let xa = this.dataSeries.xAxis;
+      let ya = this.dataSeries.yAxis;
+    }
+  }
+
   private checkStoredVars(): void {
     let stored = this.storeService.get(MIXING_CACHE);
     if (!!stored && !!stored.outResult) {
@@ -94,7 +117,7 @@ export class DataPlottingSeriesComponent implements OnInit {
       this.alertMx = false;
     }
   }
-  
+
   public xOperatorChange(): void {
     this.selectedChange();
   }
@@ -129,8 +152,8 @@ export class DataPlottingSeriesComponent implements OnInit {
     if (!!this.dataSeries) {
       for (let s of this.dataSeries.series) {
         for (let d of s.data) {
-          x.push(d.x);
-          y.push(d.y);
+          x.push(d.x.value);
+          y.push(d.y.value);
         }
       }
       if (x.length > 0 && y.length > 0) {
@@ -140,31 +163,36 @@ export class DataPlottingSeriesComponent implements OnInit {
         this.yRange = { min: y[0], max: y[y.length - 1] };
       }
     }
-    console.log(this.xRange);
-    console.log(this.yRange);
+    // console.log(this.xRange);
+    // console.log(this.yRange);
   }
 
   private getFloatDataFromGrid(dataSeries: DataSeries): Array<DataSeriesPoint> {
     let points = new Array<DataSeriesPoint>();
     if (!!this.dataGrid && this.xSelected.length > 0 && this.ySelected.length > 0 && !!this.dataGrid.getGrid()) {
       this.grid = this.dataGrid.getGrid();
-      let header = this.dataGrid.getHeader();
+      // let header = this.dataGrid.getHeader();
       for (let s of dataSeries.samples) {
         let row = this.dataGrid.getGridRowById(s);
         if (row) {
           let xCol = 0;
           let xValue = 0;
           let yValue = 0;
-          xValue = this.getFloatValue(row, this.xSelected, this.xSelected2, this.xOperator);
-          yValue = this.getFloatValue(row, this.ySelected, this.ySelected2, this.yOperator);
+          let xx = this.getFloatValue(row, this.xSelected, this.xSelected2, this.xOperator);
+          let yy = this.getFloatValue(row, this.ySelected, this.ySelected2, this.yOperator);
+          xValue = xx.value;
+          yValue = yy.value;
+          
           if (xValue != 0 && yValue != 0) {
             if (this.xLog && xValue > 0) {
               xValue = Math.log10(xValue);
+              xx.value = xValue;
             }
             if (this.yLog && yValue > 0) {
               yValue = Math.log10(yValue);
+              yy.value = yValue;
             }
-            points.push({ x: xValue, y: yValue });
+            points.push({ x: xx, y: yy });
           }
         }
       }
@@ -172,19 +200,43 @@ export class DataPlottingSeriesComponent implements OnInit {
     return points;
   }
 
-  private getFloatValue(row: Array<GridItem>, select1: string, select2: string, operator: string): number {
+  // private getFloatValue2(select1: string, select2: string, operator: string): number {
+  //   if (!!this.computables) {
+
+  //   }
+  // }
+
+  private getStringValue(value: string) {
+    if (value.indexOf('[') > 0) {
+      value = value.substring(0, value.indexOf(' ['));
+    }
+    return value;
+  }
+
+  private getUm(item: string): string | undefined {
+    item = item.trim();
+    if (item.indexOf('[') > 0) {
+      return item.substring(item.indexOf('[') + 1, item.indexOf(']'));
+    }
+    return undefined;
+  }
+
+  private getFloatValue(row: Array<GridItem>, select1: string, select2: string, operator: string): { value: number, um?: string } {
     let col = 0;
     let value = 0;
+    let um = undefined;
     switch (operator) {
       default:
       case '0':
         col = this.dataGrid.getHeaderCol(select1);
-        value = parseFloat(row[col].content);
+        value = parseFloat(this.getStringValue(row[col].content));
+        um = this.getUm(row[col].content);
         if (isNaN(value)) value = 0;
         break;
       case '1':
         col = this.dataGrid.getHeaderCol(select1);
-        value = parseFloat(row[col].content);
+        value = parseFloat(this.getStringValue(row[col].content));
+        um = this.getUm(row[col].content);
         if (isNaN(value)) value = 0;
         if (value != 0)
           value = 1 / value;
@@ -192,16 +244,16 @@ export class DataPlottingSeriesComponent implements OnInit {
       case '2':
         if (select2.length > 0) {
           col = this.dataGrid.getHeaderCol(select1);
-          value = parseFloat(row[col].content);
+          value = parseFloat(this.getStringValue(row[col].content));
           if (isNaN(value)) value = 0;
           let x2Col = this.dataGrid.getHeaderCol(select2);
-          let x2Value = parseFloat(row[x2Col].content);
+          let x2Value = parseFloat(this.getStringValue(row[x2Col].content));
           if (isNaN(x2Value)) x2Value = 0;
           if (x2Value !== 0)
             value = value / x2Value;
         }
     }
-    return value;
+    return { value: value, um: um };
   }
 
   private getXYAxis(): void {
@@ -230,12 +282,6 @@ export class DataPlottingSeriesComponent implements OnInit {
       }
       this.dataSeries.xLog = this.xLog;
       this.dataSeries.yLog = this.yLog;
-      // if (this.xLog === true) {
-      //   this.dataSeries.xLog = true;
-      // }
-      // if (this.yLog === true) {
-      //   this.dataSeries.yAxis = 'Log ' + this.dataSeries.yAxis;
-      // }
       console.log(this.dataSeries);
     }
   }
@@ -248,6 +294,8 @@ export class DataPlottingSeriesComponent implements OnInit {
         ds.data.only1Push(p);
       }
     }
+    console.log(this.dataSeries);
+    this.checkComputablesUm();
   }
 
   private deselectAll(): void {
