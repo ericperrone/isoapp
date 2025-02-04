@@ -10,6 +10,7 @@ import { DataGrid } from 'src/app/models/datagrid';
 import { ConfirmComponent } from '../confirm/confirm.component';
 import { List } from '../../list';
 import { MIXING_CACHE } from 'src/app/geo-modelling/mixing/mixing.component';
+import { ConversionDialogComponent, PlotConversionType } from '../../components/conversion-dialog/conversion-dialog.component';
 
 export interface Range {
   min: number;
@@ -182,7 +183,7 @@ export class DataPlottingSeriesComponent implements OnInit {
           let yy = this.getFloatValue(row, this.ySelected, this.ySelected2, this.yOperator);
           xValue = xx.value;
           yValue = yy.value;
-          
+
           if (xValue != 0 && yValue != 0) {
             if (this.xLog && xValue > 0) {
               xValue = Math.log10(xValue);
@@ -286,10 +287,71 @@ export class DataPlottingSeriesComponent implements OnInit {
     }
   }
 
+  private isTheSameUm(um: Array<string>): boolean {
+    if (um.length > 0) {
+      let first = um[0];
+      for (let u of um) {
+        if (u !== first)
+          return false;
+      }
+    }
+    return true;
+  }
+
+  private checkPoints(points: Array<DataSeriesPoint>): void {
+    console.log(points);
+    let umX = [];
+    let umY = [];
+    for (let p of points) {
+      let umx = p.x.um ? p.x.um.toLowerCase() : '';
+      let umy = p.y.um ? p.y.um.toLowerCase() : '';
+      umX.push(umx);
+      umY.push(umy);
+    }
+
+    let x = this.isTheSameUm(umX);
+    let y = this.isTheSameUm(umY);
+
+    if (!x && y) {
+      console.log(' CONVERSION NEEDED x');
+      let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
+      r.componentInstance.params = { 'plotData': points, 'type': PlotConversionType.X };
+      let s = r.componentInstance.emitter.subscribe((result: any) => {
+        console.log(result);
+        r.close();
+        s.unsubscribe();
+      })
+    } else if (x && !y) {
+      console.log(' CONVERSION NEEDED y');
+      console.log(' CONVERSION NEEDED x');
+      let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
+      r.componentInstance.params = { 'plotData': points, 'type': PlotConversionType.Y };
+      let s = r.componentInstance.emitter.subscribe((result: any) => {
+        console.log(result);
+        r.close();
+        s.unsubscribe();
+      })
+    } else if (!x && !y) {
+      console.log(' CONVERSION NEEDED x & y');
+      console.log(' CONVERSION NEEDED x');
+      let r = this.modalService.open(ConversionDialogComponent, { centered: true, backdrop: 'static' });
+      r.componentInstance.params = { 'plotData': points, 'type': PlotConversionType.BOTH };
+      let s = r.componentInstance.emitter.subscribe((result: any) => {
+        console.log(result);
+        r.close();
+        s.unsubscribe();
+      })
+    } else {
+      console.log(' CONVERSION NOT NEEDED');
+    }
+  }
+
   private reassignPointsToSeries(): void {
     for (let ds of this.dataSeries.series) {
       ds.data = new List<DataSeriesPoint>();
       let points = this.getFloatDataFromGrid(ds);
+      this.checkPoints(points);
+
       for (let p of points) {
         ds.data.only1Push(p);
       }
@@ -324,6 +386,7 @@ export class DataPlottingSeriesComponent implements OnInit {
         activeDataSeries.data = new List<DataSeriesPoint>();
       }
       let points = this.getFloatDataFromGrid(activeDataSeries);
+      this.checkPoints(points);
       for (let p of points) {
         activeDataSeries.data.only1Push(p);
       }

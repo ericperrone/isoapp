@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+import { ConversionTable } from 'src/app/models/conversion';
 import { SpiderData, SpiderDiagram, SpiderSeries } from 'src/app/models/series';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { GeoModel } from 'src/app/services/common/geo-model.service';
@@ -44,6 +45,7 @@ export class SpiderComponent implements OnInit, OnDestroy {
     height: this.chartHeight,
     series: new Array<SpiderSeries>()
   }
+  public conversionTable = new Array<ConversionTable>();
   public fixedRatio = false;
   @Input('params') params: GeoModel | undefined;
   @HostListener('window:resize', ['$event'])
@@ -74,7 +76,11 @@ export class SpiderComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.loadConversionTable();
+    this.checkAndConvert();
+
     console.log(this.params);
+
     if (this.params?.modalRef) {
       this.ref = this.params.modalRef;
     }
@@ -123,6 +129,44 @@ export class SpiderComponent implements OnInit, OnDestroy {
 
         this.chartSizeChange();
         // console.log(this.norms);
+      }
+    );
+  }
+
+  private checkAndConvert(): void {
+    if (!!this.params && !!this.params.endMembers)
+      for (let em of this.params?.endMembers) {
+        for (let item of em)
+          if ('C' === item.type && item.value.indexOf(' [') > 0) {
+            item.value = item.value.trim();
+            let value = item.value.substring(0, item.value.indexOf(' ['));
+            let um = item.value.substring(item.value.indexOf('[') + 1, item.value.indexOf(']'));
+            item.value = this.convert(value, um);
+            item.um = 'ppm';
+          }
+      }
+  }
+
+  private convert(value: string, um: string): string {
+    let newValue = value;
+    um = um.trim().toLowerCase();
+    if ('ppm' !== um) {
+      for (let ct of this.conversionTable) {
+        if (ct.um.toLowerCase() === um) {
+          let n = parseFloat(value) * ct.toPPM;
+          newValue = '' + n;
+          break;
+        }
+      }
+    }
+    return newValue;
+  }
+
+  private loadConversionTable(): void {
+    let s = this.geoModelsService.getConversionTable().subscribe(
+      (res: any) => {
+        this.conversionTable = res;
+        s.unsubscribe();
       }
     );
   }
@@ -217,7 +261,7 @@ export class SpiderComponent implements OnInit, OnDestroy {
               } else {
                 if (!!this.onlyREE) {
                   if (locateByValue(REE, name) > -1) {
-                    ss.data.push({ label: name});
+                    ss.data.push({ label: name });
                   }
                 } else {
                   ss.data.push({ label: name });
