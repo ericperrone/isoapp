@@ -30,13 +30,12 @@ export class ConversionDialogComponent implements OnInit {
     this.loadConversionTable();
     if (!!this.params.plotData) {
       this.initPlotSeries();
+    } else if (!!this.params.ternaryData) {
+      this.initTernary();
     } else {
       this.initComputables();
     }
-    // console.log(this.params);
-    // console.log(this.computables);
-    // console.log(this.conversionTable);
-  }
+   }
 
   private initComputables(): void {
     this.computables = this.params.computables;
@@ -47,6 +46,11 @@ export class ConversionDialogComponent implements OnInit {
   private initPlotSeries(): void {
     this.dataType = DataTypes.PLOTTING;
     console.log(this.params.plotData);
+  }
+
+  private initTernary(): void {
+    this.dataType = DataTypes.TERNARY;
+    console.log(this.params.ternaryData);
   }
 
   public confirm(): void {

@@ -1,6 +1,13 @@
 import { Component, Input, OnInit, HostListener } from '@angular/core';
-import { GeoModel } from 'src/app/services/common/geo-model.service';
+import { ConversionTable } from 'src/app/models/conversion';
+import { EndMemberItem, GeoModel } from 'src/app/services/common/geo-model.service';
+import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 import { distinct, saveCsvFile } from 'src/app/shared/tools';
+import { EndMember } from '../end-member/end-member.component';
+import { CONFIRM, ModalParams } from 'src/app/shared/modals/modal-params';
+import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 
 export interface Point2 {
   member?: string;
@@ -64,13 +71,39 @@ export class TernaryComponent implements OnInit {
   public xyPoints = new Array<Point2>();
   public abcPoints = new Array<Point3>();
   public fixedRatio = false;
+  public conversionTable = new Array<ConversionTable>();
 
-  constructor() { }
+  constructor(private geoModelsService: GeoModelsService,
+    private modalService: NgbModal
+  ) { }
 
   ngOnInit(): void {
     console.log(this.params);
+    this.trimAll();
     this.ref = this.params?.modalRef;
-    this.buildElementsList();
+    this.loadConversionTable();
+  }
+
+  private trimAll(): void {
+    if (!!this.params && !!this.params.endMembers) {
+      for (let em of this.params.endMembers)
+        for (let e of em) {
+          e.name = e.name.trim();
+          e.type = e.type.trim();
+          e.value = e.value.trim();
+          e.um = !!e.um ? e.um.trim() : undefined;
+        }
+    }
+  }
+
+  private loadConversionTable(): void {
+    let s = this.geoModelsService.getConversionTable().subscribe(
+      (res: any) => {
+        this.conversionTable = res;
+        s.unsubscribe();
+        this.buildElementsList();
+      }
+    );
   }
 
   public donwloadCsv(): void {
@@ -141,11 +174,83 @@ export class TernaryComponent implements OnInit {
     this.charts = chart;
   }
 
+  private checkConversion(): void {
+    let p = new Array<Array<EndMemberItem>>();
+    if (!!this.params?.endMembers) {
+      for (let i = 0; i < this.vertices.length; i++) {
+        p[i] = new Array<EndMemberItem>();
+        for (let em of this.params?.endMembers) {
+          for (let e of em) {
+            if (e.name.toLowerCase().trim() == this.vertices[i].toLowerCase().trim()) {
+              p[i].push(e);
+            }
+          }
+        }
+      }
+    }
+    // console.log(p);
+    let conversionNeeded = [false, false, false];
+    for (let i = 0; i < p.length; i++) {
+      let um0 = this.getFirstUM(p[i]);
+      if (um0.length === 0)
+        continue;
+      um0 = um0.toLowerCase().trim();
+      for (let j = 0; j < p[i].length; j++) {
+        if (!p[i][j].value || p[i][j].value.trim().length === 0)
+          continue;
+        if (!!p[i][j].um && p[i][j].um?.toLowerCase().trim() === um0)
+          continue;
+        conversionNeeded[i] = true;
+        break;
+      }
+    }
+    console.log(conversionNeeded);
+    let message1 = 'WARNING: The unit of measurement for the elements ';
+    let message2 = '';
+    for (let i = 0; i < conversionNeeded.length; i++) {
+      if (conversionNeeded[i] === true) {
+        message2 += this.vertices[i] + ', '
+      }
+    }
+    if (message2.length > 0) {
+      message2 = message2.substring(0, message2.length - 2);
+    }
+    let message3 = ' is not homogeneous.'
+
+    if (message2.length > 0) {
+      let params: ModalParams = {
+        headerText: 'Confirm request',
+        bodyText: message1 + message2 + message3
+      }
+      let ref = this.modalService.open(AlertComponent, { centered: true });
+      ref.componentInstance.params = params;
+      ref.componentInstance.emitter.subscribe(
+        (response: string) => {
+          ref.close();
+          // // console.log(response);
+          // if (response.toLowerCase() === CONFIRM)  {
+          //   // this.buildElementsList();
+          //   this.checkElements();
+          // }
+        }
+      );
+    }
+  }
+
+  private getFirstUM(v: Array<EndMemberItem>): string {
+    for (let a of v) {
+      if (!!a.um && a.um.length > 0)
+        return a.um;
+    }
+    return '';
+  }
+
   public checkElements(): void {
     if (this.vertices[0].trim().length === 0 || this.vertices[1].trim().length === 0 || this.vertices[2].trim().length === 0)
       return;
     if (this.vertices[0] != this.vertices[1] && this.vertices[0] != this.vertices[2] &&
       this.vertices[1] != this.vertices[2]) {
+      this.checkConversion();
       this.chartSizeChange();
     }
   }
@@ -167,6 +272,9 @@ export class TernaryComponent implements OnInit {
   }
 
   private buildElementsList(): void {
+    this.checkAndConvert();
+    this.elementList.length = 0;
+    this.elementList.push('');
     if (!!this.params && !!this.params.endMembers) {
       for (let e of this.params?.endMembers) {
         for (let item of e) {
@@ -177,8 +285,43 @@ export class TernaryComponent implements OnInit {
       }
       this.elementList = distinct(this.elementList);
       console.log(this.elementList);
+      // this.checkElements();
+      this.checkConversion();
     }
   }
+
+  private checkAndConvert(): void {
+    if (!!this.params && !!this.params.endMembers)
+      for (let em of this.params?.endMembers) {
+        for (let item of em)
+          if ('C' === item.type && item.value.indexOf(' [') > 0) {
+            item.value = item.value.trim();
+            let value = item.value.substring(0, item.value.indexOf(' ['));
+            let um = item.value.substring(item.value.indexOf('[') + 1, item.value.indexOf(']'));
+            item.value = value.trim();
+            item.um = um.trim();
+            // item.value = this.convert(value, um);
+            // item.um = 'ppm';
+          }
+      }
+    console.log(this.params?.endMembers);
+  }
+
+  private convert(value: string, um: string): string {
+    let newValue = value;
+    um = um.trim().toLowerCase();
+    if ('ppm' !== um) {
+      for (let ct of this.conversionTable) {
+        if (ct.um.toLowerCase() === um) {
+          let n = parseFloat(value) * ct.toPPM;
+          newValue = '' + n;
+          break;
+        }
+      }
+    }
+    return newValue;
+  }
+
 
   private setLables(): void {
     for (let i = 0; i < this.vertices.length; i++) {
@@ -200,7 +343,7 @@ export class TernaryComponent implements OnInit {
     this.setLables();
     let fontSize = 20;
     let orientation = 'vertical';
-    this.verticesPoints.length = 0;    
+    this.verticesPoints.length = 0;
     this.verticesPoints.push({ indexLabel: this.labels[0], indexLabelFontSize: fontSize, indexLabelOrientation: orientation, indexLabelWrap: true, x: zero, y: zero });
     this.verticesPoints.push({ indexLabel: this.labels[2], indexLabelFontSize: fontSize, indexLabelOrientation: orientation, indexLabelWrap: true, x: zero + this.lato, y: zero });
     this.verticesPoints.push({ indexLabel: this.labels[1], indexLabelFontSize: fontSize, indexLabelOrientation: orientation, indexLabelWrap: true, x: zero + this.lato * 0.5, y: zero + this.lato * 0.5 * SQRT3 });
@@ -289,7 +432,7 @@ export class TernaryComponent implements OnInit {
     this.grid2Points.push([{ x: zero + 0.8, y: zero }, { x: zero + 0.8 + (1 - 0.8) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.8) }]);
     this.grid2Points.push([{ x: zero + 0.9, y: zero }, { x: zero + 0.9 + (1 - 0.9) * 0.5, y: zero + SQRT3 * 0.5 * (1 - 0.9) }]);
   }
-  
+
   private drawChart(): void {
     this.showChart = true;
     let data = new Array<any>();
@@ -297,8 +440,8 @@ export class TernaryComponent implements OnInit {
     this.buildPoints();
     this.setGridPoints();
     for (let i = 0; i < 9; i++) {
-      data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid1Points[i] });  
-      data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid2Points[i] });  
+      data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid1Points[i] });
+      data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid2Points[i] });
     }
     data.push({ type: 'line', showInLegend: false, name: '', color: '#000000', dataPoints: this.verticesPoints });
     data.push({ type: 'scatter', showInLegend: false, name: '', dataPoints: this.xyPoints });
