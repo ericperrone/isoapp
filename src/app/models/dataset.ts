@@ -8,3 +8,8 @@ export interface Dataset {
     processed: boolean;
     metadata: string;
 }
+
+export interface DatesetFullLink {
+    ref: string;
+    metadata: string;
+}

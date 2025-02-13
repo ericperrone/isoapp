@@ -7,6 +7,7 @@ import { CardRefDialogComponent } from '../../card-dialogs/card-ref-dialog/card-
 import { CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+import { RefDialogComponent } from '../../ref-dialog/ref-dialog.component';
 
 @Component({
   selector: 'app-card-ref',
@@ -70,5 +71,12 @@ export class CardRefComponent implements OnInit, OnDestroy {
     this.queryFilter.ref.ref = '';
     this.storeService.push({key: FILTER_KEY, data: this.queryFilter});    
     this.emitter.emit(true);
+  }
+
+  public getRef(): void {
+    this.ref = this.modalService.open(RefDialogComponent, { centered: true, size: 'xl' });
+    this.ref.componentInstance.emitter.subscribe((result: string) => {
+      this.ref.close();
+    });   
   }
 }

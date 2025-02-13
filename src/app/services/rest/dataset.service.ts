@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Rest } from './rest';
 import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
-import { Dataset } from 'src/app/models/dataset';
+import { Dataset, DatesetFullLink } from 'src/app/models/dataset';
 import { CACHE_LINKS, CACHE_YEARS } from 'src/app/shared/const';
 import { StoreService } from '../common/store.service';
 
@@ -26,12 +26,12 @@ export class DatasetService extends Rest {
           }
         }
         this.storeService.clean(CACHE_YEARS);
-        this.storeService.push({ key: CACHE_YEARS, data: years});
+        this.storeService.push({ key: CACHE_YEARS, data: years });
         return years;
       }
     ),
       catchError(this.handleError)
-    );  
+    );
   }
 
   public getLinks(link?: string): Observable<any> {
@@ -49,12 +49,12 @@ export class DatasetService extends Rest {
           }
         }
         this.storeService.clean(CACHE_LINKS);
-        this.storeService.push({ key: CACHE_LINKS, data: links});
+        this.storeService.push({ key: CACHE_LINKS, data: links });
         return links;
       }
     ),
       catchError(this.handleError)
-    );   
+    );
   }
 
   public getLinksFromCache(link?: string): Observable<any> {
@@ -79,6 +79,27 @@ export class DatasetService extends Rest {
           // console.log(res);
           for (let r of res) {
             datasetList.push(r);
+          }
+        }
+        return datasetList;
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
+  public getLinksFull(): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-full-references').pipe(map(
+      (res: any) => {
+        let datasetList = new Array<DatesetFullLink>();
+        if (!!res) {
+          // console.log(res);
+          if (res.status && res.status.toLowerCase() == 'success') {
+            let data = JSON.parse(res.data);
+            for (let r of data) {
+              if (r.link && r.link.length > 0)
+                datasetList.push({ ref: r.link, metadata: r.metadata });
+            }
           }
         }
         return datasetList;

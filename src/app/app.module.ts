@@ -68,6 +68,7 @@ import { DbFiltersComponent } from './db-querying/db-filters/db-filters.componen
 import { CardMatrixComponent } from './db-querying/cards/card-matrix/card-matrix.component';
 import { CardMatrixDialogComponent } from './db-querying/card-dialogs/card-matrix-dialog/card-matrix-dialog.component';
 import { ConversionDialogComponent } from './shared/components/conversion-dialog/conversion-dialog.component';
+import { RefDialogComponent } from './db-querying/ref-dialog/ref-dialog.component';
 
 
 @NgModule({
@@ -128,6 +129,7 @@ import { ConversionDialogComponent } from './shared/components/conversion-dialog
     CardMatrixComponent,
     CardMatrixDialogComponent,
     ConversionDialogComponent,
+    RefDialogComponent,
   ],
   imports: [
     BrowserModule,
