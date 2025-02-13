@@ -26,6 +26,10 @@ export class RefDialogComponent implements OnInit {
     )
   }
 
+  public selectRef(ref: string) {
+    this.emitter.emit(ref);
+  }
+
   public cancel() {
     this.emitter.emit(CANCEL);
   }

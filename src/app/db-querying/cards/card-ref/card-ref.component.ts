@@ -4,7 +4,7 @@ import { EventGeneratorService } from 'src/app/services/common/event-generator.s
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { CardRefDialogComponent } from '../../card-dialogs/card-ref-dialog/card-ref-dialog.component';
-import { CONFIRM } from 'src/app/shared/modals/modal-params';
+import { CANCEL, CONFIRM } from 'src/app/shared/modals/modal-params';
 import { Subscription } from 'rxjs';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { RefDialogComponent } from '../../ref-dialog/ref-dialog.component';
@@ -76,6 +76,11 @@ export class CardRefComponent implements OnInit, OnDestroy {
   public getRef(): void {
     this.ref = this.modalService.open(RefDialogComponent, { centered: true, size: 'xl' });
     this.ref.componentInstance.emitter.subscribe((result: string) => {
+      if (result !== CANCEL) {
+        this.queryFilter.ref.ref = result;
+        this.queryFilter = this.storeService.get(FILTER_KEY);
+        this.emitter.emit(true);
+      }
       this.ref.close();
     });   
   }

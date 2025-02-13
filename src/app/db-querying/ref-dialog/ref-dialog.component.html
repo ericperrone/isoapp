@@ -10,7 +10,7 @@
             </tr>
             <tr *ngFor="let d of data">
                 <!-- <td><a href="{{ d.ref }}" target="_blank">{{ d.ref }}</a></td> -->
-                <td><span style="font-weight: bold; color: blue;">{{ '' + d.ref }}</span></td>
+                <td><span style="font-weight: bold; color: blue;" class="clickable" (click)="selectRef(d.ref)">{{ '' + d.ref }}</span></td>
                 <td>
                     <div class="scrollable" style="max-height: 6em; font-size: small; padding: 0.5em; border: solid 1px gray">
                         {{ d.metadata }}
