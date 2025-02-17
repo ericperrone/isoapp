@@ -21,8 +21,10 @@ export interface EndMemberItem {
   type: string;
   name: string;
   value: string;
+  isIsotope?: boolean;
   um?: string;
   selected?: boolean;
+  concentration?: string;
 }
 
 export interface GeoModel {

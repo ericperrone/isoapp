@@ -10,6 +10,7 @@ import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { DataPlottingSeriesComponent } from '../../modals/data-plotting-series/data-plotting-series.component';
 // import { DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 import { StoreService } from 'src/app/services/common/store.service';
+import { EndMembersModalComponent } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
 
 export interface GridItem {
   header: boolean;
@@ -571,4 +572,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     );
   }
 
+  public manualMix(): void {
+    let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'lg', scrollable: true });    
+    ref.componentInstance.emitter.subscribe(
+      () => ref.close()
+    );
+  }
 }
