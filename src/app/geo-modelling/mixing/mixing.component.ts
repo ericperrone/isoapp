@@ -533,9 +533,9 @@ export class MixingComponent implements OnInit, OnDestroy {
       // raccoglie le unita' di misura degli elementi scelti e delle
       // eventuali concentrazioni (se isotopi)
       for (let c of this.computables) {
-        if (!!c.elementUm)
+        if (!!c.elementUm && c.elementValue.length > 0)
           um.push(c.elementUm);
-        if (!!c.concentrationUm) {
+        if (!!c.concentrationUm && c.concentrationValue.length > 0) {
           umc.push(c.concentrationUm);
         }
       }
@@ -565,7 +565,7 @@ export class MixingComponent implements OnInit, OnDestroy {
       let conversionType = this.checkSelectedComputables();
       if (conversionType === ConversionType.ERROR) {
         let r = this.modalService.open(AlertComponent, { centered: true, backdrop: 'static' });
-        r.componentInstance.params = {headerText: 'Error', bodyText: 'Not homogeneous elements. Please, correct your choice.'};
+        r.componentInstance.params = { headerText: 'Error', bodyText: 'Not homogeneous elements. Please, correct your choice.' };
         let s = r.componentInstance.emitter.subscribe((result: any) => {
           console.log(result);
           r.close();
@@ -629,6 +629,8 @@ export class MixingComponent implements OnInit, OnDestroy {
           s.unsubscribe();
           this.addReady = true;
           this.add();
+          // if (this.computables)
+          //   this.computables.length = 0;
         }
       )
     }

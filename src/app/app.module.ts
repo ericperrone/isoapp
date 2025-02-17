@@ -69,6 +69,7 @@ import { CardMatrixComponent } from './db-querying/cards/card-matrix/card-matrix
 import { CardMatrixDialogComponent } from './db-querying/card-dialogs/card-matrix-dialog/card-matrix-dialog.component';
 import { ConversionDialogComponent } from './shared/components/conversion-dialog/conversion-dialog.component';
 import { RefDialogComponent } from './db-querying/ref-dialog/ref-dialog.component';
+import { EndMembersModalComponent } from './geo-modelling/end-members-modal/end-members-modal.component';
 
 
 @NgModule({
@@ -130,6 +131,7 @@ import { RefDialogComponent } from './db-querying/ref-dialog/ref-dialog.componen
     CardMatrixDialogComponent,
     ConversionDialogComponent,
     RefDialogComponent,
+    EndMembersModalComponent,
   ],
   imports: [
     BrowserModule,
