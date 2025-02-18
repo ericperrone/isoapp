@@ -47,7 +47,7 @@ export interface Computable {
   isIsotope?: boolean;
 }
 
-interface MixingResult {
+export interface MixingResult {
   mix: number;
   samples: Array<{ member: string; element: string; f: number }>;
 }

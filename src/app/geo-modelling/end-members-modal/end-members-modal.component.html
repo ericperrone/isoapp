@@ -1,8 +1,16 @@
 <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Enter endmembers data for mixing</h4>
-    <span class="fa-solid fa-circle-info" style="color: darkgreen;"
-        ngbPopover="You can define 2 or 3 endmembers to calculate a mixing process to be used as a comparison with other models. Each endmember is described by a ‘sample name’ (useful for labelling the sample), the description of the element or isotopic ratio, the numerical value of the latter and, in the case of an isotopic ratio only, the concentration value of the related element"
-        triggers="mouseenter:mouseleave"></span>&nbsp;
+    <div class="row w100">
+        <div class="col-md-10 col-sm-12">
+            <h4 class="modal-title" id="modal-basic-title">Endmembers data for mixing 
+                <span class="fa-solid fa-circle-info" style="color: darkgreen;"
+                ngbPopover="You can define 2 or 3 endmembers to calculate a mixing process to be used as a comparison with other models. Each endmember is described by a ‘sample name’ (useful for labelling the sample), the description of the element or isotopic ratio, the numerical value and, in the case of an isotopic ratio only, the concentration value of the related element"
+                triggers="mouseenter:mouseleave"></span>
+            </h4>
+        </div>
+         <div class="col-md-2 col-sm-12">
+            <span style="color: orange; font-weight: bold; font-size: large;">Step {{ step }}</span>
+        </div>
+    </div>   
 </div>
 <div class="modal-body">
     <div *ngFor="let em of endMembers; index as i ">
@@ -13,43 +21,52 @@
                     [(ngModel)]="em.sampleName" [disabled]="i > 1 && !include">
             </div>
             <div class="col-sm-12 col-md-6" *ngIf="i > 1" style="margin-top:2.1em;">
-                <input type="checkbox" [(ngModel)]="include" (click)="include = !include"> Include third endmember 
+                <input type="checkbox" [(ngModel)]="include" (click)="include = !include"> Include third endmember
             </div>
         </div>
 
         <div class="row" style="margin-bottom: 0.5em;">
             <div class="col-sm-12 col-md-4">
                 <label>Element</label>
-                <input type="text" class="form-control" [(ngModel)]="em.items[0].element" [disabled]="i > 1 && !include">
+                <input type="text" class="form-control" [(ngModel)]="em.items[0].element" (ngModelChange)="setElement(em.items[0].element, 0)"
+                    [disabled]="i > 1 && !include">
             </div>
             <div class="col-sm-12 col-md-4">
                 <label>Value</label>
-                <input type="number" class="form-control" [(ngModel)]="em.items[0].value" [disabled]="i > 1 && !include">
+                <input type="number" class="form-control" [(ngModel)]="em.items[0].value"
+                    [disabled]="i > 1 && !include">
             </div>
             <div class="col-sm-12 col-md-4">
                 <label>Element concentration</label>
-                <input type="text" class="form-control" [(ngModel)]="em.items[0].cValue" [disabled]="i > 1 && !include">
+                <input type="number" class="form-control" [(ngModel)]="em.items[0].cValue" [disabled]="i > 1 && !include">
             </div>
         </div>
         <div class="row">
             <div class="col-sm-12 col-md-4">
                 <label>Element</label>
-                <input type="text" class="form-control" [(ngModel)]="em.items[1].element" [disabled]="i > 1 && !include">
-            </div>            
+                <input type="text" class="form-control" [(ngModel)]="em.items[1].element" (ngModelChange)="setElement(em.items[1].element, 1)"
+                    [disabled]="i > 1 && !include">
+            </div>
             <div class="col-sm-12 col-md-4">
                 <label>Value</label>
-                <input type="number" class="form-control" [(ngModel)]="em.items[1].value" [disabled]="i > 1 && !include">
+                <input type="number" class="form-control" [(ngModel)]="em.items[1].value"
+                    [disabled]="i > 1 && !include">
             </div>
             <div class="col-sm-12 col-md-4">
                 <label>Element concentration</label>
-                <input type="number" class="form-control" [(ngModel)]="em.items[1].cValue" [disabled]="i > 1 && !include">
+                <input type="number" class="form-control" [(ngModel)]="em.items[1].cValue"
+                    [disabled]="i > 1 && !include">
             </div>
         </div>
-        <div class="row" style="height: 0.5em"></div>        
+        <div class="row" style="height: 0.5em"></div>
 
     </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="cancel()">Cancel</button>
-    <button type="button" class="btn btn-outline-dark" (click)="confirm()">Confirm</button>
+    <button type="button" class="btn btn-outline-dark" (click)="confirm()" [disabled]="endMembers[0].sampleName.length == 0 || endMembers[1].sampleName.length == 0 || endMembers[0].items[0].element.length == 0 || endMembers[0].items[1].element.length == 0
+    || endMembers[1].items[0].element.length == 0 || endMembers[1].items[1].element.length == 0 ||  endMembers[0].items[0].value == 0 || endMembers[0].items[1].value == 0
+    || endMembers[1].items[0].value == 0 || endMembers[1].items[1].value == 0">
+        Confirm
+    </button>
 </div>

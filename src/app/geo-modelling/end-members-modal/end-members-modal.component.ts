@@ -1,5 +1,14 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { EndMemberItem } from 'src/app/services/common/geo-model.service';
+import { Computable, MixingResult } from '../mixing/mixing.component';
+import { StoreService } from 'src/app/services/common/store.service';
+import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
+
+export const MIX_STORE = '_MIX_STORE_';
+
+export interface MixStored {
+  mix1: Array<MixingResult>,
+  mix2: Array<MixingResult>,
+}
 
 export interface Item {
   element: string;
@@ -20,14 +29,20 @@ export interface ManualEndmemberItem {
 })
 export class EndMembersModalComponent implements OnInit {
   @Output() emitter = new EventEmitter<any>();
+  private stored: MixStored | undefined;
+
   public endMembers: Array<ManualEndmemberItem> = [
-    {sampleName: '', items: [{element: '', value: 0}, {element: '', value: 0, cValue: 0}]},
-    {sampleName: '', items: [{element: '', value: 0}, {element: '', value: 0, cValue: 0}]},
-    {sampleName: '', items: [{element: '', value: 0}, {element: '', value: 0, cValue: 0}]}
+    { sampleName: '', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
+    { sampleName: '', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
+    { sampleName: '', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] }
   ];
   public include = false;
+  public step = 1;
+  private increment = 0.1;
 
-  constructor() { }
+  constructor(private storeService: StoreService,
+    private geoModelsService: GeoModelsService
+  ) { }
 
   ngOnInit(): void {
   }
@@ -36,8 +51,69 @@ export class EndMembersModalComponent implements OnInit {
     this.emitter.emit();
   }
 
-  public confirm(): void {
-    this.emitter.emit();
+  public setElement(value: string, index: number) {
+    for (let em of this.endMembers) {
+      em.items[index].element = value;
+    }
   }
+
+  public confirm(): void {
+    this.computeMixing();
+  }
+
+  private buildPayload(index: number): Array<Computable> {
+    let payload = new Array<Computable>();
+    for (let em of this.endMembers) {
+        let item = em.items[index];
+        if (em.sampleName.length == 0 || item.value === 0)
+          continue;
+        let c: Computable = {
+          endMemberName: em.sampleName,
+          elementName: item.element,
+          elementValue: '' + item.value,
+          row: 0,
+          active: true,
+          concentration: item.concentration ? item.concentration : '',
+          concentrationValue: item.cValue && item.cValue > 0 ? '' + item.cValue : '',
+        }
+        payload.push(c);
+    }
+    return payload; 
+  }
+
+  private computeMixing(): void {
+    let payload = this.buildPayload(0);
+    let s = this.geoModelsService.mixingModel(payload, this.increment).subscribe(
+      (res: any) => {
+        console.log(res);
+        this.cacheMix(res.results);
+        payload = this.buildPayload(1);
+        let ss = this.geoModelsService.mixingModel(payload, this.increment).subscribe(
+          (res: any) => {
+            this.step ++;
+            console.log(res);
+            this.cacheMix(res.results);
+            ss.unsubscribe();            
+          }
+        );
+        s.unsubscribe();
+      }
+    );
+  }
+
+  private cacheMix(res: any): void {    
+    if (this.step === 1) {
+      let stored = {
+        mix1: res,
+        mix2: []
+      }
+      this.storeService.push({key: MIX_STORE, data: stored});
+    } else {
+      let stored = this.storeService.get(MIX_STORE);
+      stored.mix2 = res;
+      this.storeService.push({key: MIX_STORE, data: stored});
+    }
+    console.log(this.storeService.get(MIX_STORE));
+  } 
 
 }
