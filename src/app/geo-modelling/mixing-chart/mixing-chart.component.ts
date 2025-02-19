@@ -44,7 +44,7 @@ export class MixingChartComponent implements OnInit {
 
   constructor(private storeService: StoreService) { }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     // if (!!this.canvasId) {
     //   let e = this.canvasId.nativeElement;
     //   this.chartWidth = 200;
@@ -54,7 +54,7 @@ export class MixingChartComponent implements OnInit {
     setTimeout(() => {
       this.chart();
     }, 80);
-    
+
   }
 
   getChartInstance(chart: object) {
@@ -130,12 +130,37 @@ export class MixingChartComponent implements OnInit {
     for (let i = 0; i < data.mix2.length; i++) {
       points.push(data.mix2[i].mix);
     }
-    
+
     charts.push({
       title: title,
       points: [...points]
     });
     return charts;
+  }
+
+  private extractBorder() {
+    let bp = [];
+    let bp1 = [];
+    let bp2 = [];
+    let bp3 = [];
+    if (!!this.mixData) {
+      for (let i = 0; i < this.mixData?.mix1.length; i++) {
+        if (this.mixData.mix1[i].samples[0].f == 0) {
+          bp1.push({ x: this.mixData.mix1[i].mix, y: this.mixData.mix2[i].mix });
+        }
+        if (this.mixData.mix1[i].samples[1].f == 0) {
+          bp2.push({ x: this.mixData.mix1[i].mix, y: this.mixData.mix2[i].mix });
+        }
+        if (this.mixData.mix1[i].samples[2].f == 0) {
+          bp3.push({ x: this.mixData.mix1[i].mix, y: this.mixData.mix2[i].mix });
+        }
+      }
+
+      bp.push(bp1);
+      bp.push(bp2);
+      bp.push(bp3);
+    }
+    return bp;
   }
 
   public chart(): void {
@@ -182,44 +207,62 @@ export class MixingChartComponent implements OnInit {
       let dpem = new Array<any>();
 
       if (cardinality === 3) {
-        // if (!this.checkIsotopes(geoData)) {
-        //   for (let i = 0; i < geoData.length - 1; i++) {
-        //     for (let j = 0; j < geoData[i].members.length; j++) {
-        //       dpem.push({ x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration });
-        //     }
-        //   }
+        let bp = this.extractBorder();
+        console.log(bp);
+        charts.push({
+          type: 'line',
+          showInLegend: false,
+          dataPoints: bp[0]      
+        });
+        charts.push({
+          type: 'line',
+          showInLegend: false,
+          dataPoints: bp[1]      
+        });
+        charts.push({
+          type: 'line',
+          showInLegend: false,
+          dataPoints: bp[2]      
+        });
 
-        //   for (let j = 0; j < geoData[0].members.length; j++) {
-        //     dpem.push({ x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration });
-        //   }
+        // // if (!this.checkIsotopes(geoData)) {
+        // //   for (let i = 0; i < geoData.length - 1; i++) {
+        // //     for (let j = 0; j < geoData[i].members.length; j++) {
+        // //       dpem.push({ x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration });
+        // //     }
+        // //   }
 
-        //   charts.push({
-        //     type: 'line',
-        //     // lineColor: 'blue',
-        //     // markerColor: 'blue',
-        //     dataPoints: dpem
-        //   });
-        // } else {
-        let additional = this.getBorder3(data);
-        charts.push({
-          type: 'line',
-          markerColor: 'blue',
-          lineColor: 'blue',
-          dataPoints: additional.dp1
-        });
-        charts.push({
-          type: 'line',
-          markerColor: 'blue',
-          lineColor: 'blue',
-          dataPoints: additional.dp2
-        });
-        charts.push({
-          type: 'line',
-          markerColor: 'blue',
-          lineColor: 'blue',
-          dataPoints: additional.dp3
-        });
-        // }
+        // //   for (let j = 0; j < geoData[0].members.length; j++) {
+        // //     dpem.push({ x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration });
+        // //   }
+
+        // //   charts.push({
+        // //     type: 'line',
+        // //     // lineColor: 'blue',
+        // //     // markerColor: 'blue',
+        // //     dataPoints: dpem
+        // //   });
+        // // } else {
+        // let additional = this.getBorder3(data);
+        // charts.push({
+        //   type: 'line',
+        //   markerColor: 'blue',
+        //   lineColor: 'blue',
+        //   dataPoints: additional.dp1
+        // });
+        // charts.push({
+        //   type: 'line',
+        //   markerColor: 'blue',
+        //   lineColor: 'blue',
+        //   dataPoints: additional.dp2
+        // });
+        // charts.push({
+        //   type: 'line',
+        //   markerColor: 'blue',
+        //   lineColor: 'blue',
+        //   dataPoints: additional.dp3
+        // });
+        // // }
       }
 
       let scale = this.getScaleXY(charts[0].dataPoints, 0.5, 0.5);
