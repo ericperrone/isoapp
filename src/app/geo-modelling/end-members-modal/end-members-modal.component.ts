@@ -29,12 +29,13 @@ export interface ManualEndmemberItem {
 })
 export class EndMembersModalComponent implements OnInit {
   @Output() emitter = new EventEmitter<any>();
+  public graph = false;
   private stored: MixStored | undefined;
 
   public endMembers: Array<ManualEndmemberItem> = [
-    { sampleName: '', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
-    { sampleName: '', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
-    { sampleName: '', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] }
+    { sampleName: 'Sample01', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
+    { sampleName: 'Sample02', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
+    { sampleName: 'Sample03', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] }
   ];
   public include = false;
   public step = 1;
@@ -45,6 +46,14 @@ export class EndMembersModalComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+  }
+
+  public reset() {
+    this.endMembers = [
+      { sampleName: 'Sample01', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
+      { sampleName: 'Sample02', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] },
+      { sampleName: 'Sample03', items: [{ element: '', value: 0, cValue: 0 }, { element: '', value: 0, cValue: 0 }] }
+    ];
   }
 
   public cancel(): void {
@@ -59,6 +68,10 @@ export class EndMembersModalComponent implements OnInit {
 
   public confirm(): void {
     this.computeMixing();
+  }
+
+  public drawChart(): void {
+
   }
 
   private buildPayload(index: number): Array<Computable> {
@@ -112,6 +125,7 @@ export class EndMembersModalComponent implements OnInit {
       let stored = this.storeService.get(MIX_STORE);
       stored.mix2 = res;
       this.storeService.push({key: MIX_STORE, data: stored});
+      this.graph = true;
     }
     console.log(this.storeService.get(MIX_STORE));
   } 

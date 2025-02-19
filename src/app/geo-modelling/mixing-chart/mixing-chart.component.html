@@ -1,0 +1,23 @@
+<div class="row header pt-1 pb-1" style="background-color: white;">
+    <!-- <div class="row header pt-1 pb-1">
+        <div class="col-1">&nbsp;</div>
+        <div class="col-8 text-left">
+            Width:
+            <input type="number" class="form-control" [(ngModel)]="chartWidth"
+                (ngModelChange)="changeSize = true" style="max-width: 5em; display: inline-block;">
+            Height:
+            <input type="number" class="form-control" [(ngModel)]="chartHeight"
+                (ngModelChange)="changeSize = true" style="max-width: 5em; display: inline-block;">
+            &nbsp;
+            <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()"
+                [disabled]="!changeSize"><i class="fa-solid fa-expand"></i></button>
+            &nbsp;
+            <input type="checkbox" [(ngModel)]="fixedRatio" (ngModelChange)="chartSizeChange()">Fixed ratio
+            (4:3)
+        </div>
+    </div> -->
+
+    <div class="centered" style="background-color: white;" #canvasid>
+        <canvasjs-chart [options]="chartOptions" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
+    </div>
+</div>
