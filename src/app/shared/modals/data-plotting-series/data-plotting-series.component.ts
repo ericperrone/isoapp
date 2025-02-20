@@ -410,7 +410,10 @@ export class DataPlottingSeriesComponent implements OnInit {
   public mix(): void {
     let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'lg', scrollable: true });
     ref.componentInstance.emitter.subscribe(
-      () => ref.close()
+      () => { 
+        this.checkStoredVars();
+        ref.close();
+      }
     );
   }
 
