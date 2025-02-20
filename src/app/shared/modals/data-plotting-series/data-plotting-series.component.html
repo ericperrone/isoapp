@@ -102,9 +102,10 @@
                 <tr>
                     <th>Name</th>
                     <th>Color</th>
-                    <th><button type="button" class="btn btn-outline-dark table-ctrl" (click)="addDataToSeries()" [disabled]="params?.anyParams.selection.length === 0 || xSelected.length === 0 || ySelected.length === 0">
-                        Add points to selection
-                    </button></th>
+                    <th><button type="button" class="btn btn-outline-dark table-ctrl" (click)="addDataToSeries()"
+                            [disabled]="params?.anyParams.selection.length === 0 || xSelected.length === 0 || ySelected.length === 0">
+                            Add points to selection
+                        </button></th>
                     <th>#Points</th>
                 </tr>
                 <tr *ngFor="let ds of dataSeries.series, index as i"
@@ -125,7 +126,7 @@
         </div>
     </div>
 
- </div>
+</div>
 
 <div class="modal-footer">
     <div class="row w-100">
@@ -137,8 +138,9 @@
             <button (click)="reset()" class="btn btn-danger mx-1" type="button"
                 [disabled]="xSelected.length === 0 || ySelected.length === 0">
                 Reset all</button>
+            <button type="button" class="btn btn-outline-dark mx-1" (click)="mix()">Mix</button>
             <button type="button" class="btn btn-primary mx-1" (click)="plot()"
-                [disabled]="dataSeries.series.length <= 0">PLOT!</button>        
+                [disabled]="dataSeries.series.length <= 0">PLOT!</button>
         </div>
     </div>
     <!-- <button type="button" class="btn btn-secondary" (click)="close()">Close</button>

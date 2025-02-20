@@ -11,7 +11,7 @@ import { ConfirmComponent } from '../confirm/confirm.component';
 import { List } from '../../list';
 import { MIXING_CACHE } from 'src/app/geo-modelling/mixing/mixing.component';
 import { ConversionDialogComponent, PlotConversionType } from '../../components/conversion-dialog/conversion-dialog.component';
-import { MIX_STORE } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
+import { EndMembersModalComponent, MIX_STORE } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
 
 export interface Range {
   min: number;
@@ -405,6 +405,13 @@ export class DataPlottingSeriesComponent implements OnInit {
       }
       this.setRange();
     }
+  }
+
+  public mix(): void {
+    let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'lg', scrollable: true });
+    ref.componentInstance.emitter.subscribe(
+      () => ref.close()
+    );
   }
 
   public plot(): void {

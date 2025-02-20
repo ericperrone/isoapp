@@ -212,14 +212,14 @@ export class MixingComponent implements OnInit, OnDestroy {
   }
 
   private saveCachedData() {
-    // let mixingData: MixingData = {};
-    // let stored = this.storeService.get(MIXING_CACHE);
-    // if (!!stored) {
-    //   mixingData = stored;
-    // }
-    // mixingData.geoData = this.geoData;
-    // mixingData.outResult = this.outResult;
-    // this.storeService.push({ key: MIXING_CACHE, data: mixingData }, this.eventGeneratorService);
+    let mixingData: MixingData = {};
+    let stored = this.storeService.get(MIXING_CACHE);
+    if (!!stored) {
+      mixingData = stored;
+    }
+    mixingData.geoData = this.geoData;
+    mixingData.outResult = this.outResult;
+    this.storeService.push({ key: MIXING_CACHE, data: mixingData }, this.eventGeneratorService);
   }
 
   public chartSizeChange() {
