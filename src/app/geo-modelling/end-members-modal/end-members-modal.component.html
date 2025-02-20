@@ -8,10 +8,7 @@
                         triggers="mouseenter:mouseleave"></span>
                 </h4>
             </div>
-            <!-- <div class="col-md-2 col-sm-12"> -->
-            <!-- <span style="color: orange; font-weight: bold; font-size: large;">Step {{ step }}</span> -->
-            <!-- </div> -->
-        </div>
+         </div>
     </div>
     <div class="modal-body">
         <div *ngFor="let em of endMembers; index as i ">
@@ -22,7 +19,8 @@
                         [(ngModel)]="em.sampleName" [disabled]="i > 1 && !include">
                 </div>
                 <div class="col-sm-12 col-md-6" *ngIf="i > 1" style="margin-top:2.1em;">
-                    <input type="checkbox" [(ngModel)]="include" (click)="include = !include"> Include third endmember
+                    <!-- <input type="checkbox" [(ngModel)]="include" (click)="include = !include" (ngModelChange)="manageThirdMember()"> Include third endmember -->
+                    <input type="checkbox" [(ngModel)]="include" (click)="manageThirdMember()"> Include third endmember
                 </div>
             </div>
 

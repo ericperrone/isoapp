@@ -13,6 +13,7 @@ import { FILTER_KEY, QueryFilter, RESET_FILTER, initQueryFilter } from '../main-
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { CONFIRM, ModalParams } from 'src/app/shared/modals/modal-params';
+import { MIX_STORE } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
 
 @Component({
   selector: 'app-db-filters',
@@ -41,7 +42,10 @@ export class DbFiltersComponent implements OnInit, OnDestroy {
     this.checkStoredVars();
     this.storeAlert = this.eventGeneratorService.on(STORE_ALERT).subscribe(
       evt => {
-        if (MIXING_CACHE === evt.content) {
+        // if (MIXING_CACHE === evt.content) {
+        //   this.checkStoredVars();
+        // }
+        if (MIX_STORE === evt.content) {
           this.checkStoredVars();
         }
       }
@@ -65,8 +69,8 @@ export class DbFiltersComponent implements OnInit, OnDestroy {
   }
 
   private checkStoredVars(): void {
-    let stored = this.storeService.get(MIXING_CACHE);
-    if (!!stored && !!stored.outResult) {
+    let stored = this.storeService.get(MIX_STORE);
+    if (!!stored) {
       this.alertMx = true;
     } else {
       this.alertMx = false;
@@ -134,7 +138,8 @@ export class DbFiltersComponent implements OnInit, OnDestroy {
       (response: string) => {
         ref.close();
         if (response === CONFIRM) {
-          this.storeService.clean(MIXING_CACHE, this.eventGeneratorService);
+          // this.storeService.clean(MIXING_CACHE, this.eventGeneratorService);
+          this.storeService.clean(MIX_STORE, this.eventGeneratorService);
         }
       }
     );

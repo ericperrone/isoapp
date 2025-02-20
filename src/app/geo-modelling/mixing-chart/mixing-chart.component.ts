@@ -45,11 +45,6 @@ export class MixingChartComponent implements OnInit {
   constructor(private storeService: StoreService) { }
 
   ngOnInit(): void {
-    // if (!!this.canvasId) {
-    //   let e = this.canvasId.nativeElement;
-    //   this.chartWidth = 200;
-    //   this.chartHeight = (this.chartWidth * 3) / 4;
-    // }
     this.chartOptions = {};
     setTimeout(() => {
       this.chart();
@@ -164,28 +159,17 @@ export class MixingChartComponent implements OnInit {
   }
 
   public chart(): void {
-    // this.chartView = true;
 
     this.getCachedData();
     if (!!this.mixData) {
       let data = this.mixData;
-      // let geoData = stored.geoData;
-      // console.log(geoData);
 
       let xText = data.mix1[0].samples[0].element;
       let yText = data.mix2[0].samples[0].element;
 
       let cardinality = data.mix1[0].samples.length;
 
-      // let cardinality = this.getCardinality(data);
-      // if (cardinality !== 2 && cardinality !== 3)
-      //   return;
-
       let chartsData = this.getChartsData(data);
-      // if (chartsData.length < 2) {
-      //   this.chartView = false;
-      //   return;
-      // }
 
       let charts = new Array();
 
@@ -203,70 +187,33 @@ export class MixingChartComponent implements OnInit {
         }
       }
 
-
-      let dpem = new Array<any>();
-
       if (cardinality === 3) {
         let bp = this.extractBorder();
         console.log(bp);
         charts.push({
           type: 'line',
           showInLegend: false,
+          color: 'blue',
           dataPoints: bp[0]      
         });
         charts.push({
           type: 'line',
           showInLegend: false,
+          color: 'blue',
           dataPoints: bp[1]      
         });
         charts.push({
           type: 'line',
           showInLegend: false,
+          color: 'blue',
           dataPoints: bp[2]      
         });
+       }
 
-        // // if (!this.checkIsotopes(geoData)) {
-        // //   for (let i = 0; i < geoData.length - 1; i++) {
-        // //     for (let j = 0; j < geoData[i].members.length; j++) {
-        // //       dpem.push({ x: geoData[i].members[j].concentration, y: geoData[i + 1].members[j].concentration });
-        // //     }
-        // //   }
-
-        // //   for (let j = 0; j < geoData[0].members.length; j++) {
-        // //     dpem.push({ x: geoData[0].members[j].concentration, y: geoData[geoData.length - 1].members[j].concentration });
-        // //   }
-
-        // //   charts.push({
-        // //     type: 'line',
-        // //     // lineColor: 'blue',
-        // //     // markerColor: 'blue',
-        // //     dataPoints: dpem
-        // //   });
-        // // } else {
-        // let additional = this.getBorder3(data);
-        // charts.push({
-        //   type: 'line',
-        //   markerColor: 'blue',
-        //   lineColor: 'blue',
-        //   dataPoints: additional.dp1
-        // });
-        // charts.push({
-        //   type: 'line',
-        //   markerColor: 'blue',
-        //   lineColor: 'blue',
-        //   dataPoints: additional.dp2
-        // });
-        // charts.push({
-        //   type: 'line',
-        //   markerColor: 'blue',
-        //   lineColor: 'blue',
-        //   dataPoints: additional.dp3
-        // });
-        // // }
-      }
-
-      let scale = this.getScaleXY(charts[0].dataPoints, 0.5, 0.5);
-      console.log(scale);
+      this.storeChart(charts);
+      console.log(this.storeService.get(MIX_STORE));
+      // let scale = this.getScaleXY(charts[0].dataPoints, 0.5, 0.5);
+      // console.log(scale);
 
       this.chartOptions = {
         animationEnabled: true,
@@ -303,8 +250,15 @@ export class MixingChartComponent implements OnInit {
       }
 
     }
-    console.log(this.chartOptions);
+    // console.log(this.chartOptions);
+    
   }
 
+  private storeChart(chart: any): void {
+    if (this.mixData) {
+      this.mixData.chart = chart
+      this.storeService.push({key: MIX_STORE, data: this.mixData});
+    }
+  }
 
 }
