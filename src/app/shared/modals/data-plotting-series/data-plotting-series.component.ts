@@ -11,6 +11,7 @@ import { ConfirmComponent } from '../confirm/confirm.component';
 import { List } from '../../list';
 import { MIXING_CACHE } from 'src/app/geo-modelling/mixing/mixing.component';
 import { ConversionDialogComponent, PlotConversionType } from '../../components/conversion-dialog/conversion-dialog.component';
+import { MIX_STORE } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
 
 export interface Range {
   min: number;
@@ -111,8 +112,8 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   private checkStoredVars(): void {
-    let stored = this.storeService.get(MIXING_CACHE);
-    if (!!stored && !!stored.outResult) {
+    let stored = this.storeService.get(MIX_STORE);
+    if (!!stored) {
       this.alertMx = true;
     } else {
       this.alertMx = false;
@@ -407,6 +408,8 @@ export class DataPlottingSeriesComponent implements OnInit {
   }
 
   public plot(): void {
+    if (!!this.alertMx)
+      this.dataSeries.cache = true;
     this.storeService.push({ key: DATA_SERIES, data: this.dataSeries });
     console.log(this.dataSeries);
     let modalRef = this.modalService.open(PlottingComponent, { fullscreen: true });

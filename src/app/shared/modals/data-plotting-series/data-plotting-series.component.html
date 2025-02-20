@@ -129,10 +129,10 @@
 
 <div class="modal-footer">
     <div class="row w-100">
-        <div class="col-2 text-left">
+        <div class="col-3 text-left">
             <input type="checkbox" [(ngModel)]="onMix" [disabled]="!alertMx"> On mixing diagram
         </div>
-        <div class="col-10 text-right">
+        <div class="col-9 text-right">
             <button type="button" class="btn btn-secondary mx-1" (click)="close()">Close</button>
             <button (click)="reset()" class="btn btn-danger mx-1" type="button"
                 [disabled]="xSelected.length === 0 || ySelected.length === 0">

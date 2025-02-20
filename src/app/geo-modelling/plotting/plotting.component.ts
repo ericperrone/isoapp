@@ -4,6 +4,7 @@ import { Series, DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models
 import { saveCsvFile } from 'src/app/shared/tools';
 import { EventGeneratorService } from 'src/app/services/common/event-generator.service';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
+import { MIX_STORE } from '../end-members-modal/end-members-modal.component';
 
 @Component({
   selector: 'app-plotting',
@@ -24,6 +25,7 @@ export class PlottingComponent implements OnInit, OnDestroy {
   public draw = true;
   private sub: any;
   public fixedRatio = false;
+  public stored: any;
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
     console.log(event);
@@ -36,6 +38,7 @@ export class PlottingComponent implements OnInit, OnDestroy {
     private eventGeneratorService: EventGeneratorService) { }
 
   ngOnInit(): void {
+    this.stored = this.storeService.get(MIX_STORE);
     this.sub = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
       () => {
         if (this.ref) {
@@ -113,6 +116,12 @@ export class PlottingComponent implements OnInit, OnDestroy {
         dataPoints: data,
         markerType: s.shape.shape ? '' + s.shape.shape : 'circle'
       });
+    }
+
+    if (!!this.series.cache && !!this.stored && !!this.stored.chart) {
+      for (let s of this.stored.chart) {
+        series.push(s);
+      }
     }
 
     this.chartOptions = {

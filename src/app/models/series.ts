@@ -15,6 +15,7 @@ export interface Series {
     series: Array<DataSeries>;
     xLog: boolean;
     yLog: boolean;
+    cache?: boolean;
 }
 
 export interface DataSeries {
