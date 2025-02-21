@@ -132,7 +132,7 @@ export class DbFiltersComponent implements OnInit, OnDestroy {
 
   public onMxCache(): void {
     let params: ModalParams = {headerText: 'Confirm', bodyText: 'Found cached mixing results. Want you clean the cache?'};
-    let ref = this.modalService.open(ConfirmComponent, {size: 'sm', backdrop: 'static'});
+    let ref = this.modalService.open(ConfirmComponent, {size: 'sm', backdrop: 'static', centered: true});
     ref.componentInstance.params = params;
     ref.componentInstance.emitter.subscribe(
       (response: string) => {

@@ -36,7 +36,7 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
       }
     );
     this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
-      () =>  {
+      () => {
         if (!!this.ref) {
           this.ref.close();
         }
@@ -59,22 +59,23 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
       if (result === CONFIRM) {
         this.queryFilter = this.storeService.get(FILTER_KEY);
         this.matrix = this.queryFilter.matrix ? this.queryFilter.matrix.matrix : { matrix: '', nodeId: 0 };;
-        
+
       }
-      console.log(this.queryFilter); 
+      console.log(this.queryFilter);
       this.ref.close()
       this.emitter.emit(true);
     });
   }
 
   public setConnector(event: any) {
-    this.queryFilter.keywords.connector = event;
+    if (this.queryFilter.matrix)
+      this.queryFilter.matrix.connector = event;
   }
 
   public resetFilter(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
     this.queryFilter.keywords.keywords = [];
-    this.storeService.push({key: FILTER_KEY, data: this.queryFilter});
+    this.storeService.push({ key: FILTER_KEY, data: this.queryFilter });
     this.matrix = { matrix: '', nodeId: 0 };;
     this.emitter.emit(true);
   }
