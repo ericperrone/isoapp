@@ -32,7 +32,7 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
     this.sub = this.eventGeneratorService.on(RESET_FILTER).subscribe(
       (event: any) => {
         this.matrix = { matrix: '', nodeId: 0 };
-        this.queryFilter.keywords.keywords = [];
+        this.queryFilter.matrix = undefined;
       }
     );
     this.subModal = this.eventGeneratorService.on(CLOSE_ALL_MODALS).subscribe(
@@ -74,7 +74,7 @@ export class CardMatrixComponent implements OnInit, OnDestroy {
 
   public resetFilter(): void {
     this.queryFilter = this.storeService.get(FILTER_KEY);
-    this.queryFilter.keywords.keywords = [];
+    this.queryFilter.matrix = undefined;
     this.storeService.push({ key: FILTER_KEY, data: this.queryFilter });
     this.matrix = { matrix: '', nodeId: 0 };;
     this.emitter.emit(true);
