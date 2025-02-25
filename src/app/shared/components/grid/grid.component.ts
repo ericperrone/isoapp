@@ -11,6 +11,8 @@ import { DataPlottingSeriesComponent } from '../../modals/data-plotting-series/d
 // import { DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
 import { StoreService } from 'src/app/services/common/store.service';
 import { EndMembersModalComponent } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
+import { GridItemContextmenuComponent } from '../../modals/grid-item-contextmenu/grid-item-contextmenu.component';
+import { DatasetBySampleComponent } from '../../modals/dataset-by-sample/dataset-by-sample.component';
 
 export interface GridItem {
   header: boolean;
@@ -39,7 +41,7 @@ export function gridItem2Computable(gi: GridItem, element: string): ComputableGr
     cgi.row = gi.row;
     cgi.col = gi.col;
     cgi.type = gi.type;
-    if (gi.content.indexOf(' [') > 0 ) {
+    if (gi.content.indexOf(' [') > 0) {
       let value = gi.content.substring(0, gi.content.indexOf(' ['));
       let um = gi.content.substring(gi.content.indexOf('[') + 1, gi.content.indexOf(']'));
       cgi.value = parseFloat(value);
@@ -244,9 +246,30 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.screenRows = new Array<Array<GridItem>>();
   }
 
-  public onRightClick(event: any) {
+  public onRightClick(gi: GridItem, event: any) {
     event.preventDefault();
-    // console.log(event);
+    console.log(gi);
+    console.log(this.gridRows[gi.row]);
+    if (!!this.gridRows[gi.row]) {
+      let itinerisId = this.gridRows[gi.row][0].content;
+      let params: ModalParams = { id: '' + itinerisId };
+      let ref = this.modalService.open(GridItemContextmenuComponent, { centered: true, size: 'md' });
+      ref.componentInstance.params = params;
+      ref.componentInstance.emitter.subscribe(
+        (e: string) => {
+          console.log(e);
+          ref.close();
+          let params: ModalParams = { id: '' + e };
+          let ref2 = this.modalService.open(DatasetBySampleComponent, { centered: true, size: 'lg' });
+          ref2.componentInstance.params = params;
+          ref2.componentInstance.emitter.subscribe(
+            () => {
+              ref2.close();
+            }
+          );
+        }
+      );
+    }
   }
 
   public onCheck(gi: GridItem, event: any) {
@@ -484,7 +507,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       choices: [
         { text: 'Plot data', value: 3, icon: 'fa-solid fa-chart-line' },
         { text: 'Spider diagram', value: 4, icon: 'fa-solid fa-spider' },
-        { text: 'Ternary diagram', value: 5, icon: 'fa-solid fa-t'},
+        { text: 'Ternary diagram', value: 5, icon: 'fa-solid fa-t' },
         { text: 'Mixing model', value: 0, icon: 'fa-solid fa-flask' },
         // { text: 'Crystallization mass balance', value: 1, icon: 'fa-brands fa-codepen' },
         // { text: 'Melting', value: 2, icon: 'fa-solid fa-dice-d20' },
@@ -501,14 +524,14 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
             this.geoModelService.setModel({ selectedModel: 0, endMembers: members });
             this.ref = this.geoModelService.execute();
             break;
-          case 4: 
-            this.geoModelService.setModel({ selectedModel: 2, endMembers: members  });
+          case 4:
+            this.geoModelService.setModel({ selectedModel: 2, endMembers: members });
             this.ref = this.geoModelService.execute();
-            break;  
+            break;
           case 5:
             this.ref = this.geoModelService.setModel({ selectedModel: 5, endMembers: members });
             this.ref = this.geoModelService.execute();
-            break; 
+            break;
           case 1:
             break;
           case 2:
@@ -573,7 +596,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public manualMix(): void {
-    let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'lg', scrollable: true });    
+    let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'lg', scrollable: true });
     ref.componentInstance.emitter.subscribe(
       () => ref.close()
     );

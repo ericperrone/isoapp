@@ -1,0 +1,5 @@
+<div class="modal-body" *ngIf="!!params && !!params.id">
+    <div>
+        <a class="nav-link active clickable" (click)="emit(params.id)">Get dataset for selected sample: ITINERIS_ID {{'' + params.id}}</a>
+    </div>
+</div>

@@ -71,6 +71,8 @@ import { ConversionDialogComponent } from './shared/components/conversion-dialog
 import { RefDialogComponent } from './db-querying/ref-dialog/ref-dialog.component';
 import { EndMembersModalComponent } from './geo-modelling/end-members-modal/end-members-modal.component';
 import { MixingChartComponent } from './geo-modelling/mixing-chart/mixing-chart.component';
+import { GridItemContextmenuComponent } from './shared/modals/grid-item-contextmenu/grid-item-contextmenu.component';
+import { DatasetBySampleComponent } from './shared/modals/dataset-by-sample/dataset-by-sample.component';
 
 
 @NgModule({
@@ -134,6 +136,8 @@ import { MixingChartComponent } from './geo-modelling/mixing-chart/mixing-chart.
     RefDialogComponent,
     EndMembersModalComponent,
     MixingChartComponent,
+    GridItemContextmenuComponent,
+    DatasetBySampleComponent,
   ],
   imports: [
     BrowserModule,

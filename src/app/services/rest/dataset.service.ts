@@ -88,6 +88,30 @@ export class DatasetService extends Rest {
     );
   }
 
+  public getDatasetBySample(id: string): Observable<any> {
+    let endPoint = this.serviceUrl + 'get-dataset-by-sample?id=' + id;
+    return this.http.get(endPoint).pipe(map(
+      (res: any) => {
+        if (!!res) {
+          console.log(res);
+          return {
+            authors: res.authors,
+            id: res.id,
+            keywords: res.keywords,
+            ref: res.link,
+            metadata: res.metadata,
+            year: res.year,
+            fileName: res.fileName,
+            processed: res.processed
+          };
+        }
+        return undefined;
+      }
+    ),
+      catchError(this.handleError)
+    );    
+  }
+
   public getLinksFull(): Observable<any> {
     return this.http.get(this.serviceUrl + 'get-full-references').pipe(map(
       (res: any) => {

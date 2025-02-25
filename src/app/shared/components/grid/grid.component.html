@@ -25,7 +25,7 @@
         <tr *ngFor="let r of screenRows">
           <ng-template ngFor let-e [ngForOf]="r">
             <td scope="col" *ngIf="e.visible === true" class="clickable" (click)="onCheck(e, $event)"
-              (contextmenu)="onRightClick($event)" [style.background]="e.selected ? 'orange' : 'white'">
+              (contextmenu)="onRightClick(e, $event)" [style.background]="e.selected ? 'orange' : 'white'">
               <span *ngIf="e.check === false" class="p-0 transparent clickable">{{ e.content }}</span>
             </td>
           </ng-template>
