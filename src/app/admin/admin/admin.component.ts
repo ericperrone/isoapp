@@ -19,6 +19,8 @@ import { NewAdministratorComponent } from '../new-administrator/new-administrato
 })
 export class AdminComponent implements OnInit, OnDestroy {
   public logged = false;
+  public partner = "";
+  public accessKey = "";
   public admins: Array<Administrator> = new Array<Administrator>();
   private sub: Subscription | undefined;
 
@@ -55,6 +57,18 @@ export class AdminComponent implements OnInit, OnDestroy {
       (res: any) => {
         this.admins = res;
         console.log(this.admins);
+        s.unsubscribe();
+      }
+    );
+  }
+
+  public generateAccessKey(): void {
+    let s = this.adminService.generateAccessKey(this.partner).subscribe(
+      (res: any) => {
+        console.log(res);
+        if (res.status == 'success') {
+          this.accessKey = res.key;
+        }
         s.unsubscribe();
       }
     );

@@ -92,6 +92,29 @@ export class AdminService extends Rest {
     );
   }
 
+  public generateAccessKey(partner: string): Observable<any> {
+    let options = {};
+    let userInfo: UserInfo = this.storeService.getCurrentUser();
+    if (!!userInfo) {
+      const headers: HttpHeaders = new HttpHeaders({
+        'token': '' + userInfo.key,
+      });
+      options = {
+        'headers': headers
+      };
+    }
+    return this.http.post(this.serviceUrl + 'genkey', { partner: partner }, options).pipe(map(
+      (res: any) => {
+        console.log(res);
+        if (res.status && res.status === 'success') {
+          return res;
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
   public changePassword(user: string, oldPassword: string, password: string): Observable<any> {
     const payload = {
       account: user,
