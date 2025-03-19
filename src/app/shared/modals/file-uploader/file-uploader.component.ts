@@ -107,7 +107,8 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
               authors: this.authors,
               file: this.uploadedFile,
               year: this.year,
-              keywords: this.keywords
+              keywords: this.keywords,
+              metadata: this.metadata
             }
             const r = this.datasetService.insertDataset(payload).subscribe(
               (res) => {

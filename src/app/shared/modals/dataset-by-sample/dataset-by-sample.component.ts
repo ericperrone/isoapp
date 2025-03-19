@@ -19,7 +19,7 @@ export class DatasetBySampleComponent implements OnInit {
     if (!!this.params && !!this.params.id) {
       const s = this.datasetService.getDatasetBySample(this.params?.id).subscribe(
         (res: any) => {
-          console.log(res);
+          // console.log(res);
           s.unsubscribe();
           this.dataset = {
             id: res.id,
@@ -30,6 +30,10 @@ export class DatasetBySampleComponent implements OnInit {
             processed: true,
             keywords: res.keywords,
             authors: res.authors
+          }
+
+          if (!this.dataset.ref.startsWith('https://doi.org/')) {
+            this.dataset.ref = 'https://doi.org/' + this.dataset.ref;
           }
         }
       );
