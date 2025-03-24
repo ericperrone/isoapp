@@ -123,7 +123,7 @@ export class ListFileComponent implements OnInit {
 
   public externalSites(): void {
     let ref = this.modalService.open(SelectBoxComponent, { centered: true });
-    let choices = [{ text: 'Georoc', value: 1, color: 'blue' }];
+    let choices = [{ text: 'GEOROC', value: 1, color: 'blue' }];
     ref.componentInstance.params = { bodyText: 'Available external sites:', choices:  choices};
     ref.componentInstance.emitter.subscribe(
       (response: number) => {
