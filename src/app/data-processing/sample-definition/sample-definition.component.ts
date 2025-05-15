@@ -5,13 +5,15 @@ import { DATA_GATHERING, DataGatheringSession } from 'src/app/data-processing/ma
 import { DataGathering } from '../data-gathering';
 import { SampleElement, ChemComponent, Sample } from 'src/app/models/sample';
 import { trigger, style, animate, transition } from '@angular/animations';
-import { checkChemElement, checkField, checkIsotope, ITINERIS_RESERVED } from 'src/app/shared/const';
+import { checkChemElement, checkField, checkIsotope, isItinerisTemplate, ITINERIS_RESERVED } from 'src/app/shared/const';
 import { Subscription } from 'rxjs';
+import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
 
 export interface Col {
   name: string;
   col: number;
   type: SampleType;
+  um?: string;
 }
 
 export enum SampleType { FIELD = 1, CHEM, ISOTOPE, NONE };
@@ -19,6 +21,7 @@ export enum SampleType { FIELD = 1, CHEM, ISOTOPE, NONE };
 export interface SampleItem {
   item: string;
   type: SampleType;
+  um?: string;
 }
 
 @Component({
@@ -43,14 +46,11 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
   public dataComposed = false;
   private subscription: Subscription | undefined;
   public buttonEnabled = false;
-
-  // @ViewChildren('fields') fields: any;
-  // @ViewChildren('samplefield') sampleFields: any;
-  // @ViewChildren('chemelement') chemFields: any;
-  // @ViewChildren('isotope') isotopes: any;
-  // @ViewChildren('none') nones: any;
+  public ums = new Array<string>();
+  public template = false;
 
   constructor(private router: Router,
+    private geoModelService: GeoModelsService,
     private storeService: StoreService) {
     super();
     this.buttonEnabled = false;
@@ -58,14 +58,14 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
-    console.log(session);
+    // console.log(session);
     if (!session || !session.header) {
       this.router.navigate(['main-data-processing']);
     } else {
       this.session = session;
-      this.row = this.cleanRow(this.session);
-      this.loadComponents();
-      this.initStyles();
+      console.log(session.header);
+      this.template = isItinerisTemplate(session.header);
+      this.loadUms();
     }
   }
 
@@ -75,23 +75,49 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
     }
   }
 
+  private loadUms(): void {
+    this.ums.length = 0;
+    let s = this.geoModelService.getConversionTable().subscribe(
+      (res: any) => {
+        this.ums.push('');
+        // console.log(res);
+        for (let r of res) {
+          this.ums.push(r.um);
+        }
+        this.row = this.cleanRow(this.session);
+        this.loadComponents();
+        this.initStyles();
+      }
+    );
+  }
+
   private loadComponents() {
     if (!!this.row) {
       this.sampleDef = new Array<SampleItem>();
       for (let r of this.row) {
+        let item: SampleItem = { item: r, type: SampleType.CHEM };
+        let a = r.indexOf('(');
+        let b = r.indexOf(')');
+        if (a > 0 && b > a) {
+          item.um = this.geoModelService.checkUm(r.substring(a + 1, b), this.ums);
+        }
+
         if (checkField(r)) {
-          this.sampleDef.push({ item: r, type: SampleType.FIELD });
+          item.type = SampleType.FIELD;
+          this.sampleDef.push(item);
           continue;
         }
         if (checkChemElement(r)) {
-          this.sampleDef.push({ item: r, type: SampleType.CHEM });
+          this.sampleDef.push(item);
           continue;
         }
         if (checkIsotope(r)) {
-          this.sampleDef.push({ item: r, type: SampleType.ISOTOPE });
+          item.type = SampleType.ISOTOPE;
+          this.sampleDef.push(item);
           continue;
         }
-        this.sampleDef.push({ item: r, type: SampleType.NONE });
+        item.type = SampleType.NONE;
+        this.sampleDef.push(item);
       }
     }
     this.checkDataComposition();
@@ -113,7 +139,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
     this.updateSamples();
     this.buildPayload();
     this.storeService.push({ key: DATA_GATHERING, data: this.session });
-    console.log(this.storeService.get(DATA_GATHERING));
+    // console.log(this.storeService.get(DATA_GATHERING));
     this.router.navigate(['save-data']);
   }
 
@@ -138,8 +164,9 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
     }
     si.type = type;
     this.checkDataComposition();
+    // this.updateSamples();
+    // this.buildPayload();
   }
-
 
   public updateSamples() {
     if (!!this.session) {
@@ -169,28 +196,29 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
       for (let i = 0; i < this.session.header.length; i++) {
         for (let sd of this.sampleDef) {
           if (sd.item === this.session.header[i]) {
-            headerCols.push({ name: sd.item, col: i, type: sd.type });
+            headerCols.push({ name: sd.item, col: i, type: sd.type, um: sd.um });
             break;
           }
         }
       }
 
+      let previousHc = headerCols[0];
       for (let i = this.session.headerPosition + 1; i <= this.session.endTable; i++) {
         let row = this.session.content[i];
         let sample: Sample = { fields: new Array<SampleElement>(), components: new Array<ChemComponent>() };
         for (let j = 0; j < row.length; j++) {
           let element = row[j];
-          // for (let hc of headerCols) {
           for (let k = 0; k < headerCols.length; k++) {
             let hc = headerCols[k];
             if (j === hc.col) {
               switch (hc.type) {
                 case SampleType.FIELD:
-                  if (!this.checkItinerisReserved(hc.name))
+                  if (!this.checkItinerisReserved(hc.name)) {
                     sample.fields.push({ field: hc.name, value: element });
-                  else {
+                    previousHc = hc;
+                  } else {
                     let key = hc.name.toLowerCase().trim();
-                    let previousHc = headerCols[k - 1];
+                    // let previousHc = headerCols[k - 1];
                     switch (key) {
                       case 'unit':
                         if (previousHc.type === SampleType.CHEM) {
@@ -198,17 +226,17 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
                         }
                         break;
                       case 'technique':
-                        if (previousHc.type === SampleType.ISOTOPE) {
+                        if (previousHc.type === SampleType.ISOTOPE || previousHc.type === SampleType.CHEM) {
                           sample.components[sample.components.length - 1].technique = element;
                         }
                         break;
                       case 'uncertainty':
-                        if (previousHc.type === SampleType.ISOTOPE) {
+                        if (previousHc.type === SampleType.ISOTOPE || previousHc.type === SampleType.CHEM) {
                           sample.components[sample.components.length - 1].uncertainty = parseFloat(element);
                         }
                         break;
                       case 'type of uncertainty':
-                        if (previousHc.type === SampleType.ISOTOPE) {
+                        if (previousHc.type === SampleType.ISOTOPE || previousHc.type === SampleType.CHEM) {
                           sample.components[sample.components.length - 1].uncertaintyType = element;
                         }
                         break;
@@ -216,12 +244,15 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
                   }
                   break;
                 case SampleType.CHEM:
-                  sample.components.push({ component: hc.name, value: element, isIsotope: false });
+                  sample.components.push({ component: hc.name, value: element, isIsotope: false, um: hc.um });
+                  previousHc = hc;
                   break;
                 case SampleType.ISOTOPE:
+                  previousHc = hc;
                   sample.components.push({ component: hc.name, value: element, isIsotope: true });
                   break;
               }
+              break;
             }
           }
         }
@@ -229,6 +260,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
       }
 
       this.storeService.push({ key: DATA_GATHERING, data: this.session });
+      console.log(this.session);
     }
   }
 

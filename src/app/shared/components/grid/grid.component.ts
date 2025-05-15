@@ -8,11 +8,17 @@ import { Subscription } from 'rxjs';
 import { GeoModelService, GeoModel, EndMemberItem } from 'src/app/services/common/geo-model.service';
 import { CLOSE_ALL_MODALS } from 'src/app/main/header/header.component';
 import { DataPlottingSeriesComponent } from '../../modals/data-plotting-series/data-plotting-series.component';
-// import { DataSeries, DATA_SERIES, DataSeriesPoint } from 'src/app/models/series';
-import { StoreService } from 'src/app/services/common/store.service';
 import { EndMembersModalComponent } from 'src/app/geo-modelling/end-members-modal/end-members-modal.component';
 import { GridItemContextmenuComponent } from '../../modals/grid-item-contextmenu/grid-item-contextmenu.component';
 import { DatasetBySampleComponent } from '../../modals/dataset-by-sample/dataset-by-sample.component';
+import { SampleService } from 'src/app/services/rest/sample.service';
+
+export interface GridItemInfo {
+  um?: string;
+  uncertainty?: string;
+  technique?: string;
+  uncertaintyType?: string;
+}
 
 export interface GridItem {
   header: boolean;
@@ -23,6 +29,7 @@ export interface GridItem {
   content: any;
   check: boolean;
   type: string;
+  info?: GridItemInfo;
 }
 
 export interface ComputableGridItem {
@@ -95,7 +102,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   private nClick = 0;
 
   constructor(private modalService: NgbModal,
-    private storeService: StoreService,
+    private sampleService: SampleService,
     private eventGeneratorService: EventGeneratorService,
     private geoModelService: GeoModelService) { }
 
@@ -248,11 +255,13 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   public onRightClick(gi: GridItem, event: any) {
     event.preventDefault();
+    console.log(this.originalHeader);
     console.log(gi);
     console.log(this.gridRows[gi.row]);
     if (!!this.gridRows[gi.row]) {
       let itinerisId = this.gridRows[gi.row][0].content;
-      let params: ModalParams = { id: '' + itinerisId };
+      let params: ModalParams = { id: '' + itinerisId, headerText: '' + this.gridHeader[gi.col].content };
+      console.log(params);
       let ref = this.modalService.open(GridItemContextmenuComponent, { centered: true, size: 'md' });
       ref.componentInstance.params = params;
       ref.componentInstance.emitter.subscribe(

@@ -92,6 +92,17 @@ export class GeoModelsService extends Rest {
       }
     ), catchError(this.handleError));   
   }
+
+  public checkUm(s: string, ums: Array<string>): string {
+    let iums = [...ums];
+    let is = s.toLowerCase().trim();
+    for(let um of iums) {
+      if (um.toLowerCase().trim() === is) {
+        return um;
+      }
+    }
+    return s;
+  }
 }
 
 

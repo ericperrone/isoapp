@@ -15,12 +15,43 @@ export interface QueryInfoBody {
   matrix?: any;
 }
 
+export interface SampleAttributeItem {
+  id: number;
+  name: string;
+  value?: number;
+  um?: string;
+  technique?: string;
+  uncertainty?: string;
+  uncertaintyType?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class SampleService extends Rest {
 
   constructor(private http: HttpClient, private storeService: StoreService) { super(); }
+
+  public getSampleAttribute(id: number, name: string): Observable<any> {
+    let qs = this.serviceUrl + 'query-sample-attribute?id=' + id + '&name=' + encodeURIComponent(name);
+    return this.http.get(qs).pipe(map(
+      (res: any) => {
+        console.log(res);
+        if (!!res) {
+          return (
+            { id: res.id, name: res.name, value: res.nvalue, um: res.um, technique: res.technique, uncertainty: res.uncertainty, uncertaintyType: res.uncertaintyType }
+          );
+        } else {
+          return (
+            { id: 0, name: '' }
+          );
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
 
   public getSamplesById(ids: Array<number>): Observable<any> {
     let params = '';
@@ -61,7 +92,7 @@ export class SampleService extends Rest {
         'headers': headers
       };
       return this.http.post(this.serviceUrl + 'insert-fulldata', payload, options).pipe(
-        map( (res: any) => { return of(res) } ), catchError(this.handleError)
+        map((res: any) => { return of(res) }), catchError(this.handleError)
       );
     }
 
