@@ -39,7 +39,7 @@ export class SampleService extends Rest {
         console.log(res);
         if (!!res) {
           return (
-            { id: res.id, name: res.name, value: res.nvalue, um: res.um, technique: res.technique, uncertainty: res.uncertainty, uncertaintyType: res.uncertaintyType }
+            { id: res.sampleId, name: res.name, value: res.nvalue, um: res.um, technique: res.technique, uncertainty: res.uncertainty, uncertaintyType: res.uncertaintyType }
           );
         } else {
           return (

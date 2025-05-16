@@ -11,13 +11,26 @@ import { SampleService } from 'src/app/services/rest/sample.service';
 export class GridItemContextmenuComponent implements OnInit {
   @Input() params: ModalParams | undefined;
   @Output() emitter: EventEmitter<any> = new EventEmitter();
+  public um = '';
+  public technique = '';
+  public uncertainty = '';
+  public uncertaintyType = '';
+  public id = 0;
 
   constructor(private sampleService: SampleService) { }
 
   ngOnInit(): void {
     let s = this.sampleService.getSampleAttribute(parseInt('' + this.params?.id), '' + this.params?.headerText).subscribe(
       (res: any) => {
+        s.unsubscribe();
         console.log(res);
+        if (!!res.id && res.id > 0) {
+          this.id = res.id;
+          this.um = res.um ? res.um : '';
+          this.technique = res.technique ? res.technique : '';
+          this.uncertainty = res.uncertainty ? res.uncertainty : '';
+          this.uncertaintyType = res.uncertaintyType ? res.uncertaintyType : '';
+        }
       }
     );
   }
