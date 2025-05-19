@@ -21,7 +21,7 @@
           </th>
         </ng-template>
       </thead>
-      <tbody>
+      <tbody #gridbody>
         <tr *ngFor="let r of screenRows">
           <ng-template ngFor let-e [ngForOf]="r">
             <td scope="col" *ngIf="e.visible === true" class="clickable" (click)="onCheck(e, $event)"

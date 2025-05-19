@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectBoxComponent } from '../../modals/select-box/select-box.component';
 import { CANCEL, DataListItem, ModalParams } from '../../modals/modal-params';
@@ -12,6 +12,8 @@ import { EndMembersModalComponent } from 'src/app/geo-modelling/end-members-moda
 import { GridItemContextmenuComponent } from '../../modals/grid-item-contextmenu/grid-item-contextmenu.component';
 import { DatasetBySampleComponent } from '../../modals/dataset-by-sample/dataset-by-sample.component';
 import { SampleService } from 'src/app/services/rest/sample.service';
+
+const ALT = 'Alt';
 
 export interface GridItemInfo {
   um?: string;
@@ -69,22 +71,35 @@ const GRID_LOOP = '_GRID_LOOP_';
   styleUrls: ['./grid.component.scss']
 })
 export class GridComponent implements OnInit, OnDestroy, OnChanges {
-  // @HostListener("contextmenu", ["$event"])
-  //  onRightClick(event: any) {
-  //   event.preventDefault();
-  //   console.log(event);
-  //  }
+  @HostListener('body:keydown', ['$event'])
+  manageKeyDown(event: any) {
+    // console.log(event);
+    event.preventDefault();
+    if (event.key === ALT) {
+      this.AltKey = 1;
+    }
+    // console.log(event);
+  }
+
+  @HostListener('body:keyup', ['$event'])
+  manageKeyUp(event: any) {
+    // console.log(event);
+    event.preventDefault();
+    if (event.key === ALT) {
+      this.AltKey = 0;
+    }
+    // console.log(event);
+  }
+
   @Input() gridContent: Array<Array<string>> | undefined;
   public dataset: Array<Array<string>> | undefined;
   public gridHeader = new Array<GridItem>();
   public selectedCols = new Array<number>();
   public selectedRowsIndex = new Array<number>();
   private originalHeader = new Array<string>();
-  // public selectedRows = new Array<Array<GridItem>>(); 
   public gridCols = new Array<Array<GridItem>>();
   public gridRows = new Array<Array<GridItem>>();
   public screenRows = new Array<Array<GridItem>>();
-  // public gridCacheCols = new Array<Array<GridItem>>();
   public gridCacheRows = new Array<Array<GridItem>>();
   public tableOn = false;
   public deleteFlag = false;
@@ -92,6 +107,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   private subClose: Subscription | any;
   private ref: any;
   @ViewChild('maingrid') authlist: ElementRef | undefined;
+  @ViewChild('gridbody') gridbody: ElementRef | undefined;
   public limit = 60;
   public index = 0;
   public table = new Array<Array<string>>();
@@ -100,6 +116,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public spinDeselect = false;
   private firstSelection = 0;
   private nClick = 0;
+  private AltKey = 0;
 
   constructor(private modalService: NgbModal,
     private sampleService: SampleService,
@@ -283,8 +300,8 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   public onCheck(gi: GridItem, event: any) {
     event.preventDefault();
-    // console.log(event);
-    if (!event.altKey) {
+    console.log(event);
+    if (this.AltKey === 0) {
       this.checkSelection(gi);
     } else {
       this.checkShiftSelection(gi);
