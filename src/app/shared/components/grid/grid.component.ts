@@ -114,7 +114,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public downOk = true;
   public spinSelect = false;
   public spinDeselect = false;
-  private firstSelection = 0;
+  private firstSelection = -1;
   private nClick = 0;
   private AltKey = 0;
 
@@ -300,12 +300,51 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   public onCheck(gi: GridItem, event: any) {
     event.preventDefault();
-    console.log(event);
+    // console.log('this.AltKey = ' + this.AltKey);
     if (this.AltKey === 0) {
       this.checkSelection(gi);
     } else {
-      this.checkShiftSelection(gi);
+      this.checkAltSelection(gi);
+      // this.checkShiftSelection(gi);
     }
+  }
+
+  private checkAltSelection(gi: GridItem) {
+    // this.firstSelection = -1;    
+    this.tableOn = false;
+    if (this.selectedRowsIndex.length > 0)
+      this.firstSelection = this.selectedRowsIndex[this.selectedRowsIndex.length - 1];
+    
+    this.selectedRowsIndex.push(gi.row);
+    if (this.firstSelection < 0) {
+      this.firstSelection = gi.row;
+      for (let j = 0; j < this.gridRows[gi.row].length; j++) {
+        this.gridRows[gi.row][j].selected = true;
+      }
+      return;      
+    }
+
+    if (gi.row > this.firstSelection) {
+      for (let i = this.firstSelection + 1; i <= gi.row; i++) {
+        if (!this.gridRows[i][0].visible)
+          continue;
+        this.selectedRowsIndex.push(i);
+        for (let j = 0; j < this.gridRows[i].length; j++) {
+          this.gridRows[i][j].selected = true;
+        }
+      }
+    } else {
+      for (let i = this.firstSelection - 1; i >= gi.row; i--) {
+        if (!this.gridRows[i][0].visible)
+          continue;
+        this.selectedRowsIndex.push(i);
+        for (let j = 0; j < this.gridRows[i].length; j++) {
+          this.gridRows[i][j].selected = true;
+        }
+      }
+    }
+
+    this.tableOn = true;
   }
 
   private checkShiftSelection(gi: GridItem) {
