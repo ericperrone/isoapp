@@ -311,24 +311,30 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   private checkAltSelection(gi: GridItem) {
     // this.firstSelection = -1;    
+    console.log(this.selectedRowsIndex);
     this.tableOn = false;
     if (this.selectedRowsIndex.length > 0)
       this.firstSelection = this.selectedRowsIndex[this.selectedRowsIndex.length - 1];
+
+    if (this.selectedRowsIndex.every((currentValue) => currentValue != gi.row))
+      this.selectedRowsIndex.push(gi.row);
     
-    this.selectedRowsIndex.push(gi.row);
     if (this.firstSelection < 0) {
       this.firstSelection = gi.row;
       for (let j = 0; j < this.gridRows[gi.row].length; j++) {
         this.gridRows[gi.row][j].selected = true;
       }
-      return;      
+      console.log(this.selectedRowsIndex);
+      this.tableOn = true;
+      return;
     }
 
     if (gi.row > this.firstSelection) {
       for (let i = this.firstSelection + 1; i <= gi.row; i++) {
         if (!this.gridRows[i][0].visible)
           continue;
-        this.selectedRowsIndex.push(i);
+        if (this.selectedRowsIndex.every((currentValue) => currentValue != i))
+          this.selectedRowsIndex.push(i);
         for (let j = 0; j < this.gridRows[i].length; j++) {
           this.gridRows[i][j].selected = true;
         }
@@ -337,76 +343,59 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       for (let i = this.firstSelection - 1; i >= gi.row; i--) {
         if (!this.gridRows[i][0].visible)
           continue;
-        this.selectedRowsIndex.push(i);
+        if (this.selectedRowsIndex.every((currentValue) => currentValue != i))
+          this.selectedRowsIndex.push(i);
         for (let j = 0; j < this.gridRows[i].length; j++) {
           this.gridRows[i][j].selected = true;
         }
       }
     }
-
-    this.tableOn = true;
-  }
-
-  private checkShiftSelection(gi: GridItem) {
-    this.tableOn = false;
-    this.nClick++;
-    switch (this.nClick) {
-      case 1:
-        this.selectedRowsIndex.push(gi.row);
-        this.firstSelection = gi.row;
-        for (let j = 0; j < this.gridRows[gi.row].length; j++) {
-          this.gridRows[gi.row][j].selected = true;
-        }
-        break;
-      case 2:
-        this.nClick = 0;
-        if (gi.row > this.firstSelection) {
-          for (let i = this.firstSelection + 1; i <= gi.row; i++) {
-            if (!this.gridRows[i][0].visible)
-              continue;
-            this.selectedRowsIndex.push(i);
-            for (let j = 0; j < this.gridRows[i].length; j++) {
-              this.gridRows[i][j].selected = true;
-            }
-          }
-        } else {
-          for (let i = this.firstSelection - 1; i >= gi.row; i--) {
-            if (!this.gridRows[i][0].visible)
-              continue;
-            this.selectedRowsIndex.push(i);
-            for (let j = 0; j < this.gridRows[i].length; j++) {
-              this.gridRows[i][j].selected = true;
-            }
-          }
-        }
-        break;
-    }
+    console.log(this.selectedRowsIndex);
     this.tableOn = true;
   }
 
   private checkSelection(gi: GridItem) {
-    let found = -1;
-
-    for (let i = 0; i < this.selectedRowsIndex.length; i++) {
-      if (this.selectedRowsIndex[i] === gi.row) {
-        found = i;
-        break;
-      }
-    }
-
+    // let found = -1;
+    // console.log('checkSelection: start');
+    // console.log(this.selectedRowsIndex);
     this.tableOn = false;
-    if (found < 0) {
+    if (true == this.selectedRowsIndex.every((currentValue) => currentValue != gi.row)) {
       this.selectedRowsIndex.push(gi.row);
       for (let i = 0; i < this.gridRows[gi.row].length; i++) {
         this.gridRows[gi.row][i].selected = true;
       }
     } else {
-      this.selectedRowsIndex.splice(found, 1);
+      this.selectedRowsIndex.splice(this.selectedRowsIndex.indexOf(gi.row), 1);
       for (let i = 0; i < this.gridRows[gi.row].length; i++) {
         this.gridRows[gi.row][i].selected = false;
       }
     }
+
+    // for (let i = 0; i < this.selectedRowsIndex.length; i++) {
+    //   if (this.selectedRowsIndex[i] === gi.row) {
+    //     found = i;
+    //     break;
+    //   }
+    // }
+
+    // this.tableOn = false;
+    // if (found < 0) {
+    //   if (this.selectedRowsIndex.every((currentValue) => currentValue != gi.row))
+    //     this.selectedRowsIndex.push(gi.row);
+    //   for (let i = 0; i < this.gridRows[gi.row].length; i++) {
+    //     this.gridRows[gi.row][i].selected = true;
+    //   }
+    // } else {
+    //   this.selectedRowsIndex.splice(found, 1);
+    //   for (let i = 0; i < this.gridRows[gi.row].length; i++) {
+    //     this.gridRows[gi.row][i].selected = false;
+    //   }
+    // }
     this.tableOn = true;
+    // console.log('checkSelection: end');
+    // console.log(this.selectedRowsIndex);
+
+
     // console.log(this.selectedRowsIndex);
   }
 
@@ -447,7 +436,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.spinSelect = false;
     this.tableOn = true;
-    console.log(this.selectedRowsIndex);
+    // console.log(this.selectedRowsIndex);
   }
 
   public deselectAll(): void {
@@ -465,6 +454,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
       this.screenRows[i] = this.gridCacheRows[i];
     }
     this.spinDeselect = false;
+    this.firstSelection = -1;
     this.tableOn = true;
   }
 
