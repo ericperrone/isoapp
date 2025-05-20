@@ -18,15 +18,28 @@
     <div class="centered w95 h50 scrollable" *ngIf="sampleDef.length > 0 && ums.length > 0">
         <table cellspacing="1" class="centered">
             <tr *ngFor="let s of sampleDef">
-                <td width="25%" *ngIf="template === false"><span #fields class="rounded"
+                <td width="20%" *ngIf="template === false"><span #fields class="rounded"
                         [style.background-color]="styles[s.item]">{{ s.item }}</span></td>
-                <td width="25%" style="text-align: center;" *ngIf="template === false">
+                <td width="30%" style="text-align: center;" *ngIf="template === false">
                     <div *ngIf="s.type === ST.CHEM">
                         <label style="display: inline; margin-right: 0.5em;">Unit</label>
                         <select style="max-width: 7em !important; display: inline;" class="form-select"
                             [(ngModel)]="s.um">
                             <option *ngFor="let um of ums" [value]="um">{{ um }}</option>
                         </select>
+                    </div>
+                    <div *ngIf="s.type === ST.ISOTOPE" class="row">
+                        <div class="col-sm-12 col-md-6">
+                            <label style="display: inline; margin-right: 0.5em;">Error</label>
+                            <input type="number" class="form-control" [(ngModel)]="s.error" style="max-width: 6em !important; display: inline;">
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <!-- <label style="display: inline; margin-right: 0.5em;">Type</label> -->
+                            <select style="max-width: 7em !important;" class="form-select"
+                                [(ngModel)]="s.utype">
+                                <option *ngFor="let ut of uTypes" [value]="ut">{{ ut }}</option>
+                            </select>
+                        </div>
                     </div>
                 </td>
                 <td width="50%" *ngIf="template === true"><span #fields class="rounded"

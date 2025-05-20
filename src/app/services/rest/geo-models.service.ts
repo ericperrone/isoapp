@@ -93,6 +93,14 @@ export class GeoModelsService extends Rest {
     ), catchError(this.handleError));   
   }
 
+  public getUncertaintyType(): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-uncertainty-type').pipe(map(
+      (res: any) => {
+        return res;
+      }
+    ), catchError(this.handleError));   
+  }
+
   public checkUm(s: string, ums: Array<string>): string {
     let iums = [...ums];
     let is = s.toLowerCase().trim();

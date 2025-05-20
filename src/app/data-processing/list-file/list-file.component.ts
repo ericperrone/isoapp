@@ -11,6 +11,7 @@ import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
 import { ModalParams, DataListItem, CONFIRM } from 'src/app/shared/modals/modal-params';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { SelectBoxComponent } from 'src/app/shared/modals/select-box/select-box.component';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -30,6 +31,7 @@ export class ListFileComponent implements OnInit {
   public datasets = null;
   public spinnerOn = false;
   public selected = '';
+  public serviceUrl = environment.be.protocol + '://' + environment.be.server + '/' + environment.be.basedir;
 
   constructor(private router: Router,
     private datasetService: DatasetService,
@@ -140,6 +142,12 @@ export class ListFileComponent implements OnInit {
     });
   }
 
+  public download(file: string) {
+    let s = this.datasetService.download(file).subscribe(
+      () => s.unsubscribe()
+    );
+  }
+
   public processFile(dataset: Dataset): void {
     if (!!this.selected && this.selected === dataset.fileName) {
       this.selected = '';
@@ -150,7 +158,7 @@ export class ListFileComponent implements OnInit {
     session.selectedFile = this.selected;
     session.selectedDataset = dataset;
     this.storeService.push({ key: DATA_GATHERING, data: session });
-    console.log(session);
+    // console.log(session);
   }
 
   public goNext(): void {

@@ -160,6 +160,10 @@ export class DatasetService extends Rest {
     );
   }
 
+  public download(file: string): Observable<any> {
+    return this.http.get(this.serviceUrl + 'get-file-link/' + file);
+  }
+
   public closeDataset(data: any): Observable<any> {
     data.processed = false;
     // let payload = {

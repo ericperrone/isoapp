@@ -22,6 +22,8 @@ export interface SampleItem {
   item: string;
   type: SampleType;
   um?: string;
+  utype?: string;
+  error?: number;
 }
 
 @Component({
@@ -47,6 +49,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
   private subscription: Subscription | undefined;
   public buttonEnabled = false;
   public ums = new Array<string>();
+  public uTypes = new Array<string>();
   public template = false;
 
   constructor(private router: Router,
@@ -80,13 +83,23 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
     let s = this.geoModelService.getConversionTable().subscribe(
       (res: any) => {
         this.ums.push('');
-        // console.log(res);
         for (let r of res) {
           this.ums.push(r.um);
         }
-        this.row = this.cleanRow(this.session);
-        this.loadComponents();
-        this.initStyles();
+        s.unsubscribe();
+        let r = this.geoModelService.getUncertaintyType().subscribe(
+          (res: any) => {
+            console.log(res);
+            this.uTypes.push('');
+            for (let r of res) {
+              this.uTypes.push(r);
+            }
+            r.unsubscribe();
+            this.row = this.cleanRow(this.session);
+            this.loadComponents();
+            this.initStyles();
+          }
+        );
       }
     );
   }
