@@ -14,6 +14,8 @@ export interface Col {
   col: number;
   type: SampleType;
   um?: string;
+  utype?: string;
+  error?: number;
 }
 
 export enum SampleType { FIELD = 1, CHEM, ISOTOPE, NONE };
@@ -183,7 +185,6 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
 
   public updateSamples() {
     if (!!this.session) {
-      console.log(this.session);
       this.session.fields = new Array<string>();
       this.session.chems = new Array<string>();
       this.session.isotopes = new Array<string>();
@@ -200,6 +201,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
             break;
         }
       }
+      console.log(this.session);
     }
   }
 
@@ -209,7 +211,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
       for (let i = 0; i < this.session.header.length; i++) {
         for (let sd of this.sampleDef) {
           if (sd.item === this.session.header[i]) {
-            headerCols.push({ name: sd.item, col: i, type: sd.type, um: sd.um });
+            headerCols.push({ name: sd.item, col: i, type: sd.type, um: sd.um, error: sd.error, utype: sd.utype });
             break;
           }
         }
@@ -262,7 +264,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
                   break;
                 case SampleType.ISOTOPE:
                   previousHc = hc;
-                  sample.components.push({ component: hc.name, value: element, isIsotope: true });
+                  sample.components.push({ component: hc.name, value: element, isIsotope: true, uncertainty: hc.error, uncertaintyType: hc.utype });
                   break;
               }
               break;
