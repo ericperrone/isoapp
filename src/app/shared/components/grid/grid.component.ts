@@ -74,7 +74,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   @HostListener('body:keydown', ['$event'])
   manageKeyDown(event: any) {
     // console.log(event);
-    event.preventDefault();
+    // event.preventDefault();
     if (event.key === ALT) {
       this.AltKey = 1;
     }
@@ -84,7 +84,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   @HostListener('body:keyup', ['$event'])
   manageKeyUp(event: any) {
     // console.log(event);
-    event.preventDefault();
+    // event.preventDefault();
     if (event.key === ALT) {
       this.AltKey = 0;
     }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StoreService } from 'src/app/services/common/store.service';
 import { Sample } from 'src/app/models/sample';
-import { Dataset } from 'src/app/models/dataset';
+import { Dataset, DatasetCache } from 'src/app/models/dataset';
 
 export const DATA_GATHERING = '_data_gathering_';
 export interface DataGatheringSession {
@@ -18,6 +18,7 @@ export interface DataGatheringSession {
   fields?: Array<string>;
   chems?: Array<string>;
   isotopes?: Array<string>;
+  cache?: Array<DatasetCache>;
 }
 
 @Component({

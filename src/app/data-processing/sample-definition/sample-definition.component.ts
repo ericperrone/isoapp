@@ -8,6 +8,8 @@ import { trigger, style, animate, transition } from '@angular/animations';
 import { checkChemElement, checkField, checkIsotope, isItinerisTemplate, ITINERIS_RESERVED } from 'src/app/shared/const';
 import { Subscription } from 'rxjs';
 import { GeoModelsService } from 'src/app/services/rest/geo-models.service';
+import { DatasetService } from 'src/app/services/rest/dataset.service';
+import { DatasetCache } from 'src/app/models/dataset';
 
 export interface Col {
   name: string;
@@ -26,6 +28,7 @@ export interface SampleItem {
   um?: string;
   utype?: string;
   error?: number;
+  technique?: string;
 }
 
 @Component({
@@ -55,6 +58,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
   public template = false;
 
   constructor(private router: Router,
+    private datasetService: DatasetService,
     private geoModelService: GeoModelsService,
     private storeService: StoreService) {
     super();
@@ -63,15 +67,41 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
 
   ngOnInit(): void {
     let session: DataGatheringSession = this.storeService.get(DATA_GATHERING);
-    // console.log(session);
-    if (!session || !session.header) {
-      this.router.navigate(['main-data-processing']);
-    } else {
-      this.session = session;
-      console.log(session.header);
-      this.template = isItinerisTemplate(session.header);
-      this.loadUms();
+    console.log(session);
+    if (!!session.selectedDataset && !!session.selectedDataset.id) {
+      let s = this.datasetService.getCache(session.selectedDataset.id).subscribe(
+        (res: any) => {
+          console.log(res);
+          s.unsubscribe();
+          
+          if (!!res) {
+            this.sampleDef = new Array<SampleItem>();
+            for (let r of res) {
+              this.sampleDef.push(
+                {
+                  item: r.fieldName,
+                  type: parseInt(r.fieldType),
+                  um: r.um,
+                  error: r.error,
+                  utype: r.errorType,
+                  technique: r.technique
+                }
+              );
+            }
+            console.log(this.sampleDef);
+          }
+          if (!session || !session.header) {
+            this.router.navigate(['main-data-processing']);
+          } else {
+            this.session = session;
+            console.log(session.header);
+            this.template = isItinerisTemplate(session.header);
+            this.loadUms();
+          }
+        }
+      );
     }
+
   }
 
   ngOnDestroy(): void {
@@ -98,7 +128,8 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
             }
             r.unsubscribe();
             this.row = this.cleanRow(this.session);
-            this.loadComponents();
+            if (!this.sampleDef || this.sampleDef.length == 0)
+              this.loadComponents();  
             this.initStyles();
           }
         );
@@ -184,11 +215,14 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
   }
 
   public updateSamples() {
-    if (!!this.session) {
+    if (!!this.session && !!this.session.selectedDataset && !!this.session.selectedDataset.id) {
+      let cache = new Array<DatasetCache>();
       this.session.fields = new Array<string>();
       this.session.chems = new Array<string>();
       this.session.isotopes = new Array<string>();
       for (let s of this.sampleDef) {
+        cache.push({datasetid: this.session.selectedDataset.id, fieldname: s.item, fieldtype: '' + s.type, um: s.um, error: s.error, errortype: s.utype});
+
         switch (s.type) {
           case SampleType.FIELD:
             this.session.fields.push(s.item);
@@ -200,12 +234,18 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
             this.session.isotopes.push(s.item);
             break;
         }
+        console.log(s);
+        
       }
       console.log(this.session);
+      let s = this.datasetService.pushCache(cache).subscribe(
+        () => s.unsubscribe()
+      );
     }
   }
 
   private buildPayload(): void {
+    console.log(this.sampleDef);
     if (!!this.session.header && !!this.session.content) {
       let headerCols = new Array<Col>();
       for (let i = 0; i < this.session.header.length; i++) {

@@ -73,6 +73,7 @@ import { EndMembersModalComponent } from './geo-modelling/end-members-modal/end-
 import { MixingChartComponent } from './geo-modelling/mixing-chart/mixing-chart.component';
 import { GridItemContextmenuComponent } from './shared/modals/grid-item-contextmenu/grid-item-contextmenu.component';
 import { DatasetBySampleComponent } from './shared/modals/dataset-by-sample/dataset-by-sample.component';
+import { DatasetModalComponent } from './data-processing/dataset-modal/dataset-modal.component';
 
 
 @NgModule({
@@ -138,6 +139,7 @@ import { DatasetBySampleComponent } from './shared/modals/dataset-by-sample/data
     MixingChartComponent,
     GridItemContextmenuComponent,
     DatasetBySampleComponent,
+    DatasetModalComponent,
   ],
   imports: [
     BrowserModule,

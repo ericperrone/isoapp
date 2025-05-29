@@ -4,11 +4,11 @@
 <div class="modal-body">
     <div class="form-group row">
         <div class="col-5 mr-0">
-            <input list="authlist" type="text" class="form-control" id="auth" placeholder="Enter surname" [(ngModel)]="surname" (ngModelChange)="getAuthors()">
+            <input list="authlist" type="text" class="form-control" placeholder="Enter surname" [(ngModel)]="surname" (ngModelChange)="getAuthors()">
             <datalist #authlist id="authlist"></datalist>
         </div>
         <div class="col-5 mr-0">
-            <input type="text" class="form-control" id="auth" placeholder="Enter name" [(ngModel)]="name">
+            <input type="text" class="form-control" placeholder="Enter name" [(ngModel)]="name">
         </div>
         <div class="col-2 ml-0">
             <i class="clickable fa-solid fa-circle-plus mt-plus data-gathering-arrows" (click)="addAuthor()"></i>

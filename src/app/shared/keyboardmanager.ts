@@ -7,7 +7,7 @@ export class KeyboardManager {
     constructor() { }
 
     public listen(eventName?: string): Observable<any> {
-        return fromEvent(window, eventName ? eventName : KEYUP)
+        return fromEvent(document, eventName ? eventName : KEYUP)
             .pipe(
                 map((event: any) => { return event.key })
             );

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Rest } from './rest';
 import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
-import { Dataset, DatesetFullLink } from 'src/app/models/dataset';
+import { Dataset, DatasetCache, DatesetFullLink } from 'src/app/models/dataset';
 import { CACHE_LINKS, CACHE_YEARS } from 'src/app/shared/const';
 import { StoreService } from '../common/store.service';
 
@@ -78,7 +78,17 @@ export class DatasetService extends Rest {
         if (!!res) {
           // console.log(res);
           for (let r of res) {
-            datasetList.push(r);
+            let d: Dataset = {
+              id: r.id,
+              ref: r.link,
+              authors: r.authors,
+              keywords: r.keywords,
+              fileName: r.fileName,
+              processed: r.processed,
+              year: r.year,
+              metadata: r.metadata
+            }
+            datasetList.push(d);
           }
         }
         return datasetList;
@@ -109,7 +119,26 @@ export class DatasetService extends Rest {
       }
     ),
       catchError(this.handleError)
-    );    
+    );
+  }
+
+  public getCache(datasetId: number): Observable<any> {
+    let endPoint = this.serviceUrl + 'getCache?datasetid=' + datasetId;
+    return this.http.get(endPoint).pipe(
+      map(
+        (res: any) => {
+          if (!!res) {
+            return res.data;
+          }
+        }),
+      catchError(this.handleError)
+    );
+  }
+
+  public pushCache(data: Array<DatasetCache>): Observable<any> {
+    let endPoint = this.serviceUrl + 'pushCache';
+    let payload = { cache: data };
+    return this.http.post(endPoint, payload);
   }
 
   public getLinksFull(): Observable<any> {
@@ -138,6 +167,21 @@ export class DatasetService extends Rest {
       dataset: data
     };
     return this.http.post(this.serviceUrl + 'insert-dataset', payload).pipe(map(
+      (res: any) => {
+        if (res.status && res.status === 'success') {
+          return data;
+        }
+      }
+    ),
+      catchError(this.handleError)
+    );
+  }
+
+  public updateDataset(data: any): Observable<any> {
+    let payload = {
+      dataset: data
+    };
+    return this.http.put(this.serviceUrl + 'update-dataset', payload).pipe(map(
       (res: any) => {
         if (res.status && res.status === 'success') {
           return data;
@@ -192,4 +236,5 @@ export class DatasetService extends Rest {
 
     return this.http.request(req);
   }
+
 }

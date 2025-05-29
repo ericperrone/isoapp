@@ -7,12 +7,11 @@ import { Dataset } from 'src/app/models/dataset';
 import { trigger, style, animate, transition } from '@angular/animations';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploaderComponent } from 'src/app/shared/modals/file-uploader/file-uploader.component';
-import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
-import { ModalParams, DataListItem, CONFIRM } from 'src/app/shared/modals/modal-params';
+import { ModalParams, CONFIRM } from 'src/app/shared/modals/modal-params';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { SelectBoxComponent } from 'src/app/shared/modals/select-box/select-box.component';
 import { environment } from 'src/environments/environment';
-
+import { DatasetModalComponent } from '../dataset-modal/dataset-modal.component';
 
 @Component({
   selector: 'app-list-file',
@@ -68,18 +67,22 @@ export class ListFileComponent implements OnInit {
   }
 
   public showInfo(dataset: Dataset): void {
-    let listInfo = new Array<DataListItem>();
-    listInfo.push({ key: 'fileName', value: dataset.fileName });
-    listInfo.push({ key: 'keywords', value: dataset.keywords });
-    listInfo.push({ key: 'link', value: dataset.ref });
-    listInfo.push({ key: 'authors', value: dataset.authors });
-    listInfo.push({ key: 'year', value: '' + dataset.year });
-    let params: ModalParams = {
-      headerText: 'Dataset info',
-      list: listInfo
-    };
-    let ref = this.modalService.open(AlertComponent, { centered: true });
-    ref.componentInstance.params = params;
+    // let listInfo = new Array<DataListItem>();
+    // listInfo.push({ key: 'fileName', value: dataset.fileName });
+    // listInfo.push({ key: 'keywords', value: dataset.keywords });
+    // listInfo.push({ key: 'link', value: dataset.ref });
+    // listInfo.push({ key: 'authors', value: dataset.authors });
+    // listInfo.push({ key: 'year', value: '' + dataset.year });
+    // let params: ModalParams = {
+    //   headerText: 'Dataset info',
+    //   list: listInfo
+    // };
+    // let ref = this.modalService.open(AlertComponent, { centered: true });
+    // ref.componentInstance.params = params;
+    // ref.componentInstance.emitter.subscribe(() => ref.close());
+
+    let ref = this.modalService.open(DatasetModalComponent, { centered: true, size: 'lg' });
+    ref.componentInstance.params = dataset;
     ref.componentInstance.emitter.subscribe(() => ref.close());
   }
 
@@ -112,7 +115,7 @@ export class ListFileComponent implements OnInit {
   }
 
   public uploadFile(): void {
-    let ref = this.modalService.open(FileUploaderComponent, { centered: true, size:  'lg'});
+    let ref = this.modalService.open(FileUploaderComponent, { centered: true, size: 'lg' });
     ref.componentInstance.emitter.subscribe(
       (response: string) => {
         ref.close();
@@ -126,7 +129,7 @@ export class ListFileComponent implements OnInit {
   public externalSites(): void {
     let ref = this.modalService.open(SelectBoxComponent, { centered: true });
     let choices = [{ text: 'GEOROC', value: 1, color: 'blue' }];
-    ref.componentInstance.params = { bodyText: 'Available external sites:', choices:  choices};
+    ref.componentInstance.params = { bodyText: 'Available external sites:', choices: choices };
     ref.componentInstance.emitter.subscribe(
       (response: number) => {
         ref.close();
@@ -139,7 +142,7 @@ export class ListFileComponent implements OnInit {
             break;
         }
         ref.componentInstance.emitter.unsubscribe();
-    });
+      });
   }
 
   public download(file: string) {
