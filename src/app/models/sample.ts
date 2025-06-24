@@ -6,6 +6,7 @@ export interface ChemComponent {
     uncertainty?: number;
     uncertaintyType?: string;
     technique?: string;
+    refstd?: string;
 }
 
 export interface SampleElement {

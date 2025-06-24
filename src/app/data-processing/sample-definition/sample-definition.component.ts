@@ -73,7 +73,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
         (res: any) => {
           console.log(res);
           s.unsubscribe();
-          
+
           if (!!res) {
             this.sampleDef = new Array<SampleItem>();
             for (let r of res) {
@@ -129,7 +129,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
             r.unsubscribe();
             this.row = this.cleanRow(this.session);
             if (!this.sampleDef || this.sampleDef.length == 0)
-              this.loadComponents();  
+              this.loadComponents();
             this.initStyles();
           }
         );
@@ -221,7 +221,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
       this.session.chems = new Array<string>();
       this.session.isotopes = new Array<string>();
       for (let s of this.sampleDef) {
-        cache.push({datasetid: this.session.selectedDataset.id, fieldname: s.item, fieldtype: '' + s.type, um: s.um, error: s.error, errortype: s.utype});
+        cache.push({ datasetid: this.session.selectedDataset.id, fieldname: s.item, fieldtype: '' + s.type, um: s.um, error: s.error, errortype: s.utype });
 
         switch (s.type) {
           case SampleType.FIELD:
@@ -235,7 +235,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
             break;
         }
         console.log(s);
-        
+
       }
       console.log(this.session);
       let s = this.datasetService.pushCache(cache).subscribe(
@@ -273,6 +273,7 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
                     previousHc = hc;
                   } else {
                     let key = hc.name.toLowerCase().trim();
+                    key = key.replace(/ /g, '');
                     // let previousHc = headerCols[k - 1];
                     switch (key) {
                       case 'unit':
@@ -290,9 +291,17 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
                           sample.components[sample.components.length - 1].uncertainty = parseFloat(element);
                         }
                         break;
-                      case 'type of uncertainty':
+                      case 'typeofuncertainty':
                         if (previousHc.type === SampleType.ISOTOPE || previousHc.type === SampleType.CHEM) {
                           sample.components[sample.components.length - 1].uncertaintyType = element;
+                        }
+                        break;
+                      case 'ref.std.':
+                      case 'ref.std':
+                      case 'refstd':
+                      case 'refstd.':
+                        if (previousHc.type === SampleType.ISOTOPE || previousHc.type === SampleType.CHEM) {
+                          sample.components[sample.components.length - 1].refstd = element;
                         }
                         break;
                     }
@@ -320,8 +329,10 @@ export class SampleDefinitionComponent extends DataGathering implements OnInit, 
   }
 
   private checkItinerisReserved(key: string): boolean {
+    let k = key.toLowerCase().trim();
+    k = k.replace(/ /g, '');
     for (let r of ITINERIS_RESERVED) {
-      if (key.toLowerCase().trim() === r)
+      if (k === r)
         return true;
     }
     return false;

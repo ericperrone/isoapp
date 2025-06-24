@@ -23,6 +23,7 @@ export interface SampleAttributeItem {
   technique?: string;
   uncertainty?: string;
   uncertaintyType?: string;
+  refstd?: string;
 }
 
 @Injectable({
@@ -39,7 +40,8 @@ export class SampleService extends Rest {
         console.log(res);
         if (!!res) {
           return (
-            { id: res.sampleId, name: res.name, value: res.nvalue, um: res.um, technique: res.technique, uncertainty: res.uncertainty, uncertaintyType: res.uncertaintyType }
+            { id: res.sampleId, name: res.name, value: res.nvalue, um: res.um, technique: res.technique, 
+              uncertainty: res.uncertainty, uncertaintyType: res.uncertaintyType, refstd: res.refstd }
           );
         } else {
           return (
@@ -208,7 +210,6 @@ export class SampleService extends Rest {
       catchError(this.handleError)
     );
   }
-
 
   public mainQuery(filter: QueryFilter): Observable<any> {
     let url = this.serviceUrl + 'query?1=1';

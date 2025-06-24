@@ -15,6 +15,7 @@ export class GridItemContextmenuComponent implements OnInit {
   public technique = '';
   public uncertainty = '';
   public uncertaintyType = '';
+  public refstd = '';
   public id = 0;
 
   constructor(private sampleService: SampleService) { }
@@ -30,6 +31,7 @@ export class GridItemContextmenuComponent implements OnInit {
           this.technique = res.technique ? res.technique : '';
           this.uncertainty = res.uncertainty ? res.uncertainty : '';
           this.uncertaintyType = res.uncertaintyType ? res.uncertaintyType : '';
+          this.refstd = res.refstd ? res.refstd : '';
         }
       }
     );

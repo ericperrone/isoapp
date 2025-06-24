@@ -323,7 +323,7 @@ export const FIELDS = [
 ];
 
 export const ITINERIS_RESERVED = [
-    'uncertainty', 'technique', 'unit', 'type of uncertainty'
+    'uncertainty', 'technique', 'unit', 'typeofuncertainty', 'ref.std.', 'ref.std', 'refstd.', 'refstd'
 ];
 
 export const CACHE_AUTH = '_CACHE_AUTH_';
