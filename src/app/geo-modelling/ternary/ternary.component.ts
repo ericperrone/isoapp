@@ -378,14 +378,14 @@ export class TernaryComponent implements OnInit {
                 abc.a /= parseFloat(m.value);
             } else if (m.name === this.vertices2[1]) {
               if (this.operators[1] == 1)
-                abc.a += parseFloat(m.value);
+                abc.b += parseFloat(m.value);
               else if (this.operators[1] == 2 && 0 !== parseFloat(m.value))
-                abc.a /= parseFloat(m.value);
+                abc.b /= parseFloat(m.value);
             } else if (m.name === this.vertices2[2]) {
               if (this.operators[2] == 1)
-                abc.a += parseFloat(m.value);
+                abc.c += parseFloat(m.value);
               else if (this.operators[2] == 2 && 0 !== parseFloat(m.value))
-                abc.a /= parseFloat(m.value);
+                abc.c /= parseFloat(m.value);
             }
           }
         }

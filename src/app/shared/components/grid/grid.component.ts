@@ -651,7 +651,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public manualMix(): void {
-    let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'lg', scrollable: true });
+    let ref = this.modalService.open(EndMembersModalComponent, { centered: true, size: 'xl', scrollable: true });
     ref.componentInstance.emitter.subscribe(
       () => ref.close()
     );

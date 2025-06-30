@@ -14,7 +14,7 @@
         <div *ngFor="let em of endMembers; index as i ">
             <div class="row">
                 <div class="col-sm-12 col-md-6">
-                    <label><span style="font-weight: bold; color: blue;">Sample name</span></label>
+                    <label><span style="font-weight: bold; color: blue;">Sample name</span> {{ '( ' + labels[i] + ' )'}}</label>
                     <input type="text" class="form-control" id="samplename" placeholder="Sample name"
                         [(ngModel)]="em.sampleName" [disabled]="i > 1 && !include">
                 </div>
@@ -26,7 +26,7 @@
 
             <div class="row" style="margin-bottom: 0.5em;">
                 <div class="col-sm-12 col-md-4">
-                    <label>Element</label>
+                    <label>Element/Isotope ratio</label>
                     <input type="text" class="form-control" [(ngModel)]="em.items[0].element"
                         (ngModelChange)="setElement(em.items[0].element, 0)" [disabled]="i > 1 && !include">
                 </div>
@@ -36,14 +36,14 @@
                         [disabled]="i > 1 && !include">
                 </div>
                 <div class="col-sm-12 col-md-4">
-                    <label>Element concentration</label>
+                    <label>Elem. concentration (only for isotope ratio)</label>
                     <input type="number" class="form-control" [(ngModel)]="em.items[0].cValue"
                         [disabled]="i > 1 && !include">
                 </div>
             </div>
             <div class="row">
                 <div class="col-sm-12 col-md-4">
-                    <label>Element</label>
+                    <label>Element/Isotope ratio</label>
                     <input type="text" class="form-control" [(ngModel)]="em.items[1].element"
                         (ngModelChange)="setElement(em.items[1].element, 1)" [disabled]="i > 1 && !include">
                 </div>
@@ -53,7 +53,7 @@
                         [disabled]="i > 1 && !include">
                 </div>
                 <div class="col-sm-12 col-md-4">
-                    <label>Element concentration</label>
+                    <label>Elem. concentration (only for isotope ratio)</label>
                     <input type="number" class="form-control" [(ngModel)]="em.items[1].cValue"
                         [disabled]="i > 1 && !include">
                 </div>

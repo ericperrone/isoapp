@@ -42,6 +42,9 @@ export class EndMembersModalComponent implements OnInit {
   public include = false;
   public step = 1;
   private increment = 0.1;
+  public label2 = ['x', 'y', ''];
+  public label3 = ['a', 'b', 'c'];
+  public labels = new Array<string>();
 
   constructor(private storeService: StoreService,
     private eventGeneratorService: EventGeneratorService,
@@ -50,6 +53,7 @@ export class EndMembersModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.storeService.clean(MIX_STORE);
+    this.labels = [...this.label2];
   }
 
   public reset() {
@@ -89,6 +93,9 @@ export class EndMembersModalComponent implements OnInit {
       this.endMembers[2].items[1].value = 0;
       this.endMembers[2].items[0].cValue = 0;
       this.endMembers[2].items[1].cValue = 0;
+      this.labels = [...this.label2];
+    } else {
+      this.labels = [...this.label3];
     }
   }
 
