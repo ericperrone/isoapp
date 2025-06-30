@@ -70,6 +70,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
         }
       }
     )
+    console.log(this.members);
     this.analyzeMembers();
   }
 
@@ -92,6 +93,7 @@ export class EndMemberComponent implements OnInit, OnDestroy {
     if (!!this.members) {
       for (let i = 0; i < this.members?.length; i++) {
         let member = this.members[i];
+        let iid = this.getItinerisId(member);
         for (let m of member) {
           if (m.type === 'F') {
             let sname = m.name.toLowerCase();
@@ -102,7 +104,8 @@ export class EndMemberComponent implements OnInit, OnDestroy {
                   newMember.push(nm);
                 }
               }
-              this.endMembers.push({ name: m.value, member: newMember, multipleSelectionMode: false, maxSelectable: 1 });
+              let name = m.value + ' [' + iid + ']';
+                this.endMembers.push({ name: name, member: newMember, multipleSelectionMode: false, maxSelectable: 1 });
               break;
             }
           }
@@ -110,6 +113,14 @@ export class EndMemberComponent implements OnInit, OnDestroy {
       }
       this.outMember.emit(this.endMembers);
     }
+  }
+
+  private getItinerisId(member: Array<EndMemberItem>): string {
+    for (let m of member) {
+      if (m.type === 'F' && m.name.toUpperCase() === 'ITINERIS_ID')
+        return m.value;
+    }
+    return '';
   }
 
   private getMemberByName(name: string): EndMember {
