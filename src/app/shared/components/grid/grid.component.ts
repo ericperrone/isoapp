@@ -12,6 +12,7 @@ import { EndMembersModalComponent } from 'src/app/geo-modelling/end-members-moda
 import { GridItemContextmenuComponent } from '../../modals/grid-item-contextmenu/grid-item-contextmenu.component';
 import { DatasetBySampleComponent } from '../../modals/dataset-by-sample/dataset-by-sample.component';
 import { SampleService } from 'src/app/services/rest/sample.service';
+import { MergeColumnsService } from 'src/app/services/common/merge-columns.service';
 
 const ALT = 'Alt';
 
@@ -119,6 +120,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   private AltKey = 0;
 
   constructor(private modalService: NgbModal,
+    private mergeService: MergeColumnsService,
     private sampleService: SampleService,
     private eventGeneratorService: EventGeneratorService,
     private geoModelService: GeoModelService) { }
@@ -318,7 +320,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
     if (this.selectedRowsIndex.every((currentValue) => currentValue != gi.row))
       this.selectedRowsIndex.push(gi.row);
-    
+
     if (this.firstSelection < 0) {
       this.firstSelection = gi.row;
       for (let j = 0; j < this.gridRows[gi.row].length; j++) {
@@ -419,6 +421,23 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.tableOn = true;
   }
 
+  public merge(): void {
+    // console.log(this.selectedCols);
+    let cols = new Array<Array<GridItem>>();
+    for (let x of this.selectedCols) {
+      let col = new Array<GridItem>();
+      col.push(this.gridHeader[x]);
+      if (this.gridContent)
+        for (let i = 1; i < this.gridRows.length + 1; i++) {
+          col.push({ header: false, visible: true, selected: false, row: i, col: x, content: this.gridContent[i][x], check: false, type: '' });
+        }
+      cols.push(col);
+    }
+
+    console.log(cols);
+    this.mergeService.open(cols);
+  }
+
   public selectAll(): void {
     this.tableOn = false;
     this.spinSelect = true;
@@ -459,6 +478,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public selectCol(h: GridItem): void {
+    console.log(this.gridRows);
+    console.log(this.gridCols);
+    console.log(this.gridHeader);
+
     this.tableOn = false;
     this.gridHeader[h.col].selected = true;
     for (let e of this.gridCols[h.col]) {

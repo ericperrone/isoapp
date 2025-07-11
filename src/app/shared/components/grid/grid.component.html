@@ -46,6 +46,8 @@
     <button class="btn btn-primary m-1" *ngIf="!spinDeselect" (click)="deselectAll()">Deselect all</button>
     <button class="btn btn-primary m-1" *ngIf="spinDeselect"><i class="fa-solid fa-circle-notch fa-spin"></i> Deselect
       all</button>
+    <button class="btn btn-primary m-1" [disabled]="selectedCols.length <= 1" (click)="merge()">Merge columns</button>
+
     <button class="btn btn-primary m-1" [disabled]="selectedRowsIndex.length <= 0" (click)="use()">Use selected
       data</button>
     <button class="btn btn-primary m-1" [disabled]="deleteFlag === false" (click)="restoreAll()">Restore all</button>
