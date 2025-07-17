@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, EventEmitter } from '@angular/core';
 import { GridItem } from '../grid/grid.component';
 import { CANCEL, CONFIRM } from '../../modals/modal-params';
-import { mergeCols } from '../../tools';
+import { mergeCols, update } from '../../tools';
 
 @Component({
   selector: 'app-merge-columns',
@@ -33,7 +33,7 @@ export class MergeColumnsComponent implements OnInit {
     // this.tabella = this.params.content;
   }
 
-  private initTabella(): void {   
+  private initTabella(): void {
     let RL = this.params.content[0].length
     for (let i = 0; i < RL; i++) {
       let riga = new Array<GridItem>();
@@ -50,7 +50,53 @@ export class MergeColumnsComponent implements OnInit {
   }
 
   public confirm(): void {
+    let nRighe = this.tabella.length;
+    let nColonne = this.tabella[0].length;
+
+    for (let j = 0; j < nColonne; j++) {
+      for (let i = 0; i < nRighe; i++) {
+        this.update(this.tabella[i][j]);
+      }
+    }
+    console.log(this.tabella);
+    console.log(this.params);
+
     this.emitter.emit(CONFIRM);
+  }
+
+  private update(item: GridItem): void {
+    let r = item.row;
+    let c = item.col;
+
+    let X = this.params.content.length;
+    let Y = this.params.content[0].length;
+
+    for (let i = 0; i < X; i++) {
+      for (let j = 0; j < Y; j++) {
+        if (this.params.content[i][j].row == r && this.params.content[i][j].col == c) {
+          this.params.content[i][j].visible = item.visible;
+          this.params.content[i][j].content = item.content;
+        }
+      }
+    }
+    // let element = this.find(r, c);
+    // if (!!element) {
+    //   element = item;
+    // }
+  }
+
+  private find(r: number, c: number): GridItem | undefined {
+    let X = this.params.content.length;
+    let Y = this.params.content[0].length;
+
+    for (let i = 0; i < X; i++) {
+      for (let j = 0; j < Y; j++) {
+        if (this.params.content[i][j].row == r && this.params.content[i][j].col == c)
+          return this.params.content[i][j];
+      }
+    }
+
+    return undefined;
   }
 
   private checkTabella(): void {

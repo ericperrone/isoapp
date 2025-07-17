@@ -116,7 +116,6 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   public spinSelect = false;
   public spinDeselect = false;
   private firstSelection = -1;
-  private nClick = 0;
   private AltKey = 0;
 
   constructor(private modalService: NgbModal,
@@ -152,8 +151,32 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  public redraw(selectedCols: Array<Array<GridItem>>): void {
+    console.log('redraw');
+    console.log(selectedCols);
+    this.tableOn = false;
+
+    for (let s of selectedCols) {
+      for (let r of s) {
+        if (r.header === true) {
+          this.gridHeader[r.col].selected = false;
+          this.gridHeader[r.col].visible = r.visible;
+        } else {
+          this.gridRows[r.row - 1][r.col].selected = false;
+          this.gridRows[r.row - 1][r.col].visible = r.visible;
+          this.gridRows[r.row - 1][r.col].content = r.content;
+        }
+      }
+    }
+
+    this.selectedCols.length = 0;
+
+    setTimeout(() => {
+      this.tableOn = true;
+    }, 100);
+  }
+
   public ngOnChanges(changes: SimpleChanges): void {
-    // console.log(changes);
     this.downOk = true;
     this.dataset = changes['gridContent'].currentValue;
     this.build(changes['gridContent'].currentValue);
@@ -167,7 +190,6 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     this.index = 0;
     this.reset();
 
-    // let header = [ "", ...gridContent[0]];
     this.originalHeader = gridContent[0];
     let header = new Array<string>();
     for (let oh of this.originalHeader) {
@@ -302,12 +324,10 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
 
   public onCheck(gi: GridItem, event: any) {
     event.preventDefault();
-    // console.log('this.AltKey = ' + this.AltKey);
     if (this.AltKey === 0) {
       this.checkSelection(gi);
     } else {
       this.checkAltSelection(gi);
-      // this.checkShiftSelection(gi);
     }
   }
 
@@ -357,9 +377,6 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private checkSelection(gi: GridItem) {
-    // let found = -1;
-    // console.log('checkSelection: start');
-    // console.log(this.selectedRowsIndex);
     this.tableOn = false;
     if (true == this.selectedRowsIndex.every((currentValue) => currentValue != gi.row)) {
       this.selectedRowsIndex.push(gi.row);
@@ -372,33 +389,7 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
         this.gridRows[gi.row][i].selected = false;
       }
     }
-
-    // for (let i = 0; i < this.selectedRowsIndex.length; i++) {
-    //   if (this.selectedRowsIndex[i] === gi.row) {
-    //     found = i;
-    //     break;
-    //   }
-    // }
-
-    // this.tableOn = false;
-    // if (found < 0) {
-    //   if (this.selectedRowsIndex.every((currentValue) => currentValue != gi.row))
-    //     this.selectedRowsIndex.push(gi.row);
-    //   for (let i = 0; i < this.gridRows[gi.row].length; i++) {
-    //     this.gridRows[gi.row][i].selected = true;
-    //   }
-    // } else {
-    //   this.selectedRowsIndex.splice(found, 1);
-    //   for (let i = 0; i < this.gridRows[gi.row].length; i++) {
-    //     this.gridRows[gi.row][i].selected = false;
-    //   }
-    // }
     this.tableOn = true;
-    // console.log('checkSelection: end');
-    // console.log(this.selectedRowsIndex);
-
-
-    // console.log(this.selectedRowsIndex);
   }
 
 
@@ -426,16 +417,18 @@ export class GridComponent implements OnInit, OnDestroy, OnChanges {
     let cols = new Array<Array<GridItem>>();
     for (let x of this.selectedCols) {
       let col = new Array<GridItem>();
-      col.push(this.gridHeader[x]);
+      // col.push(this.gridHeader[x])
+      // col.push({ ...this.gridHeader[x] });
+      col.push({ header: true, visible: true, selected: false, row: 0, col: x, content: this.gridHeader[x].content, check: false, type: this.gridHeader[x].type })
       if (this.gridContent)
         for (let i = 1; i < this.gridRows.length + 1; i++) {
-          col.push({ header: false, visible: true, selected: false, row: i, col: x, content: this.gridContent[i][x], check: false, type: '' });
+         col.push({ header: false, visible: true, selected: false, row: i, col: x, content: this.gridContent[i][x], check: false, type: this.gridHeader[x].type });
         }
       cols.push(col);
     }
 
     console.log(cols);
-    this.mergeService.open(cols);
+    this.mergeService.open(cols, this);
   }
 
   public selectAll(): void {

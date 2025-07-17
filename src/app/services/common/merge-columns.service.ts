@@ -11,12 +11,15 @@ export class MergeColumnsService {
 
   constructor(private modalService: NgbModal) { }
 
-  public open(selectedCols: Array<Array<GridItem>>): void {
+  public open(selectedCols: Array<Array<GridItem>>, caller: any): void {
     this.ref = this.modalService.open(MergeColumnsComponent, { centered: true, backdrop: 'static', size: 'xl' });
     this.ref.componentInstance.params = { content:  selectedCols};
     let s = this.ref.componentInstance.emitter.subscribe(
       (res: any) => {
         console.log(res);
+        if ('confirm' === res) {
+          caller.redraw(selectedCols);
+        }
         this.ref.close();
         s.unsubscribe();
       }

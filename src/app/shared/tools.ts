@@ -101,14 +101,66 @@ export function isEmpty(object: any): boolean {
     return obj === '{}' || obj === 'undefined' || obj === 'null';
 }
 
+export function update(table: Array<Array<GridItem>>, item: GridItem): void {
+    let r = item.row;
+    let c = item.col;
+
+    let element = find(table, r, c);
+    if (!!element) {
+        element = item;
+    }
+}
+
+export function find(table: Array<Array<GridItem>>, r: number, c: number): GridItem | undefined {
+    let X = table.length;
+    let Y = table[0].length;
+
+    for (let i = 0; i < X; i++) {
+        for (let j = 0; j < Y; j++) {
+            if (table[i][j].row == r && table[i][j].col == c)
+                return table[i][j];
+        }
+    }
+
+    return undefined;
+}
+
 export function mergeCols(table: Array<Array<GridItem>>, targetCol: number, tbm: Array<number>): Array<Array<GridItem>> {
-    for (let i of tbm) {
-        for (let r = 1; r < table[0].length; r++) {
-            table[r][i].visible = false;
-            if (table[r][targetCol].content.length == 0) {
-                table[r][targetCol].content = table[r][i].content;
+    let nRighe = table.length;
+    let nColonne = table[0].length;
+    let targetIndex = 0;
+
+    for (let c = 0; c < nColonne; c++) {
+        if (table[0][c].col === targetCol) {
+            targetIndex = c;
+            break;
+        }
+    }
+
+    console.log(targetIndex);
+
+    let srcIndex = new Array<number>();
+    for (let i = 0; i < tbm.length; i++) {
+        for (let c = 0; c < nColonne; c++) {
+            if (table[0][c].col === tbm[i]) {
+                srcIndex.push(c);
+                break;
+            }
+        }
+        console.log(srcIndex);
+    }
+
+    for (let c of srcIndex) {
+        for (let r = 0; r < nRighe; r++) {
+            table[r][c].visible = false;
+            if (r > 0 && ('' + table[r][targetIndex].content).trim().length === 0) {
+                table[r][targetIndex].content = table[r][c].content;
+                table[r][targetIndex].visible = true;
             }
         }
     }
+
+    console.log(table);
+
     return table;
 }
