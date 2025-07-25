@@ -75,6 +75,8 @@ import { GridItemContextmenuComponent } from './shared/modals/grid-item-contextm
 import { DatasetBySampleComponent } from './shared/modals/dataset-by-sample/dataset-by-sample.component';
 import { DatasetModalComponent } from './data-processing/dataset-modal/dataset-modal.component';
 import { MergeColumnsComponent } from './shared/components/merge-columns/merge-columns.component';
+import { ThesauriComponent } from './shared/modals/thesauri/thesauri.component';
+import { ThesaurusComponent } from './shared/modals/thesaurus/thesaurus.component';
 
 
 @NgModule({
@@ -142,6 +144,8 @@ import { MergeColumnsComponent } from './shared/components/merge-columns/merge-c
     DatasetBySampleComponent,
     DatasetModalComponent,
     MergeColumnsComponent,
+    ThesauriComponent,
+    ThesaurusComponent,
   ],
   imports: [
     BrowserModule,

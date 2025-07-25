@@ -8,6 +8,7 @@ import { CardAuthorsDialogComponent } from 'src/app/db-querying/card-dialogs/car
 import { StoreService } from 'src/app/services/common/store.service';
 import { QueryFilter, FILTER_KEY, RESET_FILTER, initQueryFilter } from 'src/app/db-querying/main-db-querying/main-db-querying.component';
 import { UploaderService } from 'src/app/services/rest/uploader.service';
+import { ThesauriComponent } from '../thesauri/thesauri.component';
 
 @Component({
   selector: 'app-file-uploader',
@@ -24,12 +25,15 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
   public dataSetRef = '';
   public authors = '';
   public keywords = '';
+  public thesauri = '';
+  public thKeywords = new Array<string>();
   public uploadedFile = '';
   public selectedFile: any;
   public inProgress = false;
   public year = '';
   public progress = 0;
   public metadata = '';
+  public thesauriKeys = new Array<string>();
 
   constructor(private datasetService: DatasetService, private modalService: NgbModal,
     private storeService: StoreService, private uploaderService: UploaderService) {
@@ -62,7 +66,22 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
       ref.close()
     });
   }
-  
+
+  public thesauriModal(): void {
+    let ref = this.modalService.open(ThesauriComponent, { centered: true });
+    ref.componentInstance.emitter.subscribe((result: any) => {
+      if (result.status === CONFIRM) {
+        console.log(result);
+        let ks = Object.keys(result.selected); 
+        for (let k of ks) {
+          if (k !== 'uuid' && result.selected[k] && result.selected[k].length > 0) {
+            this.thesauri += '\"' + result.selected[k] + '\" ';
+          }
+        }       
+      }
+      ref.close()
+    });
+  }
 
   public cancel(): void {
     console.log(this.authors);
@@ -107,7 +126,7 @@ export class FileUploaderComponent implements OnInit, AfterViewInit {
               authors: this.authors,
               file: this.uploadedFile,
               year: this.year,
-              keywords: this.keywords,
+              keywords: this.keywords + ' ' + this.thesauri,
               metadata: this.metadata
             }
             const r = this.datasetService.insertDataset(payload).subscribe(

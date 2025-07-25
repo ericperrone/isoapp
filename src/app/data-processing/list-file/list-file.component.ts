@@ -115,7 +115,7 @@ export class ListFileComponent implements OnInit {
   }
 
   public uploadFile(): void {
-    let ref = this.modalService.open(FileUploaderComponent, { centered: true, size: 'lg' });
+    let ref = this.modalService.open(FileUploaderComponent, { centered: true, size: 'xl' });
     ref.componentInstance.emitter.subscribe(
       (response: string) => {
         ref.close();

@@ -12,7 +12,8 @@
             <input type="text" class="form-control" id="year" [(ngModel)]="year">
         </div>
     </div>
-    <div class="form-group row">
+
+    <div class="form-group row mt2">
         <div class="col-11">
             <label for="auth">Author(s)</label>
             <input type="text" class="form-control" id="auth" aria-describedby="authhelp" [(ngModel)]="authors"
@@ -24,35 +25,60 @@
                     class="fa-solid fa-user-pen"></i></button>
         </div>
     </div>
-    <div class="form-group">
-        <label for="keywords">Keywords</label>
-        <input type="text" class="form-control" id="keywords" aria-describedby="keywordshelp" [(ngModel)]="keywords">
-        <small id="keywordshelp" class="form-text text-muted">Enter some keyword in order to filter the
-            selection</small>
-    </div>
-    <div class="form-group">
-        <label for="metadata">Dataset metadata: paste metadata in the area or press the button to choose a file <button
-                type="button" class="btn btn-outline-dark" (click)="fireMetaClick()">Choose a metadata
-                file</button></label>
-        <textarea class="form-control mt-1" id="metadata" aria-describerdby="metadatadesc" [(ngModel)]="metadata"></textarea>
-        <input #hiddenmetainput type="file" name="metafile" class="form-control file-upload hidden"
-            (change)="setMetadata($event)">
+
+    <div class="form-group row mt2">
+        <div class="col-12">
+            <label for="keywords">Free keywords</label>
+            <input type="text" class="form-control" id="keywords" aria-describedby="keywordshelp" [(ngModel)]="keywords"
+                placeholder="Enter some free keyword for the dataset">
+        </div>
     </div>
 
-    <form #uploader id="uploader" action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
-        target="hidden-frame">
-        <div class="mt-2 w95 centered">
-            <div class="inline-block">Press the button to get the dataset file: </div>
-            <div class="float-right">
-                <button type="button" class="btn btn-outline-dark" (click)="fireClick()">Choose a file</button>
-                <input #hiddeninput type="file" name="file" class="form-control file-upload hidden"
-                    (change)="setFile($event)">
-            </div>
-            <div class="w95 centered text-center mt-3 filename">
-                {{ uploadedFile }}
-            </div>
+    <div class="form-group row mt2">
+        <div class="col-12">
+            <label for="thesauri">Keywords by thesauri</label>
+            <input type="text" class="form-control" id="keywords" aria-describedby="keywordshelp" [(ngModel)]="thesauri" [disabled]="true">
         </div>
-    </form>
+        <div class="col-12" style="text-align: right;">
+            <button type="button" class="btn btn-outline-dark" (click)="thesauriModal()">Open thesauri modal</button>
+        </div>
+    </div>
+
+    <div class="form-group row mt2">
+        <div class="col-8">
+            <label for="metadata">Dataset metadata: paste metadata in the area or press the button to choose a
+                file</label>
+        </div>
+        <div class="col-4" style="text-align: right">
+            <button type="button" class="btn btn-outline-dark" (click)="fireMetaClick()">Choose a metadata file</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <textarea class="form-control mt-1" id="metadata" aria-describerdby="metadatadesc" [(ngModel)]="metadata"
+                placeholder="Paste metadata here."></textarea>
+            <input #hiddenmetainput type="file" name="metafile" class="form-control file-upload hidden"
+                (change)="setMetadata($event)">
+        </div>
+    </div>
+
+    <div class="form-group row mt2">
+        <form #uploader id="uploader" action="{{ actionUrl + 'upload' }}" method="post" enctype="multipart/form-data"
+            target="hidden-frame">
+            <div class="mt-2 w95 centered">
+                <div class="inline-block">Press the button to get the dataset file: </div>
+                <div class="float-right">
+                    <button type="button" class="btn btn-outline-dark" (click)="fireClick()">Choose a dataset
+                        file</button>
+                    <input #hiddeninput type="file" name="file" class="form-control file-upload hidden"
+                        (change)="setFile($event)">
+                </div>
+                <div class="w95 centered text-center mt-3 filename">
+                    {{ uploadedFile }}
+                </div>
+            </div>
+        </form>
+    </div>
     <iframe name="hidden-frame" style="display: none;"></iframe>
     <div *ngIf="inProgress" class="progress">
         <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar"
