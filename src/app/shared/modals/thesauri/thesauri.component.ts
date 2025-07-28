@@ -48,10 +48,10 @@ export class ThesauriComponent implements OnInit {
         modal.componentInstance.params = { thesaurus: item, data: res };
         modal.componentInstance.emitter.subscribe((result: any) => {
           if (result.status === CONFIRM) {
-             modal.close();
             console.log(result);
             this.emitter.emit(result);
           }
+          modal.close();
         });
         ref.unsubscribe();
       }
