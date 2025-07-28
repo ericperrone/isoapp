@@ -77,6 +77,7 @@ import { DatasetModalComponent } from './data-processing/dataset-modal/dataset-m
 import { MergeColumnsComponent } from './shared/components/merge-columns/merge-columns.component';
 import { ThesauriComponent } from './shared/modals/thesauri/thesauri.component';
 import { ThesaurusComponent } from './shared/modals/thesaurus/thesaurus.component';
+import { TernaryModalComponent } from './geo-modelling/ternary/ternary-modal/ternary-modal.component';
 
 
 @NgModule({
@@ -146,6 +147,7 @@ import { ThesaurusComponent } from './shared/modals/thesaurus/thesaurus.componen
     MergeColumnsComponent,
     ThesauriComponent,
     ThesaurusComponent,
+    TernaryModalComponent,
   ],
   imports: [
     BrowserModule,

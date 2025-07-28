@@ -8,6 +8,8 @@ import { CONFIRM, ModalParams } from 'src/app/shared/modals/modal-params';
 import { ConfirmComponent } from 'src/app/shared/modals/confirm/confirm.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertComponent } from 'src/app/shared/modals/alert/alert.component';
+import { TernaryModalComponent, TernaryOptions, TERNARY_CACHE } from './ternary-modal/ternary-modal.component';
+import { StoreService } from 'src/app/services/common/store.service';
 
 export interface Point2 {
   member?: string;
@@ -46,7 +48,6 @@ export class TernaryComponent implements OnInit {
   @Input('params') params: GeoModel | undefined;
   @HostListener('window:resize', ['$event'])
   handleResize(event: any) {
-    // console.log(event);
     this.chartWidth = Math.floor(window.innerWidth * 0.99);
     this.chartHeight = Math.floor(window.innerHeight * 0.8);
     this.chartSizeChange();
@@ -72,8 +73,10 @@ export class TernaryComponent implements OnInit {
   public abcPoints = new Array<Point3>();
   public fixedRatio = false;
   public conversionTable = new Array<ConversionTable>();
+  private ternaryOptions: TernaryOptions | undefined;
 
   constructor(private geoModelsService: GeoModelsService,
+    private storeService: StoreService,
     private modalService: NgbModal
   ) { }
 
@@ -104,6 +107,18 @@ export class TernaryComponent implements OnInit {
         this.buildElementsList();
       }
     );
+  }
+
+  public options(): void {
+      let ref = this.modalService.open(TernaryModalComponent, { centered: true, backdrop: 'static' });
+      // ref.componentInstance.params = params;
+      ref.componentInstance.emitter.subscribe(
+        (response: TernaryOptions) => {
+          console.log(response);
+          ref.close();
+          this.ternaryOptions = response;
+        }
+      );
   }
 
   public donwloadCsv(): void {
@@ -227,11 +242,6 @@ export class TernaryComponent implements OnInit {
       ref.componentInstance.emitter.subscribe(
         (response: string) => {
           ref.close();
-          // // console.log(response);
-          // if (response.toLowerCase() === CONFIRM)  {
-          //   // this.buildElementsList();
-          //   this.checkElements();
-          // }
         }
       );
     }

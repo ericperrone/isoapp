@@ -10,11 +10,16 @@
             &nbsp;
             <button class="btn btn-outline-dark" type="button" (click)="chartSizeChange()" [disabled]="!changeSize"><i
                     class="fa-solid fa-expand"></i></button>&nbsp;
-            <input type="checkbox" [(ngModel)]="fixedRatio" (ngModelChange)="chartSizeChange()">Fixed ratio (4:3)
+            <input type="checkbox" [(ngModel)]="fixedRatio" (ngModelChange)="chartSizeChange()"> Fixed ratio (4:3)
         </div>
-        <div class="col-5">&nbsp;</div>
-        <div class="col-2 text-right">
-            <button style="margin-right: 3px;" class="btn btn-outline-dark" type="button" (click)="donwloadCsv()"><i
+        <div class="col-4">
+            &nbsp;
+        </div>
+        <div class="col-3 text-right">
+            <button style="margin-right: 3px;" class="btn btn-dark" type="button" (click)="options()">
+                Options
+            </button>
+            <button class="btn btn-outline-dark" type="button" (click)="donwloadCsv()"><i
                     class="fa-solid fa-download"></i></button>
             <button class="btn btn-outline-dark" type="button" (click)="ref ? ref.close() : undefined">
                 <i class="fa-solid fa-xmark"></i>
@@ -72,15 +77,8 @@
                 &nbsp;
             </div>
             <div class="col-3">
-                <select class="form-select aligned ml-1" [(ngModel)]=vertices2[0] (ngModelChange)="checkElements2(0)" [disabled]="operators[0] === 0">
-                    <option *ngFor="let e of elementList">{{ e }}</option>
-                </select>
-            </div>
-            <div class="col-1">
-                &nbsp; 
-            </div>
-            <div class="col-3">
-                <select class="form-select aligned ml-1" [(ngModel)]=vertices2[1] (ngModelChange)="checkElements2(1)" [disabled]="operators[1] === 0">
+                <select class="form-select aligned ml-1" [(ngModel)]=vertices2[0] (ngModelChange)="checkElements2(0)"
+                    [disabled]="operators[0] === 0">
                     <option *ngFor="let e of elementList">{{ e }}</option>
                 </select>
             </div>
@@ -88,7 +86,17 @@
                 &nbsp;
             </div>
             <div class="col-3">
-                <select class="form-select aligned ml-1" [(ngModel)]=vertices2[2] (ngModelChange)="checkElements2(2)" [disabled]="operators[2] === 0">
+                <select class="form-select aligned ml-1" [(ngModel)]=vertices2[1] (ngModelChange)="checkElements2(1)"
+                    [disabled]="operators[1] === 0">
+                    <option *ngFor="let e of elementList">{{ e }}</option>
+                </select>
+            </div>
+            <div class="col-1">
+                &nbsp;
+            </div>
+            <div class="col-3">
+                <select class="form-select aligned ml-1" [(ngModel)]=vertices2[2] (ngModelChange)="checkElements2(2)"
+                    [disabled]="operators[2] === 0">
                     <option *ngFor="let e of elementList">{{ e }}</option>
                 </select>
             </div>
