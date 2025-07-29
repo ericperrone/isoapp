@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit } from '@angular/core';
 import { ChartShapes } from 'src/app/models/series';
 import { CANCEL, CONFIRM } from 'src/app/shared/modals/modal-params';
 
@@ -23,6 +23,7 @@ export const TERNARY_CACHE = '_TERNARY_CACHE_';
   styleUrls: ['./ternary-modal.component.scss']
 })
 export class TernaryModalComponent implements OnInit {
+  @Input() params: TernaryOptions | undefined;
   public emitter = new EventEmitter<TernaryOptions>();
   public ChartShapes = ChartShapes;
   ternaryData: TernaryData = {
@@ -35,6 +36,9 @@ export class TernaryModalComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    if (this.params && this.params.ternaryData) {
+      this.ternaryData = this.params.ternaryData;
+    }
   }
 
   public close(): void {

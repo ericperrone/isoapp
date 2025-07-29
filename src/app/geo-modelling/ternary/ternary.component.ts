@@ -110,15 +110,19 @@ export class TernaryComponent implements OnInit {
   }
 
   public options(): void {
-      let ref = this.modalService.open(TernaryModalComponent, { centered: true, backdrop: 'static' });
-      // ref.componentInstance.params = params;
-      ref.componentInstance.emitter.subscribe(
-        (response: TernaryOptions) => {
-          console.log(response);
-          ref.close();
+    let ref = this.modalService.open(TernaryModalComponent, { centered: true, backdrop: 'static' });
+    if (this.ternaryOptions)
+      ref.componentInstance.params = this.ternaryOptions;
+    ref.componentInstance.emitter.subscribe(
+      (response: TernaryOptions) => {
+        console.log(response);
+        ref.close();
+        if (response.status === CONFIRM) {
           this.ternaryOptions = response;
+          this.drawChart();
         }
-      );
+      }
+    );
   }
 
   public donwloadCsv(): void {
@@ -454,7 +458,31 @@ export class TernaryComponent implements OnInit {
       data.push({ type: 'line', showInLegent: false, name: '', color: '#cfcfcf', dataPoints: this.grid2Points[i] });
     }
     data.push({ type: 'line', showInLegend: false, name: '', color: '#000000', dataPoints: this.verticesPoints });
-    data.push({ type: 'scatter', showInLegend: false, name: '', dataPoints: this.xyPoints });
+    if (!!this.ternaryOptions && !!this.ternaryOptions.ternaryData) {
+      data.push(
+        {
+          type: 'scatter',
+          showInLegend: false,
+          name: this.ternaryOptions.ternaryData.name && this.ternaryOptions.ternaryData.name.length > 0 ? this.ternaryOptions.ternaryData.name : '',
+          color: this.ternaryOptions.ternaryData.color && this.ternaryOptions.ternaryData.color.length > 0 ? this.ternaryOptions.ternaryData.color : '#000000',
+          markerType: this.ternaryOptions.ternaryData.shape && this.ternaryOptions.ternaryData.shape.length > 0 ? this.ternaryOptions.ternaryData.shape : undefined,
+          dataPoints: this.xyPoints
+        }
+      );
+    } else {
+      data.push({ type: 'scatter', showInLegend: false, name: '', dataPoints: this.xyPoints });
+    }
+
+    let cache = this.getCachedData();
+    if (!!cache) {
+      for (let c of cache) {
+        data.push(c);
+      }
+    }
+
+    if (this.ternaryOptions && true == this.ternaryOptions.ternaryData?.cache) {
+      this.cacheData(data);
+    }
 
     this.chartOptions = {
       animationEnabled: true,
@@ -497,8 +525,24 @@ export class TernaryComponent implements OnInit {
           e.chart.render();
         }
       },
-      data: data
+      data: data // <--------- QUI
     }
   }
 
+  private cacheData(data: Array<any>): void {
+    let cache = this.storeService.get(TERNARY_CACHE);
+    if (!cache) {
+      cache = new Array<any>();
+    }
+    for (let d of data) {
+      if (d.type === 'scatter') {
+        cache.push(d);
+      }
+    }
+    this.storeService.push({ key: TERNARY_CACHE, data: cache });
+  }
+
+  private getCachedData(): Array<any> | undefined {
+    return this.storeService.get(TERNARY_CACHE);
+  }
 }
