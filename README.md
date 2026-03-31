@@ -1,4 +1,4 @@
-The 'Isotope Studio' source code is organized into four Git repositories, available at the following URLs:
+#The 'Isotope Studio' source code is organized into four Git repositories, available at the following URLs:
 
 [1] https://github.com/ericperrone/isotopedb (backend: database management)
 [2] https://github.com/ericperrone/sheetx  (backend: toolset for management of e-sheets) 
