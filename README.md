@@ -1,9 +1,13 @@
-#The 'Isotope Studio' source code is organized into four Git repositories, available at the following URLs:
+The 'Isotope Studio' source code is organized into four Git repositories, available at the following URLs:
 
 [1] https://github.com/ericperrone/isotopedb (backend: database management)
+
 [2] https://github.com/ericperrone/sheetx  (backend: toolset for management of e-sheets) 
+
 [3] https://github.com/ericperrone/isotopews (backend: REST API)
+
 [4] https://github.com/ericperrone/isoapp (frontend)
+
 
 The first three repositories contain the application backend, while the last one is for the frontend. To build the application, the backend and frontend must be built separately.
 
