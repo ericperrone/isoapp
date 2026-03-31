@@ -1,27 +1,24 @@
-# Isoapp
+The 'Isotope Studio' source code is organized into four Git repositories, available at the following URLs:
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.0.2.
+[1] https://github.com/ericperrone/isotopedb (backend: database management)
+[2] https://github.com/ericperrone/sheetx  (backend: toolset for management of e-sheets) 
+[3] https://github.com/ericperrone/isotopews (backend: REST API)
+[4] https://github.com/ericperrone/isoapp (frontend)
 
-## Development server
+The first three repositories contain the application backend, while the last one is for the frontend. To build the application, the backend and frontend must be built separately.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Prerequisites (Backend):
+- JRE: Java SE Runtime Environment (v11 compatible)
+- Build Tool: Maven 3.9.*
 
-## Code scaffolding
+Backend build instructions: 
+Clone the three backend-related repositories. Run the 'mvn install' command sequentially on isotopedb, sheetx, and isotopews.
+Finally, the 'target' sub-folder of isotopews will contain the backend WAR file.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Prerequisites (Frontend)
+- Angular CLI: 14.2.13
+- Package Manager: npm 11.7.0 
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Frontend build instructions:
+Clone the isoapp repository, run npm install (first-time only), then ng build --base-href="./". 
+Upon completion, the 'dist' sub-folder will contain the frontend code, appropriately minified and obfuscated.
