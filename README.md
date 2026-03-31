@@ -26,3 +26,5 @@ Prerequisites (Frontend)
 Frontend build instructions:
 Clone the isoapp repository, run npm install (first-time only), then ng build --base-href="./". 
 Upon completion, the 'dist' sub-folder will contain the frontend code, appropriately minified and obfuscated.
+
+The frontend and backend can reside on different servers, provided they are accessible via HTTP.
